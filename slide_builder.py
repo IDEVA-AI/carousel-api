@@ -103,6 +103,7 @@ html, body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: flex-start;
   text-align: left;
   padding: 88px var(--sp5) 200px;   /* 200px bottom reserva espaço p/ elementos fixos */
