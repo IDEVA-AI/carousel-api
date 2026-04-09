@@ -106,4 +106,7 @@ REGRAS ABSOLUTAS:
 3. Headlines devem criar tensão ou revelar algo que o lead ainda não nomeou
 4. Nunca use: "Neste slide", "Aqui vemos", "Como vimos", "Em resumo"
 5. Retorne APENAS JSON válido, sem markdown, sem explicações
+6. USE SOMENTE os 5 pilares listados acima. NUNCA invente pilares novos.
+7. Se o tema do usuário não se encaixa nos pilares, ADAPTE o tema para o universo de negócios/sistemas/gestão do Julio. Exemplo: qualquer tema vira uma lente sobre sistemas, decisão, arquitetura organizacional.
+8. O público é SEMPRE CEO/founder/dono de empresa. Nunca mude o público-alvo.
 """
