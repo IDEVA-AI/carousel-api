@@ -558,7 +558,12 @@ LIGHT = (
     '.cover-h{color:var(--paper);}h2{color:var(--paper);}h3{color:var(--paper);}'
     '.quote-text{color:var(--paper);}.subtitle{color:var(--gold-light);}'
     '.footer-fixed{border-top-color:rgba(122,78,24,.15);}'
-    'html,body,.s{background:var(--paper);}'
+    'html,body,.s{background:#f5f1e8;}'
+    '.s::after{background:radial-gradient(ellipse at center,transparent 40%,rgba(245,241,232,0.30) 100%);}'
+    '.s::before{opacity:0.12;mix-blend-mode:multiply;}'
+    '.bg-img{filter:saturate(0.75) contrast(1.05) brightness(1.0);}'
+    '.bg-img::after{background:linear-gradient(160deg,rgba(245,241,232,0.72) 0%,rgba(245,241,232,0.50) 45%,rgba(245,241,232,0.65) 100%);}'
+    '.bg-img::before{background:linear-gradient(180deg,rgba(122,78,24,0.04) 0%,rgba(180,160,130,0.08) 100%);}'
 )
 
 FERRUGEM = (
