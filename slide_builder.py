@@ -819,10 +819,140 @@ def slide_cta(data: dict, imagem_url: str | None = None, avatar_url: str | None 
 </div>""", theme=theme)
 
 
+# ─── COVER FOTO ──────────────────────────────────────────────────────────────
+# Layout premium: foto pessoal à direita, shape dourado, texto à esquerda
+
+def slide_cover_foto(data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = 'dark') -> str:
+    headline = data.get("headline", "").replace("\n", "<br>")
+    subtitle = data.get("subtitle", "")
+    eyebrow  = data.get("eyebrow", "")
+    cta_text = data.get("cta_text", "")
+    foto_url = data.get("foto_url", "")
+    index, total = data.get("index", 1), data.get("total", 7)
+
+    cta_html = f"""
+    <div style="margin-top:48px;">
+      <div style="display:inline-flex;align-items:center;gap:12px;padding:18px 32px;
+        border:1px solid rgba(244,240,232,0.25);border-radius:40px;
+        font-family:'DM Sans',sans-serif;font-size:28px;color:var(--paper);
+        letter-spacing:0.02em;">
+        {cta_text} <span style="font-size:24px;">→</span>
+      </div>
+    </div>""" if cta_text else ""
+
+    # Shape dourado decorativo atrás da foto
+    gold_shape = """
+    <div style="position:absolute;right:120px;top:80px;bottom:200px;width:320px;
+      background:linear-gradient(180deg,var(--gold) 0%,rgba(184,135,58,0.4) 100%);
+      z-index:1;transform:skewX(-4deg);"></div>"""
+
+    foto_html = f"""
+    <div style="position:absolute;right:0;bottom:0;width:580px;height:100%;z-index:2;
+      display:flex;align-items:flex-end;justify-content:center;overflow:hidden;">
+      <img src="{foto_url}" alt="" style="height:92%;width:auto;object-fit:cover;
+        object-position:center top;filter:brightness(0.95);">
+    </div>""" if foto_url else ""
+
+    return _html(f"""<div class="s" style="background:var(--ink);">
+  <div class="top-bar"></div>
+  {gold_shape}
+  {foto_html}
+  <div class="si" style="position:relative;z-index:3;">
+    <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;
+      color:var(--paper);letter-spacing:0.08em;">JULIO<span style="color:var(--gold);">CARVALHO</span></div>
+    <div class="sp" style="flex:0.6"></div>
+    <div style="max-width:520px;">
+      <div style="font-family:'DM Sans',sans-serif;font-size:36px;font-weight:300;
+        color:rgba(244,240,232,0.75);line-height:1.45;letter-spacing:-0.01em;">{subtitle}</div>
+      <div style="margin-top:24px;font-family:'Fraunces',serif;font-size:96px;font-weight:900;
+        line-height:0.92;letter-spacing:-0.04em;color:var(--paper);">{headline}</div>
+      {cta_html}
+    </div>
+    <div class="sp"></div>
+  </div>
+  {_footer(index, total, is_last=False)}
+</div>""", theme=theme)
+
+
+# ─── HOOK FOTO ───────────────────────────────────────────────────────────────
+# Layout premium: foto à esquerda menor, texto à direita com bullet points
+
+def slide_hook_foto(data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = 'dark') -> str:
+    headline = data.get("headline", "").replace("\n", "<br>")
+    subtitle = data.get("subtitle", "")
+    pontos_nao = data.get("pontos_nao", [])
+    ponto_sim  = data.get("ponto_sim", "")
+    foto_url   = data.get("foto_url", "")
+    index, total = data.get("index", 2), data.get("total", 7)
+
+    # Pontos negativos (X vermelho)
+    pontos_html = ""
+    for p in pontos_nao:
+        pontos_html += f"""
+      <div style="display:flex;align-items:center;gap:20px;margin-top:20px;">
+        <div style="width:40px;height:40px;border-radius:8px;background:rgba(220,60,60,0.85);
+          display:flex;align-items:center;justify-content:center;flex-shrink:0;
+          font-family:'DM Sans',sans-serif;font-size:22px;font-weight:600;color:white;">✕</div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:34px;font-weight:400;
+          color:rgba(244,240,232,0.85);line-height:1.3;">{p}</div>
+      </div>"""
+
+    # Ponto positivo (check verde) com destaque
+    sim_html = ""
+    if ponto_sim:
+        sim_html = f"""
+      <div style="display:flex;align-items:center;gap:20px;margin-top:36px;
+        padding:24px 28px;background:rgba(244,240,232,0.08);
+        border:1px solid rgba(244,240,232,0.12);border-radius:12px;">
+        <div style="width:44px;height:44px;border-radius:50%;
+          background:linear-gradient(135deg,#2ecc71,#27ae60);
+          display:flex;align-items:center;justify-content:center;flex-shrink:0;
+          font-size:24px;color:white;">✓</div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:34px;font-weight:600;
+          color:var(--paper);line-height:1.3;">{ponto_sim}</div>
+      </div>"""
+
+    # Shape dourado + foto
+    gold_shape = """
+    <div style="position:absolute;left:80px;top:120px;bottom:240px;width:260px;
+      background:linear-gradient(180deg,var(--gold) 0%,rgba(184,135,58,0.3) 100%);
+      z-index:1;transform:skewX(-4deg);"></div>"""
+
+    foto_html = f"""
+    <div style="position:absolute;left:0;bottom:0;width:480px;height:100%;z-index:2;
+      display:flex;align-items:flex-end;justify-content:center;overflow:hidden;">
+      <img src="{foto_url}" alt="" style="height:88%;width:auto;object-fit:cover;
+        object-position:center top;filter:brightness(0.95);">
+    </div>""" if foto_url else ""
+
+    return _html(f"""<div class="s" style="background:var(--ink);">
+  <div class="top-bar"></div>
+  {gold_shape}
+  {foto_html}
+  <div class="si" style="position:relative;z-index:3;">
+    <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;
+      color:var(--paper);letter-spacing:0.08em;text-align:right;">JULIO<span style="color:var(--gold);">CARVALHO</span></div>
+    <div class="sp" style="flex:0.3"></div>
+    <div style="margin-left:auto;max-width:560px;">
+      <div style="font-family:'DM Sans',sans-serif;font-size:32px;font-weight:300;
+        color:rgba(244,240,232,0.70);line-height:1.45;">{subtitle}</div>
+      <div style="margin-top:16px;font-family:'Fraunces',serif;font-size:72px;font-weight:900;
+        line-height:0.95;letter-spacing:-0.035em;color:var(--paper);">{headline}</div>
+      <div style="margin-top:32px;">{pontos_html}</div>
+      {sim_html}
+    </div>
+    <div class="sp"></div>
+  </div>
+  {_footer(index, total, is_last=False)}
+</div>""", theme=theme)
+
+
 # ─── DISPATCHER ───────────────────────────────────────────────────────────────
 SLIDE_BUILDERS = {
     "cover":       slide_cover,
+    "cover_foto":  slide_cover_foto,
     "hook":        slide_hook,
+    "hook_foto":   slide_hook_foto,
     "corpo":       slide_corpo,
     "dado":        slide_dado,
     "quote":       slide_quote,
