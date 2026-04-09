@@ -593,6 +593,16 @@ def _footer(index: int, total: int, avatar_url: str | None = None, show_sig: boo
 </div>{_right_bar() if not is_last else ""}{_swipe_cue() if not is_last else ""}"""
 
 
+def _slide_bg_class(imagem_url: str | None) -> str:
+    """Retorna class do slide: bg-grid quando sem imagem, vazio quando tem."""
+    return "" if imagem_url else " bg-grid"
+
+def _slide_bg_html(imagem_url: str | None) -> str:
+    """Retorna HTML do background image para slides do meio (com overlay)."""
+    if not imagem_url:
+        return ""
+    return f'<div class="bg-img" style="background-image:url(\'{imagem_url}\')"></div>'
+
 def _dark_bg(imagem_url: str | None, theme: str = 'dark') -> str:
     """Fundo do slide — imagem ou fallback gradient temático."""
     if imagem_url:
@@ -651,8 +661,12 @@ def slide_hook(data: dict, imagem_url: str | None = None, avatar_url: str | None
       <div class="destaque-block">{destaque}</div>
     </div>""" if destaque else ""
 
-    return _html(f"""<div class="s bg-grid">
+    bg_cls = _slide_bg_class(imagem_url)
+    bg_html = _slide_bg_html(imagem_url)
+
+    return _html(f"""<div class="s{bg_cls}">
   <div class="top-bar"></div>
+  {bg_html}
   <div class="si">
     <div class="sp" style="flex:0.5"></div>
     <h2>{headline}</h2>
@@ -698,8 +712,12 @@ def slide_dado(data: dict, imagem_url: str | None = None, avatar_url: str | None
     body_txt = data.get("body", "").replace("\n", "<br>")
     index, total = data.get("index", 4), data.get("total", 7)
 
-    return _html(f"""<div class="s bg-grid">
+    bg_cls = _slide_bg_class(imagem_url)
+    bg_html = _slide_bg_html(imagem_url)
+
+    return _html(f"""<div class="s{bg_cls}">
   <div class="top-bar"></div>
+  {bg_html}
   <div class="si center">
     <div class="sp" style="flex:0.6"></div>
     <div class="dado-numero">{numero}</div>
@@ -742,8 +760,12 @@ def slide_versus(data: dict, imagem_url: str | None = None, avatar_url: str | No
 
     body_html = f'<div style="margin-top:var(--sp3);" class="body-l">{body_txt}</div>' if body_txt else ""
 
-    return _html(f"""<div class="s bg-grid">
+    bg_cls = _slide_bg_class(imagem_url)
+    bg_html = _slide_bg_html(imagem_url)
+
+    return _html(f"""<div class="s{bg_cls}">
   <div class="top-bar"></div>
+  {bg_html}
   <div class="si">
     <div class="sp" style="flex:0.3"></div>
     <div class="versus-wrap">
@@ -970,5 +992,11 @@ def build_slide(slide_data: dict, imagem_url: str | None = None, avatar_url: str
 
 def build_all_slides(carrossel: dict, avatar_url: str | None = None, theme: str = "dark") -> list[str]:
     imagem_url  = carrossel.get("imagem_url")
+    slices      = carrossel.get("imagem_slices")
     slides_data = carrossel.get("slides", [])
-    return [build_slide(s, imagem_url=imagem_url, avatar_url=avatar_url, theme=theme) for s in slides_data]
+    result = []
+    for i, s in enumerate(slides_data):
+        # Usa fatia panorâmica se disponível, senão imagem única
+        img = slices[i] if slices and i < len(slices) else imagem_url
+        result.append(build_slide(s, imagem_url=img, avatar_url=avatar_url, theme=theme))
+    return result

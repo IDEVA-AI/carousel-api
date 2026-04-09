@@ -181,6 +181,78 @@ def gerar_copy(tema: str, num_slides: int = 7, pilar: str = "auto") -> dict:
     else:
         return _gerar_via_api(prompt_completo)
 
+# ─── PANORÂMICA: IMAGEM CONTÍNUA FATIADA ─────────────────────────────────────
+def buscar_panoramica_unsplash(query: str, num_slides: int = 7) -> list[str] | None:
+    """Busca imagem landscape no Unsplash, redimensiona e fatia em N pedaços."""
+    key = os.environ.get("UNSPLASH_ACCESS_KEY", "")
+    if not key:
+        return None
+    try:
+        r = httpx.get(
+            "https://api.unsplash.com/search/photos",
+            params={"query": query, "per_page": 5, "orientation": "landscape"},
+            headers={"Authorization": f"Client-ID {key}"},
+            timeout=10,
+        )
+        r.raise_for_status()
+        results = r.json().get("results", [])
+        if not results:
+            return None
+        # Pega a maior resolução disponível
+        url = results[0]["urls"].get("raw", results[0]["urls"]["regular"])
+        # Pedir dimensão específica via Unsplash API (largura total do panorama)
+        total_w = 1080 * num_slides
+        url = f"{url}&w={total_w}&h=1440&fit=crop&crop=center"
+    except Exception as e:
+        print(f"[Panorama] Erro na busca: {e}")
+        return None
+
+    try:
+        from PIL import Image
+        import io as _io
+
+        img_r = httpx.get(url, timeout=30, follow_redirects=True)
+        img_r.raise_for_status()
+        img = Image.open(_io.BytesIO(img_r.content))
+
+        # Redimensionar pra cobrir total_w × 1440
+        target_w = 1080 * num_slides
+        target_h = 1440
+        # Calcular crop proporcional
+        img_ratio = img.width / img.height
+        target_ratio = target_w / target_h
+        if img_ratio > target_ratio:
+            # Imagem mais larga — crop horizontal
+            new_h = img.height
+            new_w = int(new_h * target_ratio)
+            left = (img.width - new_w) // 2
+            img = img.crop((left, 0, left + new_w, new_h))
+        else:
+            # Imagem mais alta — crop vertical
+            new_w = img.width
+            new_h = int(new_w / target_ratio)
+            top = (img.height - new_h) // 2
+            img = img.crop((0, top, new_w, top + new_h))
+
+        img = img.resize((target_w, target_h), Image.LANCZOS)
+
+        # Fatiar em N pedaços
+        slices = []
+        for i in range(num_slides):
+            x = i * 1080
+            slide_img = img.crop((x, 0, x + 1080, 1440))
+            buf = _io.BytesIO()
+            slide_img.save(buf, format="JPEG", quality=85)
+            b64 = base64.b64encode(buf.getvalue()).decode()
+            slices.append(f"data:image/jpeg;base64,{b64}")
+
+        print(f"[Panorama] OK — {num_slides} fatias de {img.width}x{img.height}")
+        return slices
+    except Exception as e:
+        print(f"[Panorama] Erro ao processar: {e}")
+        return None
+
+
 # ─── BUSCA DE IMAGEM (UNSPLASH) — com embed base64 ───────────────────────────
 def buscar_imagem_unsplash(query: str) -> str | None:
     key = os.environ.get("UNSPLASH_ACCESS_KEY", "")
@@ -217,8 +289,17 @@ def buscar_imagem_unsplash(query: str) -> str | None:
 # ─── PIPELINE COMPLETO ────────────────────────────────────────────────────────
 def gerar_carrossel_completo(tema: str, num_slides: int = 7, pilar: str = "auto") -> dict:
     dados = gerar_copy(tema, num_slides, pilar)
-    imagem_url = buscar_imagem_unsplash(dados.get("unsplash_query", tema))
-    if imagem_url:
-        print(f"[Unsplash] OK ({imagem_url[:60]}...)")
-    dados["imagem_url"] = imagem_url
+    query = dados.get("unsplash_query", tema)
+
+    # Tentar panorâmica primeiro (imagem contínua entre slides)
+    slices = buscar_panoramica_unsplash(query, num_slides)
+    if slices:
+        dados["imagem_slices"] = slices
+        dados["imagem_url"] = slices[0]  # fallback pra compatibilidade
+    else:
+        # Fallback: imagem única
+        imagem_url = buscar_imagem_unsplash(query)
+        if imagem_url:
+            print(f"[Unsplash] OK ({imagem_url[:60]}...)")
+        dados["imagem_url"] = imagem_url
     return dados
