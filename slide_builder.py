@@ -1044,23 +1044,41 @@ def _misto_theme(tipo: str, index: int) -> str:
     return "light" if index % 2 == 0 else "dark"
 
 
-def _get_visuals(tipo: str, index: int, total: int, theme: str, visual: str, continuity_in: str = "", continuity_out: str = "") -> str:
+def _get_visuals(tipo: str, index: int, total: int, theme: str, visual: str, slide_data: dict | None = None, continuity_in: str = "", continuity_out: str = "") -> str:
     """Retorna HTML dos visuais SVG para um slide, ou vazio."""
-    if visual != "editorial":
-        return ""
-    from visuals import cover_visuals, hook_visuals, corpo_visuals, dado_visuals, cta_visuals
-    vis_map = {
-        "cover": lambda: cover_visuals(theme),
-        "hook": lambda: hook_visuals(index, theme),
-        "corpo": lambda: corpo_visuals(index, theme),
-        "dado": lambda: dado_visuals(theme),
-        "quote": lambda: "",
-        "versus": lambda: hook_visuals(index, theme),
-        "diagnostico": lambda: corpo_visuals(index, theme),
-        "cta": lambda: cta_visuals(theme),
-    }
-    fn = vis_map.get(tipo, lambda: "")
-    return continuity_in + fn() + continuity_out
+    if visual == "editorial":
+        from visuals import cover_visuals, hook_visuals, corpo_visuals, dado_visuals, cta_visuals
+        vis_map = {
+            "cover": lambda: cover_visuals(theme),
+            "hook": lambda: hook_visuals(index, theme),
+            "corpo": lambda: corpo_visuals(index, theme),
+            "dado": lambda: dado_visuals(theme),
+            "quote": lambda: "",
+            "versus": lambda: hook_visuals(index, theme),
+            "diagnostico": lambda: corpo_visuals(index, theme),
+            "cta": lambda: cta_visuals(theme),
+        }
+        fn = vis_map.get(tipo, lambda: "")
+        return continuity_in + fn() + continuity_out
+
+    if visual == "esquema":
+        from esquemas import (esquema_cover, esquema_hook, esquema_corpo,
+                              esquema_dado, esquema_versus, esquema_diagnostico, esquema_cta)
+        d = slide_data or {}
+        esq_map = {
+            "cover": lambda: esquema_cover(d, theme),
+            "hook": lambda: esquema_hook(d, theme),
+            "corpo": lambda: esquema_corpo(d, theme),
+            "dado": lambda: esquema_dado(d, theme),
+            "quote": lambda: "",
+            "versus": lambda: esquema_versus(d, theme),
+            "diagnostico": lambda: esquema_diagnostico(d, theme),
+            "cta": lambda: esquema_cta(d, theme),
+        }
+        fn = esq_map.get(tipo, lambda: "")
+        return continuity_in + fn() + continuity_out
+
+    return ""
 
 
 def build_all_slides(carrossel: dict, avatar_url: str | None = None, theme: str = "dark", visual: str = "none") -> list[str]:
@@ -1090,6 +1108,6 @@ def build_all_slides(carrossel: dict, avatar_url: str | None = None, theme: str 
         cont_in = continuity_pairs[i - 1][1] if i > 0 and continuity_pairs else ""
         cont_out = continuity_pairs[i][0] if i < len(continuity_pairs) else ""
 
-        vis = _get_visuals(tipo, index, total, slide_theme, visual, cont_in, cont_out)
+        vis = _get_visuals(tipo, index, total, slide_theme, visual, slide_data=s, continuity_in=cont_in, continuity_out=cont_out)
         result.append(build_slide(s, imagem_url=imagem_url, avatar_url=avatar_url, theme=slide_theme, visuals_html=vis))
     return result
