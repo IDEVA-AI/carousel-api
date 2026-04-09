@@ -200,6 +200,20 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
           </select>
         </div>
         <div class="field">
+          <label>Estilo visual</label>
+          <div class="estilo-row" id="estiloRow">
+            <button type="button" class="estilo-btn active" data-estilo="dark">
+              <span class="estilo-sw dark-sw"></span>Dark
+            </button>
+            <button type="button" class="estilo-btn" data-estilo="light">
+              <span class="estilo-sw light-sw"></span>Light
+            </button>
+            <button type="button" class="estilo-btn" data-estilo="ferrugem">
+              <span class="estilo-sw ferrugem-sw"></span>Ferrugem
+            </button>
+          </div>
+        </div>
+        <div class="field">
           <label>Número de slides</label>
           <div class="slider-row">
             <input type="range" id="numSlides" min="5" max="10" value="7" oninput="document.getElementById('slidesVal').textContent=this.value">

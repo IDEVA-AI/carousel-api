@@ -148,8 +148,7 @@ def listar_historico():
             thumb = None
             slide1 = hist_dir / "slide_1.png"
             if slide1.exists():
-                b64 = base64.b64encode(slide1.read_bytes()).decode()
-                thumb = f"data:image/png;base64,{b64}"
+                thumb = f"/historico/{meta['id']}/thumb"
             itens.append({
                 "id":           meta["id"],
                 "titulo":       meta.get("titulo", ""),
@@ -181,6 +180,19 @@ def get_historico(carousel_id: str):
         i += 1
 
     return {**meta, "previews": previews}
+
+@app.get("/historico/{carousel_id}/thumb")
+def get_thumb(carousel_id: str):
+    """Retorna o slide_1.png como imagem para thumbnail."""
+    hist_dir = HISTORICO_DIR / carousel_id
+    slide1 = hist_dir / "slide_1.png"
+    if not slide1.exists():
+        raise HTTPException(status_code=404, detail="Thumbnail não encontrada")
+    return StreamingResponse(
+        io.BytesIO(slide1.read_bytes()),
+        media_type="image/png",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
 
 @app.delete("/historico/{carousel_id}")
 def deletar_historico(carousel_id: str):
