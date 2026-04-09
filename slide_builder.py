@@ -601,9 +601,13 @@ THEME_CSS = {
 # ─── HELPERS ──────────────────────────────────────────────────────────────────
 _FONT_LINK = '<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">'
 
-def _html(body: str, theme: str = 'dark') -> str:
+def _html(body: str, theme: str = 'dark', visuals_html: str = '') -> str:
     theme_override = THEME_CSS.get(theme, '')
-    return f"""<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">{_FONT_LINK}<style>{BASE_CSS}{theme_override}</style></head><body>{body}</body></html>"""
+    visuals_css = ''
+    if visuals_html:
+        from visuals import VISUALS_CSS
+        visuals_css = VISUALS_CSS
+    return f"""<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">{_FONT_LINK}<style>{BASE_CSS}{visuals_css}{theme_override}</style></head><body>{body}</body></html>"""
 
 
 def _footer(index: int, total: int, avatar_url: str | None = None, show_sig: bool = False, is_last: bool = False) -> str:
@@ -1016,10 +1020,16 @@ SLIDE_BUILDERS = {
 }
 
 
-def build_slide(slide_data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = "dark") -> str:
+def build_slide(slide_data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = "dark", visuals_html: str = "") -> str:
     tipo = slide_data.get("tipo", "corpo")
     fn   = SLIDE_BUILDERS.get(tipo, slide_corpo)
-    return fn(slide_data, imagem_url=imagem_url, avatar_url=avatar_url, theme=theme)
+    html = fn(slide_data, imagem_url=imagem_url, avatar_url=avatar_url, theme=theme)
+    if visuals_html:
+        # Injetar visuais SVG dentro do <div class="s"> e o CSS
+        from visuals import VISUALS_CSS
+        html = html.replace('</style>', VISUALS_CSS + '</style>', 1)
+        html = html.replace('<div class="top-bar">', visuals_html + '<div class="top-bar">', 1)
+    return html
 
 
 def _misto_theme(tipo: str, index: int) -> str:
@@ -1034,7 +1044,26 @@ def _misto_theme(tipo: str, index: int) -> str:
     return "light" if index % 2 == 0 else "dark"
 
 
-def build_all_slides(carrossel: dict, avatar_url: str | None = None, theme: str = "dark") -> list[str]:
+def _get_visuals(tipo: str, index: int, theme: str, visual: str) -> str:
+    """Retorna HTML dos visuais SVG para um slide, ou vazio."""
+    if visual != "editorial":
+        return ""
+    from visuals import cover_visuals, hook_visuals, corpo_visuals, dado_visuals, cta_visuals
+    vis_map = {
+        "cover": lambda: cover_visuals(theme),
+        "hook": lambda: hook_visuals(index, theme),
+        "corpo": lambda: corpo_visuals(index, theme),
+        "dado": lambda: dado_visuals(theme),
+        "quote": lambda: "",  # quote é clean, sem visuais
+        "versus": lambda: hook_visuals(index, theme),
+        "diagnostico": lambda: corpo_visuals(index, theme),
+        "cta": lambda: cta_visuals(theme),
+    }
+    fn = vis_map.get(tipo, lambda: "")
+    return fn()
+
+
+def build_all_slides(carrossel: dict, avatar_url: str | None = None, theme: str = "dark", visual: str = "none") -> list[str]:
     imagem_url  = carrossel.get("imagem_url")
     slides_data = carrossel.get("slides", [])
     result = []
@@ -1043,5 +1072,8 @@ def build_all_slides(carrossel: dict, avatar_url: str | None = None, theme: str 
             slide_theme = _misto_theme(s.get("tipo", "corpo"), i)
         else:
             slide_theme = theme
-        result.append(build_slide(s, imagem_url=imagem_url, avatar_url=avatar_url, theme=slide_theme))
+        tipo = s.get("tipo", "corpo")
+        index = s.get("index", i + 1)
+        vis = _get_visuals(tipo, index, slide_theme, visual)
+        result.append(build_slide(s, imagem_url=imagem_url, avatar_url=avatar_url, theme=slide_theme, visuals_html=vis))
     return result

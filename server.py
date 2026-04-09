@@ -57,6 +57,7 @@ class RenderizarRequest(BaseModel):
     avatar_url: str | None = None
     estilo: str = "dark"
     foto_url: str | None = None
+    visual: str = "none"
 
 # ─── ENDPOINTS ────────────────────────────────────────────────────────────────
 @app.get("/health")
@@ -100,7 +101,7 @@ async def renderizar(req: RenderizarRequest):
             for s in carrossel.get("slides", []):
                 if s.get("tipo") in ("cover_foto", "hook_foto"):
                     s["foto_url"] = req.foto_url
-        slides_html = build_all_slides(carrossel, avatar_url=req.avatar_url, theme=req.estilo)
+        slides_html = build_all_slides(carrossel, avatar_url=req.avatar_url, theme=req.estilo, visual=req.visual)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao montar slides: {str(e)}")
 

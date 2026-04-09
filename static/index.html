@@ -222,6 +222,13 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
           </div>
         </div>
         <div class="field">
+          <label>Visual</label>
+          <div class="estilo-row" id="visualRow">
+            <button type="button" class="estilo-btn active" data-visual="none">Limpo</button>
+            <button type="button" class="estilo-btn" data-visual="editorial">Editorial</button>
+          </div>
+        </div>
+        <div class="field">
           <label>Número de slides</label>
           <div class="slider-row">
             <input type="range" id="numSlides" min="5" max="10" value="7" oninput="document.getElementById('slidesVal').textContent=this.value">
@@ -404,6 +411,16 @@ function handleAvatar(input){
   reader.readAsDataURL(file);
 }
 
+// ─── VISUAL SELECTOR ────────────────────────────────────────────────────────
+let selectedVisual = 'none';
+document.getElementById('visualRow').addEventListener('click', (e) => {
+  const btn = e.target.closest('.estilo-btn');
+  if (!btn) return;
+  document.querySelectorAll('#visualRow .estilo-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedVisual = btn.dataset.visual;
+});
+
 // ─── FOTO PESSOAL ───────────────────────────────────────────────────────────
 let fotoDataUrl = null;
 function handleFoto(input){
@@ -564,7 +581,7 @@ async function renderizar(){
   try{
     const res=await fetch('/renderizar',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({carrossel_json:carrosselJson,avatar_url:avatarDataUrl||null,estilo:selectedEstilo,foto_url:fotoDataUrl||null})
+      body:JSON.stringify({carrossel_json:carrosselJson,avatar_url:avatarDataUrl||null,estilo:selectedEstilo,foto_url:fotoDataUrl||null,visual:selectedVisual})
     });
     if(!res.ok){const err=await res.json();throw new Error(err.detail||'Erro ao renderizar');}
     const data=await res.json();
