@@ -291,6 +291,36 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
         </div>
       </div>
 
+      <!-- SELETORES DE ESTILO (no editor, antes de renderizar) -->
+      <div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:32px;">
+        <div style="flex:1;min-width:200px;">
+          <label>Estilo de cor</label>
+          <div class="estilo-row" id="editorEstiloRow">
+            <button type="button" class="estilo-btn active" data-estilo="dark"><span class="estilo-sw dark-sw"></span>Dark</button>
+            <button type="button" class="estilo-btn" data-estilo="light"><span class="estilo-sw light-sw"></span>Light</button>
+            <button type="button" class="estilo-btn" data-estilo="ferrugem"><span class="estilo-sw ferrugem-sw"></span>Ferrugem</button>
+            <button type="button" class="estilo-btn" data-estilo="misto"><span class="estilo-sw misto-sw"></span>Misto</button>
+            <button type="button" class="estilo-btn" data-estilo="tricolor"><span class="estilo-sw tricolor-sw"></span>Tricolor</button>
+          </div>
+        </div>
+        <div style="flex:1;min-width:200px;">
+          <label>Visual</label>
+          <div class="estilo-row" id="editorVisualRow">
+            <button type="button" class="estilo-btn active" data-visual="none">Limpo</button>
+            <button type="button" class="estilo-btn" data-visual="editorial">Editorial</button>
+            <button type="button" class="estilo-btn" data-visual="esquema">Esquema</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PREVIEW DO PRIMEIRO SLIDE -->
+      <div id="previewArea" style="display:none;margin-bottom:32px;text-align:center;">
+        <label style="margin-bottom:12px;">Preview (slide 1)</label>
+        <div style="display:inline-block;border:1px solid var(--border);max-width:320px;">
+          <img id="previewImg" src="" alt="Preview" style="width:100%;display:block;">
+        </div>
+      </div>
+
       <div class="slides-editor" id="slidesEditor"></div>
 
       <div class="loading" id="loadingRender" style="margin-top:32px">
@@ -517,6 +547,8 @@ function mostrarEditor(data){
   document.getElementById('editorSub').textContent=`${data.total_slides} slides · ${data.pilar||''} · revise antes de renderizar`;
   buildEditor(carrosselJson);
   showEl('editorSection');
+  syncEditorSelectors();
+  renderPreview();
   document.getElementById('editorSection').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
@@ -656,6 +688,68 @@ function hideEl(id){document.getElementById(id).classList.remove('on')}
 function showError(id,msg){const el=document.getElementById(id);el.textContent=msg;el.classList.add('on')}
 function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function formatDate(iso){try{const d=new Date(iso);return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'})+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}catch{return iso||''}}
+
+// ─── EDITOR STYLE SELECTORS ─────────────────────────────────────────────────
+// Sync editor selectors with main state and trigger preview
+
+document.getElementById('editorEstiloRow').addEventListener('click', (e) => {
+  const btn = e.target.closest('.estilo-btn');
+  if (!btn) return;
+  document.querySelectorAll('#editorEstiloRow .estilo-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedEstilo = btn.dataset.estilo;
+  // Sync main selector
+  document.querySelectorAll('#estiloRow .estilo-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.estilo === selectedEstilo);
+  });
+  renderPreview();
+});
+
+document.getElementById('editorVisualRow').addEventListener('click', (e) => {
+  const btn = e.target.closest('.estilo-btn');
+  if (!btn) return;
+  document.querySelectorAll('#editorVisualRow .estilo-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedVisual = btn.dataset.visual;
+  // Sync main selector
+  document.querySelectorAll('#visualRow .estilo-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.visual === selectedVisual);
+  });
+  renderPreview();
+});
+
+let previewTimer = null;
+async function renderPreview() {
+  if (!carrosselJson) return;
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(async () => {
+    try {
+      // Renderizar só o primeiro slide como preview
+      const previewJson = {...carrosselJson, slides: [carrosselJson.slides[0]]};
+      const res = await fetch('/renderizar', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({carrossel_json: previewJson, avatar_url: avatarDataUrl||null, estilo: selectedEstilo, visual: selectedVisual})
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.previews && data.previews.length) {
+        const img = document.getElementById('previewImg');
+        img.src = data.previews[0].startsWith('data:') ? data.previews[0] : 'data:image/png;base64,' + data.previews[0];
+        document.getElementById('previewArea').style.display = 'block';
+      }
+    } catch(e) { console.error('Preview error:', e); }
+  }, 300);
+}
+
+// Sync editor selectors when editor opens
+function syncEditorSelectors() {
+  document.querySelectorAll('#editorEstiloRow .estilo-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.estilo === selectedEstilo);
+  });
+  document.querySelectorAll('#editorVisualRow .estilo-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.visual === selectedVisual);
+  });
+}
 
 // Init
 carregarHistorico();
