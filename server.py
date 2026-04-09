@@ -50,6 +50,7 @@ class GerarRequest(BaseModel):
     slides: int = Field(7, ge=5, le=10)
     pilar: str = Field("auto")
     avatar_url: str | None = None
+    estilo: str = Field("dark")
 
 class RenderizarRequest(BaseModel):
     carrossel_json: dict
@@ -75,7 +76,7 @@ async def gerar(req: GerarRequest):
             detail="Claude Code CLI não encontrado e ANTHROPIC_API_KEY não configurada."
         )
     try:
-        carrossel = gerar_carrossel_completo(req.tema, req.slides, req.pilar)
+        carrossel = gerar_carrossel_completo(req.tema, req.slides, req.pilar, estilo=req.estilo)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao gerar copy: {str(e)}")
 

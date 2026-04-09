@@ -287,9 +287,18 @@ def buscar_imagem_unsplash(query: str) -> str | None:
         return url
 
 # ─── PIPELINE COMPLETO ────────────────────────────────────────────────────────
-def gerar_carrossel_completo(tema: str, num_slides: int = 7, pilar: str = "auto") -> dict:
+QUERY_SUFFIX = {
+    "dark":     " dark moody editorial",
+    "light":    " minimal white bright clean",
+    "ferrugem": " warm rust texture industrial",
+}
+
+def gerar_carrossel_completo(tema: str, num_slides: int = 7, pilar: str = "auto", estilo: str = "dark") -> dict:
     dados = gerar_copy(tema, num_slides, pilar)
     query = dados.get("unsplash_query", tema)
+    # Adaptar query ao estilo visual
+    query = query + QUERY_SUFFIX.get(estilo, "")
+    print(f"[Unsplash] Query adaptada ({estilo}): {query}")
 
     # Imagem única (default) — usada no cover e CTA
     imagem_url = buscar_imagem_unsplash(query)
