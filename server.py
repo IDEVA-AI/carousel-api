@@ -16,8 +16,11 @@ from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from dotenv import load_dotenv
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 from generator import gerar_carrossel_completo, CLAUDE_BIN
 from slide_builder import build_all_slides
@@ -63,7 +66,7 @@ def listar_pilares():
 @app.post("/gerar")
 async def gerar(req: GerarRequest):
     """Etapa 1: gera o copy (JSON) sem renderizar."""
-    if not CLAUDE_BIN and not os.environ.get("ANTHROPIC_API_KEY"):
+    if not CLAUDE_BIN and not os.environ.get("CLAUDE_BRIDGE_URL") and not os.environ.get("ANTHROPIC_API_KEY"):
         raise HTTPException(
             status_code=500,
             detail="Claude Code CLI não encontrado e ANTHROPIC_API_KEY não configurada."

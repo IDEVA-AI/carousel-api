@@ -1,0 +1,10 @@
+.venv/
+.env
+.git/
+__pycache__/
+historico/
+_backup_pre_temas/
+*.bak
+.DS_Store
+*.md
+!requirements.txt

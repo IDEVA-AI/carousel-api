@@ -112,6 +112,22 @@ REGRAS:
 - Tom sempre: direto, cirúrgico, fala com o lead
 - Retorne APENAS o JSON, sem markdown, sem explicação"""
 
+# ─── GERAÇÃO VIA CLAUDE BRIDGE (HTTP) ────────────────────────────────────────
+CLAUDE_BRIDGE_URL = os.environ.get("CLAUDE_BRIDGE_URL", "")
+
+def _gerar_via_bridge(prompt_completo: str) -> dict:
+    """Usa o claude-bridge HTTP (servidor) para gerar copy."""
+    r = httpx.post(
+        CLAUDE_BRIDGE_URL,
+        json={"prompt": prompt_completo},
+        timeout=180,
+    )
+    r.raise_for_status()
+    data = r.json()
+    if "error" in data:
+        raise RuntimeError(f"Claude Bridge erro: {data['error']}")
+    return _parse_json_response(data.get("result", ""))
+
 # ─── GERAÇÃO VIA CLAUDE CODE CLI ─────────────────────────────────────────────
 def _gerar_via_cli(prompt_completo: str) -> dict:
     if not CLAUDE_BIN:
@@ -159,6 +175,8 @@ def gerar_copy(tema: str, num_slides: int = 7, pilar: str = "auto") -> dict:
     print(f"[Generator] Tema: '{tema}' | {num_slides} slides")
     if CLAUDE_BIN:
         return _gerar_via_cli(prompt_completo)
+    elif CLAUDE_BRIDGE_URL:
+        return _gerar_via_bridge(prompt_completo)
     else:
         return _gerar_via_api(prompt_completo)
 

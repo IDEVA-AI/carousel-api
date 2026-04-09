@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  app:
+    image: carousel-api:latest
+    environment:
+      - UNSPLASH_ACCESS_KEY=${UNSPLASH_ACCESS_KEY}
+      - CLAUDE_BRIDGE_URL=http://host.docker.internal:3200/generate
+      - PORT=8765
+    volumes:
+      - carousel-historico:/app/historico
+    networks:
+      - network_public
+    deploy:
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.carousel.rule=Host(`carousel.onexos.com.br`)
+        - traefik.http.routers.carousel.entrypoints=web
+        - traefik.http.services.carousel.loadbalancer.server.port=8765
+      resources:
+        limits:
+          memory: 1G
+
+volumes:
+  carousel-historico:
+
+networks:
+  network_public:
+    external: true
