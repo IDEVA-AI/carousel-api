@@ -117,18 +117,16 @@ def _gerar_via_cli(prompt_completo: str) -> dict:
     if not CLAUDE_BIN:
         raise RuntimeError("Claude Code CLI não encontrado.")
     cmd = [
-        CLAUDE_BIN, "--print", "--output-format", "json",
+        CLAUDE_BIN, "--print",
         "--model", "sonnet", "-p", prompt_completo,
     ]
     result = subprocess.run(
-        cmd, capture_output=True, text=True, timeout=90,
+        cmd, capture_output=True, text=True, timeout=120,
         env={**os.environ, "HOME": os.path.expanduser("~")},
     )
     if result.returncode != 0:
         raise RuntimeError(f"Claude CLI erro: {result.stderr[:300]}")
-    outer = json.loads(result.stdout.strip())
-    raw_text = outer.get("result", outer.get("content", result.stdout))
-    return _parse_json_response(raw_text)
+    return _parse_json_response(result.stdout)
 
 def _gerar_via_api(prompt_completo: str) -> dict:
     import anthropic
