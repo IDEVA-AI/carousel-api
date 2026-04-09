@@ -61,6 +61,33 @@ html, body {
   overflow: hidden;
 }
 
+/* ── FILM GRAIN — textura cinematográfica ── */
+.s::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  opacity: 0.28;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 128px 128px;
+  mix-blend-mode: overlay;
+}
+
+/* ── VIGNETTE — escurecimento nas bordas ── */
+.s::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 40%,
+    rgba(14,12,10,0.35) 100%
+  );
+}
+
 /* ── TOP BAR ── */
 .top-bar {
   position: absolute;
@@ -108,15 +135,27 @@ html, body {
   background-size: cover;
   background-position: center;
   z-index: 0;
+  filter: saturate(0.7) contrast(1.1) brightness(0.95);
 }
 .bg-img::after {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(160deg,
-    rgba(14,12,10,0.72) 0%,
-    rgba(14,12,10,0.55) 45%,
-    rgba(14,12,10,0.70) 100%);
+    rgba(14,12,10,0.68) 0%,
+    rgba(14,12,10,0.50) 45%,
+    rgba(14,12,10,0.65) 100%);
+}
+/* Color grading — tint quente nas sombras */
+.bg-img::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    rgba(184,135,58,0.06) 0%,
+    rgba(107,45,31,0.10) 100%);
+  mix-blend-mode: color;
+  z-index: 1;
 }
 .bg-grid {
   background-image:
