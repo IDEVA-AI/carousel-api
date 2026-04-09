@@ -661,12 +661,8 @@ def slide_hook(data: dict, imagem_url: str | None = None, avatar_url: str | None
       <div class="destaque-block">{destaque}</div>
     </div>""" if destaque else ""
 
-    bg_cls = _slide_bg_class(imagem_url)
-    bg_html = _slide_bg_html(imagem_url)
-
-    return _html(f"""<div class="s{bg_cls}">
+    return _html(f"""<div class="s bg-grid">
   <div class="top-bar"></div>
-  {bg_html}
   <div class="si">
     <div class="sp" style="flex:0.5"></div>
     <h2>{headline}</h2>
@@ -712,12 +708,8 @@ def slide_dado(data: dict, imagem_url: str | None = None, avatar_url: str | None
     body_txt = data.get("body", "").replace("\n", "<br>")
     index, total = data.get("index", 4), data.get("total", 7)
 
-    bg_cls = _slide_bg_class(imagem_url)
-    bg_html = _slide_bg_html(imagem_url)
-
-    return _html(f"""<div class="s{bg_cls}">
+    return _html(f"""<div class="s bg-grid">
   <div class="top-bar"></div>
-  {bg_html}
   <div class="si center">
     <div class="sp" style="flex:0.6"></div>
     <div class="dado-numero">{numero}</div>
@@ -760,12 +752,8 @@ def slide_versus(data: dict, imagem_url: str | None = None, avatar_url: str | No
 
     body_html = f'<div style="margin-top:var(--sp3);" class="body-l">{body_txt}</div>' if body_txt else ""
 
-    bg_cls = _slide_bg_class(imagem_url)
-    bg_html = _slide_bg_html(imagem_url)
-
-    return _html(f"""<div class="s{bg_cls}">
+    return _html(f"""<div class="s bg-grid">
   <div class="top-bar"></div>
-  {bg_html}
   <div class="si">
     <div class="sp" style="flex:0.3"></div>
     <div class="versus-wrap">
@@ -992,11 +980,5 @@ def build_slide(slide_data: dict, imagem_url: str | None = None, avatar_url: str
 
 def build_all_slides(carrossel: dict, avatar_url: str | None = None, theme: str = "dark") -> list[str]:
     imagem_url  = carrossel.get("imagem_url")
-    slices      = carrossel.get("imagem_slices")
     slides_data = carrossel.get("slides", [])
-    result = []
-    for i, s in enumerate(slides_data):
-        # Usa fatia panorâmica se disponível, senão imagem única
-        img = slices[i] if slices and i < len(slices) else imagem_url
-        result.append(build_slide(s, imagem_url=img, avatar_url=avatar_url, theme=theme))
-    return result
+    return [build_slide(s, imagem_url=imagem_url, avatar_url=avatar_url, theme=theme) for s in slides_data]

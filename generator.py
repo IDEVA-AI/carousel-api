@@ -291,15 +291,9 @@ def gerar_carrossel_completo(tema: str, num_slides: int = 7, pilar: str = "auto"
     dados = gerar_copy(tema, num_slides, pilar)
     query = dados.get("unsplash_query", tema)
 
-    # Tentar panorâmica primeiro (imagem contínua entre slides)
-    slices = buscar_panoramica_unsplash(query, num_slides)
-    if slices:
-        dados["imagem_slices"] = slices
-        dados["imagem_url"] = slices[0]  # fallback pra compatibilidade
-    else:
-        # Fallback: imagem única
-        imagem_url = buscar_imagem_unsplash(query)
-        if imagem_url:
-            print(f"[Unsplash] OK ({imagem_url[:60]}...)")
-        dados["imagem_url"] = imagem_url
+    # Imagem única (default) — usada no cover e CTA
+    imagem_url = buscar_imagem_unsplash(query)
+    if imagem_url:
+        print(f"[Unsplash] OK ({imagem_url[:60]}...)")
+    dados["imagem_url"] = imagem_url
     return dados
