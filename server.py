@@ -101,6 +101,15 @@ async def renderizar(req: RenderizarRequest):
             for s in carrossel.get("slides", []):
                 if s.get("tipo") in ("cover_foto", "hook_foto"):
                     s["foto_url"] = req.foto_url
+
+        # Visual "esquema": converter tipos pra versões visuais
+        if req.visual == "esquema":
+            visual_map = {"hook": "hook_visual", "dado": "dado_visual", "versus": "versus_visual", "diagnostico": "diagnostico_visual"}
+            for s in carrossel.get("slides", []):
+                original = s.get("tipo", "")
+                if original in visual_map:
+                    s["tipo"] = visual_map[original]
+
         slides_html = build_all_slides(carrossel, avatar_url=req.avatar_url, theme=req.estilo, visual=req.visual)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao montar slides: {str(e)}")

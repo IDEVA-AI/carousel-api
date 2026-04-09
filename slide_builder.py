@@ -1005,17 +1005,319 @@ def slide_hook_foto(data: dict, imagem_url: str | None = None, avatar_url: str |
 </div>""", theme=theme)
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# SLIDES VISUAIS — o diagrama É o conteúdo, texto é mínimo
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+# ─── DIAGNOSTICO VISUAL ──────────────────────────────────────────────────────
+# Flowchart vertical: nós com texto dos itens → diamante conclusão
+
+def slide_diagnostico_visual(data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = 'dark') -> str:
+    headline  = data.get("headline", "")
+    itens     = data.get("itens", [])[:3]
+    conclusao = data.get("conclusao", "")
+    index, total = data.get("index", 6), data.get("total", 7)
+
+    # Cores por tema
+    theme_colors = {
+        "dark":     {"bg": "#0e0c0a", "text": "#f4f0e8", "gold": "#b8873a", "muted": "rgba(244,240,232,0.5)",
+                     "node_bg": "rgba(184,135,58,0.08)", "node_border": "rgba(184,135,58,0.35)",
+                     "arrow": "rgba(184,135,58,0.45)", "concl_bg": "rgba(184,135,58,0.12)"},
+        "light":    {"bg": "#f5f1e8", "text": "#0e0c0a", "gold": "#7a4e18", "muted": "rgba(14,12,10,0.4)",
+                     "node_bg": "rgba(122,78,24,0.06)", "node_border": "rgba(122,78,24,0.25)",
+                     "arrow": "rgba(122,78,24,0.35)", "concl_bg": "rgba(122,78,24,0.10)"},
+        "ferrugem": {"bg": "#1a0a04", "text": "#f5e8d5", "gold": "#c8683a", "muted": "rgba(245,232,213,0.4)",
+                     "node_bg": "rgba(200,104,58,0.08)", "node_border": "rgba(200,104,58,0.30)",
+                     "arrow": "rgba(200,104,58,0.40)", "concl_bg": "rgba(200,104,58,0.12)"},
+    }
+    tc = theme_colors.get(theme, theme_colors["dark"])
+
+    cx = 540  # centro horizontal
+    node_w = 760
+    node_h = 120
+    gap = 60
+    start_y = 340
+    n = len(itens)
+
+    nodes_svg = ""
+    for i, item in enumerate(itens):
+        y = start_y + i * (node_h + gap)
+        x = cx - node_w // 2
+
+        # Nó com texto
+        nodes_svg += f"""
+    <rect x="{x}" y="{y}" width="{node_w}" height="{node_h}" rx="12"
+      fill="{tc['node_bg']}" stroke="{tc['node_border']}" stroke-width="1.5"/>
+    <text x="{x + 28}" y="{y + 42}" font-family="'DM Mono', monospace" font-size="22"
+      fill="{tc['gold']}" letter-spacing="0.12em">{i+1:02d}</text>
+    <text x="{x + 80}" y="{y + node_h//2 + 10}" font-family="'DM Sans', sans-serif" font-size="36"
+      fill="{tc['text']}" font-weight="300" opacity="0.85">{item}</text>"""
+
+        # Seta entre nós
+        if i < n - 1:
+            ay1 = y + node_h
+            ay2 = y + node_h + gap
+            nodes_svg += f"""
+    <line x1="{cx}" y1="{ay1 + 8}" x2="{cx}" y2="{ay2 - 8}"
+      stroke="{tc['arrow']}" stroke-width="1.5"/>
+    <polygon points="{cx-6},{ay2 - 14} {cx+6},{ay2 - 14} {cx},{ay2 - 4}"
+      fill="{tc['arrow']}"/>"""
+
+    # Seta pro diamante
+    last_y = start_y + (n - 1) * (node_h + gap) + node_h
+    diamond_y = last_y + gap + 20
+    diamond_size = 50
+
+    nodes_svg += f"""
+    <line x1="{cx}" y1="{last_y + 8}" x2="{cx}" y2="{diamond_y - diamond_size - 4}"
+      stroke="{tc['arrow']}" stroke-width="1.5"/>
+    <polygon points="{cx-6},{diamond_y - diamond_size - 10} {cx+6},{diamond_y - diamond_size - 10} {cx},{diamond_y - diamond_size}"
+      fill="{tc['arrow']}"/>"""
+
+    # Diamante de conclusão com texto
+    dy = diamond_y
+    ds = diamond_size
+    nodes_svg += f"""
+    <polygon points="{cx},{dy - ds} {cx + ds + 20},{dy} {cx},{dy + ds} {cx - ds - 20},{dy}"
+      fill="{tc['concl_bg']}" stroke="{tc['gold']}" stroke-width="2"/>"""
+
+    # Conclusão como texto abaixo do diamante
+    conclusao_html = f"""
+    <div style="margin-top:24px;text-align:center;max-width:700px;margin-left:auto;margin-right:auto;">
+      <div style="font-family:'Fraunces',serif;font-style:italic;font-size:40px;font-weight:400;
+        color:var(--gold-light);line-height:1.25;letter-spacing:-0.015em;">{conclusao}</div>
+    </div>""" if conclusao else ""
+
+    return _html(f"""<div class="s">
+  <div class="top-bar"></div>
+  <div class="si center">
+    <div style="font-family:'Fraunces',serif;font-size:56px;font-weight:700;color:var(--paper);
+      line-height:1.05;letter-spacing:-0.025em;max-width:860px;">{headline}</div>
+    <div style="margin-top:16px;"><div class="reveal-bar" style="margin:0 auto;"></div></div>
+  </div>
+  <svg style="position:absolute;top:0;left:0;width:1080px;height:1440px;z-index:2;pointer-events:none;"
+    viewBox="0 0 1080 1440" xmlns="http://www.w3.org/2000/svg">
+    {nodes_svg}
+  </svg>
+  <div style="position:absolute;bottom:260px;left:0;right:0;z-index:3;padding:0 96px;">
+    {conclusao_html}
+  </div>
+  {_footer(index, total, avatar_url)}
+</div>""", theme=theme)
+
+
+# ─── DADO VISUAL ─────────────────────────────────────────────────────────────
+# Gauge circular grande com número integrado + label + contexto embaixo
+
+def slide_dado_visual(data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = 'dark') -> str:
+    import math, re
+    numero = data.get("numero", "—")
+    label  = data.get("label", "")
+    body   = data.get("body", "").replace("\n", "<br>")
+    index, total = data.get("index", 4), data.get("total", 7)
+
+    theme_colors = {
+        "dark":     {"gold": "#b8873a", "track": "rgba(184,135,58,0.12)", "accent": "rgba(184,135,58,0.65)"},
+        "light":    {"gold": "#7a4e18", "track": "rgba(122,78,24,0.10)", "accent": "rgba(122,78,24,0.55)"},
+        "ferrugem": {"gold": "#c8683a", "track": "rgba(200,104,58,0.12)", "accent": "rgba(200,104,58,0.60)"},
+    }
+    tc = theme_colors.get(theme, theme_colors["dark"])
+
+    # Parsear percentual
+    m = re.search(r'(\d+(?:[.,]\d+)?)\s*%?', numero)
+    pct = min(100, float(m.group(1).replace(',', '.'))) if m else 50
+
+    cx, cy, r = 540, 560, 280
+    stroke_w = 12
+    angle = (pct / 100) * 270
+    start_angle = 135
+
+    def polar(a, radius):
+        rad = math.radians(a)
+        return cx + radius * math.cos(rad), cy + radius * math.sin(rad)
+
+    # Arco de trilha (fundo)
+    bsx, bsy = polar(start_angle, r)
+    bex, bey = polar(start_angle + 270, r)
+
+    # Arco de valor
+    sx, sy = polar(start_angle, r)
+    ex, ey = polar(start_angle + angle, r)
+    large = 1 if angle > 180 else 0
+
+    # Ticks decorativos a cada 10%
+    ticks = ""
+    for i in range(0, 28):  # 27 ticks = 270/10
+        tick_angle = start_angle + i * 10
+        tx1, ty1 = polar(tick_angle, r + 16)
+        tx2, ty2 = polar(tick_angle, r + 8)
+        op = "0.3" if i % 3 != 0 else "0.6"
+        ticks += f'    <line x1="{tx1:.0f}" y1="{ty1:.0f}" x2="{tx2:.0f}" y2="{ty2:.0f}" stroke="{tc["gold"]}" stroke-width="1" opacity="{op}"/>\n'
+
+    gauge_svg = f"""
+    <!-- Ticks -->
+{ticks}
+    <!-- Trilha -->
+    <path d="M {bsx:.0f} {bsy:.0f} A {r} {r} 0 1 1 {bex:.0f} {bey:.0f}"
+      fill="none" stroke="{tc['track']}" stroke-width="{stroke_w}" stroke-linecap="round"/>
+    <!-- Valor -->
+    <path d="M {sx:.0f} {sy:.0f} A {r} {r} 0 {large} 1 {ex:.0f} {ey:.0f}"
+      fill="none" stroke="{tc['gold']}" stroke-width="{stroke_w}" stroke-linecap="round"/>
+    <!-- Ponto final -->
+    <circle cx="{ex:.0f}" cy="{ey:.0f}" r="10" fill="{tc['gold']}"/>
+    <circle cx="{ex:.0f}" cy="{ey:.0f}" r="5" fill="var(--ink)"/>"""
+
+    return _html(f"""<div class="s">
+  <div class="top-bar"></div>
+  <svg style="position:absolute;top:0;left:0;width:1080px;height:1440px;z-index:1;pointer-events:none;"
+    viewBox="0 0 1080 1440" xmlns="http://www.w3.org/2000/svg">
+    {gauge_svg}
+  </svg>
+  <div class="si center" style="z-index:3;">
+    <div class="sp" style="flex:0.25"></div>
+    <div style="font-family:'Fraunces',serif;font-size:180px;font-weight:900;line-height:0.85;
+      letter-spacing:-0.05em;color:var(--gold);">{numero}</div>
+    <div style="margin-top:16px;font-family:'DM Mono',monospace;font-size:22px;letter-spacing:0.20em;
+      text-transform:uppercase;color:var(--gold);opacity:0.7;">{label}</div>
+    <div class="sp" style="flex:0.4"></div>
+    <div style="width:56px;height:3px;background:var(--gold);"></div>
+    <div style="margin-top:24px;" class="body-l" style="text-align:center;max-width:700px;">{body}</div>
+    <div class="sp" style="flex:0.3"></div>
+  </div>
+  {_footer(index, total, avatar_url)}
+</div>""", theme=theme)
+
+
+# ─── VERSUS VISUAL ───────────────────────────────────────────────────────────
+# Dois blocos visuais com ícones: X (riscado) vs Check (destaque)
+
+def slide_versus_visual(data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = 'dark') -> str:
+    label_nao = data.get("label_nao", "")
+    label_sim = data.get("label_sim", "")
+    body_txt  = data.get("body", "").replace("\n", "<br>")
+    index, total = data.get("index", 5), data.get("total", 7)
+
+    body_html = f'<div style="margin-top:40px;" class="body-l">{body_txt}</div>' if body_txt else ""
+
+    return _html(f"""<div class="s">
+  <div class="top-bar"></div>
+  <div class="si">
+    <div class="sp" style="flex:0.25"></div>
+
+    <!-- BLOCO ERRADO -->
+    <div style="width:100%;padding:40px 48px;background:rgba(220,60,60,0.04);
+      border:1px solid rgba(220,60,60,0.15);border-radius:8px;
+      display:flex;align-items:flex-start;gap:28px;">
+      <div style="width:52px;height:52px;border-radius:10px;background:rgba(220,60,60,0.12);
+        display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:4px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <line x1="6" y1="6" x2="18" y2="18" stroke="rgba(220,80,60,0.7)" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="18" y1="6" x2="6" y2="18" stroke="rgba(220,80,60,0.7)" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:14px;letter-spacing:0.22em;
+          text-transform:uppercase;color:rgba(220,80,60,0.5);margin-bottom:12px;">O mercado faz</div>
+        <div style="font-family:'Fraunces',serif;font-size:48px;font-weight:700;line-height:1.08;
+          color:var(--paper);opacity:0.45;text-decoration:line-through;
+          text-decoration-color:rgba(220,60,60,0.3);text-decoration-thickness:3px;">{label_nao}</div>
+      </div>
+    </div>
+
+    <div style="height:28px;display:flex;align-items:center;justify-content:center;">
+      <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 5 L12 19 M5 12 L12 19 L19 12" stroke="var(--gold)" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+    </div>
+
+    <!-- BLOCO CERTO -->
+    <div style="width:100%;padding:44px 48px;background:rgba(184,135,58,0.06);
+      border:2px solid rgba(184,135,58,0.30);border-radius:8px;
+      display:flex;align-items:flex-start;gap:28px;">
+      <div style="width:52px;height:52px;border-radius:50%;
+        background:linear-gradient(135deg,rgba(46,204,113,0.15),rgba(39,174,96,0.15));
+        border:2px solid rgba(46,204,113,0.35);
+        display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:4px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <polyline points="6,13 10,17 18,7" stroke="rgba(46,204,113,0.8)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:14px;letter-spacing:0.22em;
+          text-transform:uppercase;color:var(--gold);margin-bottom:12px;">A realidade é</div>
+        <div style="font-family:'Fraunces',serif;font-size:48px;font-weight:700;line-height:1.08;
+          color:var(--paper);">{label_sim}</div>
+      </div>
+    </div>
+
+    {body_html}
+    <div class="sp"></div>
+  </div>
+  {_footer(index, total, avatar_url)}
+</div>""", theme=theme)
+
+
+# ─── HOOK VISUAL ─────────────────────────────────────────────────────────────
+# Headline + body como cards visuais estruturados com destaque em bloco
+
+def slide_hook_visual(data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = 'dark') -> str:
+    headline = data.get("headline", "").replace("\n", "<br>")
+    body_txt = data.get("body", "")
+    destaque = data.get("destaque", "")
+    index, total = data.get("index", 2), data.get("total", 7)
+
+    # Separar body em linhas pra criar cards
+    lines = [l.strip() for l in body_txt.split("\n") if l.strip()]
+
+    cards_html = ""
+    for i, line in enumerate(lines[:4]):
+        cards_html += f"""
+    <div style="display:flex;align-items:flex-start;gap:20px;padding:24px 0;
+      border-bottom:1px solid rgba(184,135,58,0.08);">
+      <div style="font-family:'DM Mono',monospace;font-size:18px;color:var(--gold);
+        opacity:0.5;flex-shrink:0;padding-top:4px;min-width:28px;">{i+1:02d}</div>
+      <div style="font-family:'DM Sans',sans-serif;font-size:38px;font-weight:300;
+        color:var(--paper);opacity:0.82;line-height:1.4;">{line}</div>
+    </div>"""
+
+    destaque_html = ""
+    if destaque:
+        destaque_html = f"""
+    <div style="margin-top:48px;padding:32px 36px;background:rgba(184,135,58,0.06);
+      border-left:4px solid var(--gold);border-radius:0 8px 8px 0;">
+      <div style="font-family:'Fraunces',serif;font-style:italic;font-size:44px;font-weight:400;
+        color:var(--gold-light);line-height:1.25;">{destaque}</div>
+    </div>"""
+
+    return _html(f"""<div class="s">
+  <div class="top-bar"></div>
+  <div class="si">
+    <div class="sp" style="flex:0.3"></div>
+    <h2>{headline}</h2>
+    <div style="margin-top:32px;width:100%;">
+      {cards_html}
+    </div>
+    {destaque_html}
+    <div class="sp"></div>
+  </div>
+  {_footer(index, total, avatar_url)}
+</div>""", theme=theme)
+
+
 # ─── DISPATCHER ───────────────────────────────────────────────────────────────
 SLIDE_BUILDERS = {
     "cover":       slide_cover,
     "cover_foto":  slide_cover_foto,
     "hook":        slide_hook,
     "hook_foto":   slide_hook_foto,
+    "hook_visual": slide_hook_visual,
     "corpo":       slide_corpo,
     "dado":        slide_dado,
+    "dado_visual": slide_dado_visual,
     "quote":       slide_quote,
     "versus":      slide_versus,
+    "versus_visual": slide_versus_visual,
     "diagnostico": slide_diagnostico,
+    "diagnostico_visual": slide_diagnostico_visual,
     "cta":         slide_cta,
 }
 
