@@ -7,3 +7,4 @@ python-multipart==0.0.12
 pydantic==2.10.3
 python-dotenv==1.2.2
 Pillow==11.1.0
+pytrends==4.9.2

@@ -240,6 +240,43 @@ def baixar_zip():
 
 _cache: dict = {}
 
+# ─── PIPELINE AUTOMÁTICO ─────────────────────────────────────────────────────
+
+@app.post("/pipeline/executar")
+async def pipeline_executar():
+    """Executa pipeline completo: trending → copy → render → caption → post → notify."""
+    from pipeline import executar_pipeline
+    try:
+        resultado = executar_pipeline()
+        return resultado
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Pipeline falhou: {str(e)}")
+
+@app.post("/pipeline/preview")
+async def pipeline_preview():
+    """Executa etapas 1-5 sem postar — retorna preview do carrossel + caption."""
+    from pipeline import etapa_tema, etapa_copy, etapa_render, etapa_caption
+    try:
+        tema_info = etapa_tema()
+        tema = tema_info["tema_adaptado"]
+        pilar = tema_info.get("pilar", "auto")
+
+        carrossel = etapa_copy(tema, pilar)
+        pngs, previews = etapa_render(carrossel)
+        caption_data = etapa_caption(carrossel)
+
+        return {
+            "tema": tema_info,
+            "titulo": carrossel.get("titulo"),
+            "pilar": carrossel.get("pilar"),
+            "total_slides": len(previews),
+            "previews": previews,
+            "caption": caption_data.get("caption", ""),
+            "carrossel_json": carrossel,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Preview falhou: {str(e)}")
+
 # ─── STATIC FILES ─────────────────────────────────────────────────────────────
 static_dir = Path(__file__).parent / "static"
 if static_dir.exists():
