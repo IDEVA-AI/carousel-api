@@ -92,32 +92,10 @@ async def renderizar(req: RenderizarRequest):
     carrossel = req.carrossel_json
 
     try:
-        # Quando tem foto pessoal, converter slide 1 → cover_foto, slide 2 → hook_foto
-        slides_list = carrossel.get("slides", [])
-        if req.foto_url and len(slides_list) >= 2:
-            s0 = slides_list[0]
-            if s0.get("tipo") == "cover":
-                s0["tipo"] = "cover_foto"
-                s0["foto_url"] = req.foto_url
-                s0["cta_text"] = s0.get("subtitle", "")
-                # subtitle vira o eyebrow/contexto
-                s0["subtitle"] = s0.get("eyebrow", "")
-
-            s1 = slides_list[1]
-            if s1.get("tipo") == "hook":
-                s1["tipo"] = "hook_foto"
-                s1["foto_url"] = req.foto_url
-                s1["subtitle"] = s1.get("body", "").split("\n")[0] if s1.get("body") else ""
-                s1["pontos_nao"] = []
-                # Extrair pontos do body
-                body_lines = [l.strip() for l in s1.get("body", "").split("\n") if l.strip()]
-                if len(body_lines) >= 2:
-                    s1["pontos_nao"] = body_lines[:2]
-                s1["ponto_sim"] = s1.get("destaque", "")
-        else:
-            # Se já veio como cover_foto/hook_foto, só injetar a foto
-            for s in slides_list:
-                if s.get("tipo") in ("cover_foto", "hook_foto") and req.foto_url:
+        # Injetar foto_url nos slides que já são cover_foto/hook_foto
+        if req.foto_url:
+            for s in carrossel.get("slides", []):
+                if s.get("tipo") in ("cover_foto", "hook_foto"):
                     s["foto_url"] = req.foto_url
         slides_html = build_all_slides(carrossel, avatar_url=req.avatar_url, theme=req.estilo)
     except Exception as e:
