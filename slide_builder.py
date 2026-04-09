@@ -1044,7 +1044,7 @@ def _misto_theme(tipo: str, index: int) -> str:
     return "light" if index % 2 == 0 else "dark"
 
 
-def _get_visuals(tipo: str, index: int, theme: str, visual: str) -> str:
+def _get_visuals(tipo: str, index: int, total: int, theme: str, visual: str, continuity_in: str = "", continuity_out: str = "") -> str:
     """Retorna HTML dos visuais SVG para um slide, ou vazio."""
     if visual != "editorial":
         return ""
@@ -1054,18 +1054,29 @@ def _get_visuals(tipo: str, index: int, theme: str, visual: str) -> str:
         "hook": lambda: hook_visuals(index, theme),
         "corpo": lambda: corpo_visuals(index, theme),
         "dado": lambda: dado_visuals(theme),
-        "quote": lambda: "",  # quote é clean, sem visuais
+        "quote": lambda: "",
         "versus": lambda: hook_visuals(index, theme),
         "diagnostico": lambda: corpo_visuals(index, theme),
         "cta": lambda: cta_visuals(theme),
     }
     fn = vis_map.get(tipo, lambda: "")
-    return fn()
+    return continuity_in + fn() + continuity_out
 
 
 def build_all_slides(carrossel: dict, avatar_url: str | None = None, theme: str = "dark", visual: str = "none") -> list[str]:
     imagem_url  = carrossel.get("imagem_url")
     slides_data = carrossel.get("slides", [])
+    total = len(slides_data)
+
+    # Pré-calcular continuidades entre slides
+    continuity_pairs: list[tuple[str, str]] = []
+    if visual == "editorial" and total > 1:
+        from visuals import CONTINUITY_SEQUENCE
+        for i in range(total - 1):
+            fn = CONTINUITY_SEQUENCE[i % len(CONTINUITY_SEQUENCE)]
+            slide_theme = _misto_theme(slides_data[i].get("tipo", "corpo"), i) if theme == "misto" else theme
+            continuity_pairs.append(fn(slide_theme))
+
     result = []
     for i, s in enumerate(slides_data):
         if theme == "misto":
@@ -1074,6 +1085,11 @@ def build_all_slides(carrossel: dict, avatar_url: str | None = None, theme: str 
             slide_theme = theme
         tipo = s.get("tipo", "corpo")
         index = s.get("index", i + 1)
-        vis = _get_visuals(tipo, index, slide_theme, visual)
+
+        # Continuidade: entrada do slide anterior + saída pro próximo
+        cont_in = continuity_pairs[i - 1][1] if i > 0 and continuity_pairs else ""
+        cont_out = continuity_pairs[i][0] if i < len(continuity_pairs) else ""
+
+        vis = _get_visuals(tipo, index, total, slide_theme, visual, cont_in, cont_out)
         result.append(build_slide(s, imagem_url=imagem_url, avatar_url=avatar_url, theme=slide_theme, visuals_html=vis))
     return result

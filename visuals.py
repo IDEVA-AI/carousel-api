@@ -217,6 +217,101 @@ def bg_number(number: str = "01", theme: str = "dark") -> str:
 </svg>"""
 
 
+# ─── CONTINUIDADE ENTRE SLIDES ───────────────────────────────────────────────
+# Elementos que "sangram" entre slides vizinhos.
+# Borda direita do slide N conecta com borda esquerda do slide N+1.
+# Cada função retorna (saída_direita, entrada_esquerda) — par de SVGs.
+
+def continuity_circle(cy: int = 720, r: int = 200, theme: str = "dark") -> tuple[str, str]:
+    """Círculo partido: metade direita no slide atual, metade esquerda no próximo."""
+    c = _c(theme)
+
+    right_half = f"""<svg class="vis" viewBox="0 0 1080 1440" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="1080" cy="{cy}" r="{r}" fill="none" stroke="{c['stroke_accent']}" stroke-width="1.5"/>
+  <circle cx="1080" cy="{cy}" r="{r - 40}" fill="none" stroke="{c['stroke']}" stroke-width="0.5" stroke-dasharray="6,10"/>
+  <circle cx="1080" cy="{cy}" r="4" fill="{c['dot_accent']}"/>
+</svg>"""
+
+    left_half = f"""<svg class="vis" viewBox="0 0 1080 1440" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="0" cy="{cy}" r="{r}" fill="none" stroke="{c['stroke_accent']}" stroke-width="1.5"/>
+  <circle cx="0" cy="{cy}" r="{r - 40}" fill="none" stroke="{c['stroke']}" stroke-width="0.5" stroke-dasharray="6,10"/>
+  <circle cx="0" cy="{cy}" r="4" fill="{c['dot_accent']}"/>
+</svg>"""
+
+    return right_half, left_half
+
+
+def continuity_line(y1: int = 400, y2: int = 1000, theme: str = "dark") -> tuple[str, str]:
+    """Linha diagonal que sai do slide atual e entra no próximo."""
+    c = _c(theme)
+
+    right_exit = f"""<svg class="vis" viewBox="0 0 1080 1440" xmlns="http://www.w3.org/2000/svg">
+  <line x1="700" y1="{y1}" x2="1080" y2="{y2}" stroke="{c['stroke_accent']}" stroke-width="1.5"/>
+  <line x1="720" y1="{y1}" x2="1080" y2="{y2 - 20}" stroke="{c['stroke']}" stroke-width="0.5"/>
+</svg>"""
+
+    left_enter = f"""<svg class="vis" viewBox="0 0 1080 1440" xmlns="http://www.w3.org/2000/svg">
+  <line x1="0" y1="{y2}" x2="380" y2="{y1 + 200}" stroke="{c['stroke_accent']}" stroke-width="1.5"/>
+  <line x1="0" y1="{y2 - 20}" x2="360" y2="{y1 + 200}" stroke="{c['stroke']}" stroke-width="0.5"/>
+</svg>"""
+
+    return right_exit, left_enter
+
+
+def continuity_arc(cy: int = 800, r: int = 350, theme: str = "dark") -> tuple[str, str]:
+    """Arco grande que sangra entre slides."""
+    c = _c(theme)
+
+    right_exit = f"""<svg class="vis" viewBox="0 0 1080 1440" xmlns="http://www.w3.org/2000/svg">
+  <path d="M 1080 {cy - r} A {r} {r} 0 0 0 1080 {cy + r}"
+    fill="none" stroke="{c['stroke_accent']}" stroke-width="2" transform="translate(-80,0)"/>
+  <path d="M 1080 {cy - r + 30} A {r - 30} {r - 30} 0 0 0 1080 {cy + r - 30}"
+    fill="none" stroke="{c['stroke']}" stroke-width="0.5" stroke-dasharray="4,8" transform="translate(-80,0)"/>
+</svg>"""
+
+    left_enter = f"""<svg class="vis" viewBox="0 0 1080 1440" xmlns="http://www.w3.org/2000/svg">
+  <path d="M 0 {cy - r} A {r} {r} 0 0 1 0 {cy + r}"
+    fill="none" stroke="{c['stroke_accent']}" stroke-width="2" transform="translate(80,0)"/>
+  <path d="M 0 {cy - r + 30} A {r - 30} {r - 30} 0 0 1 0 {cy + r - 30}"
+    fill="none" stroke="{c['stroke']}" stroke-width="0.5" stroke-dasharray="4,8" transform="translate(80,0)"/>
+</svg>"""
+
+    return right_exit, left_enter
+
+
+def continuity_bracket(y_start: int = 300, y_end: int = 1100, theme: str = "dark") -> tuple[str, str]:
+    """Bracket/colchete que abre num slide e fecha no próximo."""
+    c = _c(theme)
+
+    right_open = f"""<svg class="vis" viewBox="0 0 1080 1440" xmlns="http://www.w3.org/2000/svg">
+  <path d="M 1040 {y_start} L 1060 {y_start} L 1060 {y_end} L 1040 {y_end}"
+    fill="none" stroke="{c['stroke_accent']}" stroke-width="1.5"/>
+  <line x1="1060" y1="{(y_start+y_end)//2}" x2="1080" y2="{(y_start+y_end)//2}"
+    stroke="{c['stroke_accent']}" stroke-width="1"/>
+</svg>"""
+
+    left_close = f"""<svg class="vis" viewBox="0 0 1080 1440" xmlns="http://www.w3.org/2000/svg">
+  <path d="M 40 {y_start} L 20 {y_start} L 20 {y_end} L 40 {y_end}"
+    fill="none" stroke="{c['stroke_accent']}" stroke-width="1.5"/>
+  <line x1="0" y1="{(y_start+y_end)//2}" x2="20" y2="{(y_start+y_end)//2}"
+    stroke="{c['stroke_accent']}" stroke-width="1"/>
+</svg>"""
+
+    return right_open, left_close
+
+
+# Sequência de continuidades — alterna entre tipos pra cada transição
+CONTINUITY_SEQUENCE = [
+    lambda t: continuity_line(350, 950, t),
+    lambda t: continuity_circle(650, 220, t),
+    lambda t: continuity_arc(750, 300, t),
+    lambda t: continuity_bracket(280, 1050, t),
+    lambda t: continuity_line(500, 1100, t),
+    lambda t: continuity_circle(500, 180, t),
+    lambda t: continuity_arc(600, 250, t),
+]
+
+
 # ─── COMPOSIÇÕES (combinações prontas) ───────────────────────────────────────
 
 def cover_visuals(theme: str = "dark") -> str:
