@@ -23,7 +23,7 @@ from generator import gerar_carrossel_completo, CLAUDE_BIN
 from slide_builder import build_all_slides
 from renderer import renderizar_e_empacotar
 
-# ─── HISTÕ2ICO ────────────────────────────────────────────────────────────────
+# ─── HISTORICO ────────────────────────────────────────────────────────────────
 HISTORICO_DIR = Path.home() / "carousel-api" / "historico"
 HISTORICO_DIR.mkdir(parents=True, exist_ok=True)
 

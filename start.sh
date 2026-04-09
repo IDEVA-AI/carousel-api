@@ -1,5 +1,5 @@
 #!/bin/bash
-# start.sh — Iniciar o servidor após o setup
+# start.sh — Iniciar o servidor do Gerador de Carrosseis
 
 set -e
 
@@ -11,26 +11,20 @@ if [ -f ".env" ]; then
   export $(grep -v '^#' .env | xargs)
 fi
 
-# Verifica API key
-if [ -z "$ANTHROPIC_API_KEY" ] || [ "$ANTHROPIC_API_KEY" = "sk-ant-..." ]; then
+PORT=${PORT:-8765}
+
+# Verifica se Claude CLI ou API key está disponível
+if ! command -v claude &>/dev/null && { [ -z "$ANTHROPIC_API_KEY" ] || [ "$ANTHROPIC_API_KEY" = "sk-ant-..." ]; }; then
   echo ""
-  echo "⚠️  ANTHROPIC_API_KEY não configurada!"
-  echo "   Edite o arquivo .env e adicione sua chave."
-  echo "   Obtenha em: https://console.anthropic.com/keys"
+  echo "  Claude Code CLI nao encontrado e ANTHROPIC_API_KEY nao configurada."
+  echo "  Instale o Claude Code (plano Max) ou adicione a chave no .env"
   echo ""
   exit 1
 fi
 
-PORT=${PORT:-8000}
-
 echo ""
-echo "╔══════════════════════════════════════════╗"
-echo "║   Gerador de Carrosseis — INICIADO       ║"
-echo "╚══════════════════════════════════════════╝"
-echo ""
-echo "  Abra no navegador: http://localhost:$PORT"
-echo ""
-echo "  Pressione Ctrl+C para parar."
+echo "  Gerador de Carrosseis — INICIADO"
+echo "  http://localhost:$PORT"
 echo ""
 
 uvicorn server:app --host 0.0.0.0 --port $PORT --reload

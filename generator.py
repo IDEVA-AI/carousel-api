@@ -170,7 +170,7 @@ def buscar_imagem_unsplash(query: str) -> str | None:
     try:
         r = httpx.get(
             "https://api.unsplash.com/search/photos",
-            params={"query": query, "per_page": 3, "orientation": "portrait", "color": "black"},
+            params={"query": query, "per_page": 3, "orientation": "portrait"},
             headers={"Authorization": f"Client-ID {key}"},
             timeout=10,
         )
