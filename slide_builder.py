@@ -557,8 +557,9 @@ THEME_CSS = {
 }
 
 # ─── HELPERS ──────────────────────────────────────────────────────────────────
-def _html(body: str) -> str:
-    return f"""<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><style>{BASE_CSS}</style></head><body>{body}</body></html>"""
+def _html(body: str, theme: str = 'dark') -> str:
+    theme_override = THEME_CSS.get(theme, '')
+    return f"""<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><style>{BASE_CSS}{theme_override}</style></head><body>{body}</body></html>"""
 
 
 def _footer(index: int, total: int, avatar_url: str | None = None, show_sig: bool = False, is_last: bool = False) -> str:
@@ -592,13 +593,15 @@ def _footer(index: int, total: int, avatar_url: str | None = None, show_sig: boo
 </div>{_right_bar() if not is_last else ""}{_swipe_cue() if not is_last else ""}"""
 
 
-def _dark_bg(imagem_url: str | None) -> str:
+def _dark_bg(imagem_url: str | None, theme: str = 'dark') -> str:
+    """Fundo do slide — imagem ou fallback gradient temático."""
     if imagem_url:
         return f'<div class="bg-img" style="background-image:url(\'{imagem_url}\')"></div>'
-    return """<div style="position:absolute;inset:0;z-index:0;background:var(--blood);">
-  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 20%,rgba(184,135,58,.12) 0%,transparent 50%),radial-gradient(ellipse at 20% 80%,rgba(107,45,31,.4) 0%,transparent 50%),linear-gradient(160deg,#2a0a0a 0%,#1a0808 40%,#0e0c0a 100%);"></div>
-  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(184,135,58,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(184,135,58,.04) 1px,transparent 1px);background-size:60px 60px;"></div>
-</div>"""
+    if theme == 'light':
+        return '<div style="position:absolute;inset:0;z-index:0;background:linear-gradient(160deg,#ece8de 0%,#e4e0d5 60%,#dad6cc 100%);"><div style="position:absolute;inset:0;background-image:linear-gradient(rgba(122,78,24,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(122,78,24,.03) 1px,transparent 1px);background-size:60px 60px;"></div></div>'
+    if theme == 'ferrugem':
+        return '<div style="position:absolute;inset:0;z-index:0;background:var(--blood);"><div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 20%,rgba(200,104,58,.20) 0%,transparent 50%),linear-gradient(160deg,#3d1208 0%,#2a0a04 50%,#1a0804 100%);"></div><div style="position:absolute;inset:0;background-image:linear-gradient(rgba(200,104,58,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(200,104,58,.05) 1px,transparent 1px);background-size:60px 60px;"></div></div>'
+    return '<div style="position:absolute;inset:0;z-index:0;background:var(--blood);"><div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 20%,rgba(184,135,58,.12) 0%,transparent 50%),radial-gradient(ellipse at 20% 80%,rgba(107,45,31,.4) 0%,transparent 50%),linear-gradient(160deg,#2a0a0a 0%,#1a0808 40%,#0e0c0a 100%);"></div><div style="position:absolute;inset:0;background-image:linear-gradient(rgba(184,135,58,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(184,135,58,.04) 1px,transparent 1px);background-size:60px 60px;"></div></div>'
 
 
 
