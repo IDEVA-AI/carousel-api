@@ -114,9 +114,9 @@ html, body {
   position: absolute;
   inset: 0;
   background: linear-gradient(160deg,
-    rgba(14,12,10,0.94) 0%,
-    rgba(14,12,10,0.80) 45%,
-    rgba(14,12,10,0.90) 100%);
+    rgba(14,12,10,0.72) 0%,
+    rgba(14,12,10,0.55) 45%,
+    rgba(14,12,10,0.70) 100%);
 }
 .bg-grid {
   background-image:
