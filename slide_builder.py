@@ -21,8 +21,6 @@ Elementos repetidos (sig, progress): posição fixa — absolute, bottom constan
 
 # ─── CSS BASE ─────────────────────────────────────────────────────────────────
 BASE_CSS = """
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
-
 :root {
   --ink:        #0e0c0a;
   --paper:      #f4f0e8;
@@ -557,9 +555,11 @@ THEME_CSS = {
 }
 
 # ─── HELPERS ──────────────────────────────────────────────────────────────────
+_FONT_LINK = '<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">'
+
 def _html(body: str, theme: str = 'dark') -> str:
     theme_override = THEME_CSS.get(theme, '')
-    return f"""<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><style>{BASE_CSS}{theme_override}</style></head><body>{body}</body></html>"""
+    return f"""<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">{_FONT_LINK}<style>{BASE_CSS}{theme_override}</style></head><body>{body}</body></html>"""
 
 
 def _footer(index: int, total: int, avatar_url: str | None = None, show_sig: bool = False, is_last: bool = False) -> str:

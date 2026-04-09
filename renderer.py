@@ -42,8 +42,8 @@ async def _render_slides_async(slides_html: list[str]) -> list[bytes]:
             except Exception:
                 pass  # Continua mesmo se timeout
 
-            # Aguarda pequeno delay para fontes renderizarem
-            await page.wait_for_timeout(300)
+            # Aguarda fontes Google carregarem e renderizarem
+            await page.wait_for_timeout(800)
 
             png = await page.screenshot(
                 type="png",
