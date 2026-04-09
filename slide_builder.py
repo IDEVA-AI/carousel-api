@@ -1336,14 +1336,21 @@ def build_slide(slide_data: dict, imagem_url: str | None = None, avatar_url: str
 
 def _misto_theme(tipo: str, index: int) -> str:
     """Tema misto: alterna dark/light conforme tipo e posição."""
-    # Cover e CTA sempre dark (com imagem)
     if tipo in ("cover", "cover_foto", "cta"):
         return "dark"
-    # Quote sempre light (contraste editorial)
     if tipo == "quote":
         return "light"
-    # Demais slides alternam: ímpares=dark, pares=light
     return "light" if index % 2 == 0 else "dark"
+
+
+def _tricolor_theme(tipo: str, index: int) -> str:
+    """Tema tricolor: alterna dark/ferrugem/light nos slides do meio."""
+    if tipo in ("cover", "cover_foto"):
+        return "dark"
+    if tipo == "cta":
+        return "ferrugem"
+    cycle = ["dark", "ferrugem", "light"]
+    return cycle[index % 3]
 
 
 def _get_visuals(tipo: str, index: int, total: int, theme: str, visual: str, slide_data: dict | None = None, continuity_in: str = "", continuity_out: str = "") -> str:
@@ -1394,13 +1401,20 @@ def build_all_slides(carrossel: dict, avatar_url: str | None = None, theme: str 
         from visuals import CONTINUITY_SEQUENCE
         for i in range(total - 1):
             fn = CONTINUITY_SEQUENCE[i % len(CONTINUITY_SEQUENCE)]
-            slide_theme = _misto_theme(slides_data[i].get("tipo", "corpo"), i) if theme == "misto" else theme
+            if theme == "misto":
+                slide_theme = _misto_theme(slides_data[i].get("tipo", "corpo"), i)
+            elif theme == "tricolor":
+                slide_theme = _tricolor_theme(slides_data[i].get("tipo", "corpo"), i)
+            else:
+                slide_theme = theme
             continuity_pairs.append(fn(slide_theme))
 
     result = []
     for i, s in enumerate(slides_data):
         if theme == "misto":
             slide_theme = _misto_theme(s.get("tipo", "corpo"), i)
+        elif theme == "tricolor":
+            slide_theme = _tricolor_theme(s.get("tipo", "corpo"), i)
         else:
             slide_theme = theme
         tipo = s.get("tipo", "corpo")

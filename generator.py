@@ -291,7 +291,8 @@ QUERY_SUFFIX = {
     "dark":     " dark moody editorial",
     "light":    " minimal white bright clean",
     "ferrugem": " warm rust texture industrial",
-    "misto":    " dark moody editorial",  # cover/CTA são dark no misto
+    "misto":    " dark moody editorial",
+    "tricolor": " dark moody editorial",
 }
 
 def gerar_carrossel_completo(tema: str, num_slides: int = 7, pilar: str = "auto", estilo: str = "dark") -> dict:
