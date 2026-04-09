@@ -302,7 +302,8 @@ def gerar_carrossel_completo(tema: str, num_slides: int = 7, pilar: str = "auto"
     query = query + QUERY_SUFFIX.get(estilo, "")
     print(f"[Unsplash] Query adaptada ({estilo}): {query}")
 
-    # Unsplash desabilitado — foco em wireframes e metaestrutura
-    # imagem_url = buscar_imagem_unsplash(query)
-    dados["imagem_url"] = None
+    imagem_url = buscar_imagem_unsplash(query)
+    if imagem_url:
+        print(f"[Unsplash] OK ({imagem_url[:60]}...)")
+    dados["imagem_url"] = imagem_url
     return dados
