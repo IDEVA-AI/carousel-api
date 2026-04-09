@@ -53,6 +53,7 @@ class RenderizarRequest(BaseModel):
     carrossel_json: dict
     avatar_url: str | None = None
     estilo: str = "dark"
+    foto_url: str | None = None
 
 # ─── ENDPOINTS ────────────────────────────────────────────────────────────────
 @app.get("/health")
@@ -91,6 +92,11 @@ async def renderizar(req: RenderizarRequest):
     carrossel = req.carrossel_json
 
     try:
+        # Injetar foto_url nos slides que usam foto pessoal
+        if req.foto_url:
+            for s in carrossel.get("slides", []):
+                if s.get("tipo") in ("cover_foto", "hook_foto"):
+                    s["foto_url"] = req.foto_url
         slides_html = build_all_slides(carrossel, avatar_url=req.avatar_url, theme=req.estilo)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao montar slides: {str(e)}")

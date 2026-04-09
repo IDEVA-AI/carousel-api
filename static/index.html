@@ -145,6 +145,10 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
 .dark-sw{background:#1a1714;border:2px solid #b8873a}
 .light-sw{background:#ece8de;border:2px solid #7a4e18}
 .ferrugem-sw{background:#3d1208;border:2px solid #c8683a}
+/* ── FOTO UPLOAD ── */
+.foto-upload{width:100%;height:160px;border:1px dashed rgba(244,240,232,.15);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s;overflow:hidden;position:relative}
+.foto-upload:hover{border-color:rgba(184,135,58,.4)}
+.foto-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -230,6 +234,20 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
             </div>
             <input type="file" id="avatarInput" accept="image/*" style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none" onchange="handleAvatar(this)">
           </div>
+        </div>
+        <div class="field">
+          <label>Foto pessoal (opcional)</label>
+          <div class="foto-upload" id="fotoUpload" onclick="document.getElementById('fotoInput').click()">
+            <div class="foto-placeholder" id="fotoPlaceholder">
+              <span style="font-size:28px;opacity:0.4;">+</span>
+              <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-top:8px;">Carregar foto</span>
+            </div>
+            <img id="fotoPreviewImg" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;">
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:8px;font-family:'DM Mono',monospace;">
+            Usada nos slides cover_foto e hook_foto
+          </div>
+          <input type="file" id="fotoInput" accept="image/*" style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none" onchange="handleFoto(this)">
         </div>
         <button type="submit" class="btn-primary" id="btnGerar">→ Gerar Copy com IA</button>
       </form>
@@ -317,6 +335,8 @@ const SLIDE_FIELDS = {
   versus:      [{k:'label_nao',l:'O mercado faz (riscado)',t:'input'},{k:'label_sim',l:'A realidade é (destaque)',t:'input'},{k:'body',l:'Lógica por trás',t:'textarea'}],
   diagnostico: [{k:'headline',l:'Headline diagnóstico',t:'input'},{k:'itens[0]',l:'Item 1',t:'input'},{k:'itens[1]',l:'Item 2',t:'input'},{k:'itens[2]',l:'Item 3',t:'input'},{k:'conclusao',l:'Conclusão / causa raiz',t:'textarea'}],
   cta:         [{k:'headline',l:'Headline do CTA',t:'input'},{k:'sub',l:'Subtítulo / próximo passo',t:'textarea'}],
+  cover_foto:  [{k:'subtitle',l:'Subtítulo (texto menor)',t:'input'},{k:'headline',l:'Headline grande',t:'input'},{k:'cta_text',l:'Texto do botão CTA',t:'input'}],
+  hook_foto:   [{k:'subtitle',l:'Subtítulo (texto menor)',t:'input'},{k:'headline',l:'Headline destaque',t:'input'},{k:'pontos_nao[0]',l:'Ponto negativo 1',t:'input'},{k:'pontos_nao[1]',l:'Ponto negativo 2',t:'input'},{k:'ponto_sim',l:'Ponto positivo (destaque)',t:'input'}],
 };
 
 // ─── SIDEBAR ─────────────────────────────────────────────────────────────────
@@ -376,6 +396,21 @@ function handleAvatar(input){
     ['avatarPreview','headerAvatar'].forEach(id=>{
       document.getElementById(id).innerHTML=`<img src="${avatarDataUrl}" alt="">`;
     });
+  };
+  reader.readAsDataURL(file);
+}
+
+// ─── FOTO PESSOAL ───────────────────────────────────────────────────────────
+let fotoDataUrl = null;
+function handleFoto(input){
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    fotoDataUrl=e.target.result;
+    document.getElementById('fotoPlaceholder').style.display='none';
+    const img=document.getElementById('fotoPreviewImg');
+    img.src=fotoDataUrl;
+    img.style.display='block';
   };
   reader.readAsDataURL(file);
 }
@@ -467,9 +502,9 @@ function buildEditor(json){
     const fields=SLIDE_FIELDS[tipo]||[];
     const fhtml=fields.map(f=>{
       let val='';
-      if(f.k.startsWith('itens[')){
-        const idx=parseInt(f.k.match(/\d+/)[0]);
-        val=(s.itens||[])[idx]||'';
+      const am=f.k.match(/^(\w+)\[(\d+)\]$/);
+      if(am){
+        val=(s[am[1]]||[])[parseInt(am[2])]||'';
       } else { val=s[f.k]||''; }
       const esc=escHtml(val);
       if(f.t==='textarea') return `<div class="slide-field"><label>${f.l}</label><textarea data-slide="${i}" data-key="${f.k}">${esc}</textarea></div>`;
@@ -504,10 +539,11 @@ function syncField(e){
   const slideIdx=parseInt(el.dataset.slide);
   const key=el.dataset.key;
   if(!carrosselJson||!carrosselJson.slides[slideIdx]) return;
-  if(key.startsWith('itens[')){
-    const idx=parseInt(key.match(/\d+/)[0]);
-    if(!carrosselJson.slides[slideIdx].itens) carrosselJson.slides[slideIdx].itens=[];
-    carrosselJson.slides[slideIdx].itens[idx]=el.value;
+  const arrMatch=key.match(/^(\w+)\[(\d+)\]$/);
+  if(arrMatch){
+    const arrName=arrMatch[1], idx=parseInt(arrMatch[2]);
+    if(!carrosselJson.slides[slideIdx][arrName]) carrosselJson.slides[slideIdx][arrName]=[];
+    carrosselJson.slides[slideIdx][arrName][idx]=el.value;
   } else {
     carrosselJson.slides[slideIdx][key]=el.value;
   }
@@ -524,7 +560,7 @@ async function renderizar(){
   try{
     const res=await fetch('/renderizar',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({carrossel_json:carrosselJson,avatar_url:avatarDataUrl||null,estilo:selectedEstilo})
+      body:JSON.stringify({carrossel_json:carrosselJson,avatar_url:avatarDataUrl||null,estilo:selectedEstilo,foto_url:fotoDataUrl||null})
     });
     if(!res.ok){const err=await res.json();throw new Error(err.detail||'Erro ao renderizar');}
     const data=await res.json();
