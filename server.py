@@ -27,7 +27,9 @@ from slide_builder import build_all_slides
 from renderer import renderizar_e_empacotar
 
 # ─── HISTORICO ────────────────────────────────────────────────────────────────
-HISTORICO_DIR = Path.home() / "carousel-api" / "historico"
+# Em Docker, usa /app/historico (volume). Local, usa ~/carousel-api/historico
+_app_hist = Path("/app/historico")
+HISTORICO_DIR = _app_hist if _app_hist.exists() else Path.home() / "carousel-api" / "historico"
 HISTORICO_DIR.mkdir(parents=True, exist_ok=True)
 
 # ─── APP ──────────────────────────────────────────────────────────────────────
