@@ -77,16 +77,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 .btn-outline:hover{background:var(--gold);color:var(--ink)}
 .btn-sm{padding:8px 16px;font-size:10px}
 
-/* ── ESTILO SELECTOR ── */
-.estilo-row{display:flex;gap:12px}
-.estilo-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 12px;background:rgba(244,240,232,.04);border:1px solid rgba(244,240,232,.12);color:rgba(244,240,232,.55);font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.10em;text-transform:uppercase;cursor:pointer;transition:all .2s}
-.estilo-btn:hover{border-color:rgba(184,135,58,.40);color:rgba(244,240,232,.80)}
-.estilo-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(184,135,58,.08)}
-.estilo-swatch{width:14px;height:14px;border-radius:50%;flex-shrink:0}
-.dark-swatch{background:#1a1714;border:2px solid #b8873a}
-.light-swatch{background:#ece8de;border:2px solid #7a4e18}
-.ferrugem-swatch{background:#3d1208;border:2px solid #c8683a}
-
 /* ── LOADING ── */
 .loading{display:none;margin-top:40px;padding:32px;border:1px solid var(--border)}
 .loading.on{display:block}
@@ -145,16 +135,26 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 
 .divider{width:100%;height:1px;background:var(--border);margin:48px 0}
 footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.1em}
+
+/* ── SELETOR DE ESTILO ── */
+.estilo-row{display:flex;gap:10px;margin-top:4px}
+.estilo-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 8px;background:rgba(244,240,232,.04);border:1px solid rgba(244,240,232,.12);color:rgba(244,240,232,.50);font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.10em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.estilo-btn:hover{border-color:rgba(184,135,58,.40);color:rgba(244,240,232,.80)}
+.estilo-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(184,135,58,.08)}
+.estilo-swatch{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.dark-sw{background:#1a1714;border:2px solid #b8873a}
+.light-sw{background:#ece8de;border:2px solid #7a4e18}
+.ferrugem-sw{background:#3d1208;border:2px solid #c8683a}
 </style>
 </head>
 <body>
 <div class="app">
 
-<!-- SIDEBAR: HISTORICO -->
+<!-- SIDEBAR: HISTÓRICO -->
 <aside class="sidebar" id="sidebar">
   <div class="sb-head">
-    <span class="sb-title">Historico</span>
-    <button class="btn-outline btn-sm" onclick="carregarHistorico()">&#8634;</button>
+    <span class="sb-title">Histórico</span>
+    <button class="btn-outline btn-sm" onclick="carregarHistorico()">↺</button>
   </div>
   <div class="sb-list" id="sbList">
     <div class="sb-empty">Nenhum carrossel ainda</div>
@@ -164,7 +164,7 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
 <!-- MAIN -->
 <div class="main">
   <header>
-    <button class="toggle-btn" onclick="toggleSidebar()" title="Historico">&#9776;</button>
+    <button class="toggle-btn" onclick="toggleSidebar()" title="Histórico">☰</button>
     <div class="logo">
       <div class="logo-mark" id="headerAvatar" onclick="document.getElementById('avatarInput').click()">J</div>
       <div>
@@ -172,52 +172,35 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
         <div class="logo-handle">@j.karv</div>
       </div>
     </div>
-    <div class="header-tag">Gerador de Carrosseis &middot; v2.0</div>
+    <div class="header-tag">Gerador de Carrosseis · v2.0</div>
   </header>
 
   <div class="content">
 
-    <!-- ETAPA 1: FORMULARIO -->
+    <!-- ETAPA 1: FORMULÁRIO -->
     <div id="formSection">
-      <div class="section-label">Etapa 1 &mdash; Tema</div>
+      <div class="section-label">Etapa 1 — Tema</div>
       <h1 class="form-title">Gerar copy<br>com IA.</h1>
       <p class="form-sub">Digite o tema. Claude gera o copy completo usando seu DNA de marca.</p>
 
       <form id="gerarForm">
         <div class="field">
           <label for="tema">Tema do carrossel</label>
-          <textarea id="tema" rows="3" placeholder="Ex: Por que delegar nao funciona na maioria das empresas" required></textarea>
+          <textarea id="tema" rows="3" placeholder="Ex: Por que delegar não funciona na maioria das empresas" required></textarea>
         </div>
         <div class="field">
-          <label for="pilar">Pilar de conteudo</label>
+          <label for="pilar">Pilar de conteúdo</label>
           <select id="pilar">
             <option value="auto">Auto-detectar</option>
-            <option value="O Sistema Invisivel">01 &mdash; O Sistema Invisivel</option>
-            <option value="Arquitetura de Decisao">02 &mdash; Arquitetura de Decisao</option>
-            <option value="Diagnostico Cirurgico">03 &mdash; Diagnostico Cirurgico</option>
-            <option value="Comportamento e Sistema">04 &mdash; Comportamento e Sistema</option>
-            <option value="Narrativas vs. Realidade">05 &mdash; Narrativas vs. Realidade</option>
+            <option value="O Sistema Invisível">01 — O Sistema Invisível</option>
+            <option value="Arquitetura de Decisão">02 — Arquitetura de Decisão</option>
+            <option value="Diagnóstico Cirúrgico">03 — Diagnóstico Cirúrgico</option>
+            <option value="Comportamento e Sistema">04 — Comportamento e Sistema</option>
+            <option value="Narrativas vs. Realidade">05 — Narrativas vs. Realidade</option>
           </select>
         </div>
-
-        <!-- ESTILO VISUAL -->
         <div class="field">
-          <label>Estilo visual</label>
-          <div class="estilo-row" id="estiloRow">
-            <button type="button" class="estilo-btn active" data-estilo="dark">
-              <span class="estilo-swatch dark-swatch"></span>Dark
-            </button>
-            <button type="button" class="estilo-btn" data-estilo="light">
-              <span class="estilo-swatch light-swatch"></span>Light
-            </button>
-            <button type="button" class="estilo-btn" data-estilo="ferrugem">
-              <span class="estilo-swatch ferrugem-swatch"></span>Ferrugem
-            </button>
-          </div>
-        </div>
-
-        <div class="field">
-          <label>Numero de slides</label>
+          <label>Número de slides</label>
           <div class="slider-row">
             <input type="range" id="numSlides" min="5" max="10" value="7" oninput="document.getElementById('slidesVal').textContent=this.value">
             <div class="slider-val" id="slidesVal">7</div>
@@ -234,7 +217,7 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
             <input type="file" id="avatarInput" accept="image/*" style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none" onchange="handleAvatar(this)">
           </div>
         </div>
-        <button type="submit" class="btn-primary" id="btnGerar">&rarr; Gerar Copy com IA</button>
+        <button type="submit" class="btn-primary" id="btnGerar">→ Gerar Copy com IA</button>
       </form>
 
       <div class="error-msg" id="errorMsg"></div>
@@ -250,13 +233,13 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
     <div class="editor-section" id="editorSection">
       <div class="editor-head">
         <div>
-          <div class="section-label">Etapa 2 &mdash; Revisar e editar</div>
+          <div class="section-label">Etapa 2 — Revisar e editar</div>
           <div class="editor-title" id="editorTitle">Carrossel gerado</div>
-          <div class="editor-sub" id="editorSub">&mdash; slides &middot; revise e ajuste antes de renderizar</div>
+          <div class="editor-sub" id="editorSub">— slides · revise e ajuste antes de renderizar</div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn-outline btn-sm" onclick="voltarForm()">&larr; Novo tema</button>
-          <button class="btn-primary" id="btnRenderizar" style="width:auto;padding:12px 28px;font-size:15px" onclick="renderizar()">&#10230; Renderizar Carrossel</button>
+          <button class="btn-outline btn-sm" onclick="voltarForm()">← Novo tema</button>
+          <button class="btn-primary" id="btnRenderizar" style="width:auto;padding:12px 28px;font-size:15px" onclick="renderizar()">⟶ Renderizar Carrossel</button>
         </div>
       </div>
 
@@ -265,8 +248,8 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
       <div class="loading" id="loadingRender" style="margin-top:32px">
         <div class="loading-title">Renderizando slides...</div>
         <div class="step" id="rstep1"><div class="step-icon">1</div>Montando HTML dos slides</div>
-        <div class="step" id="rstep2"><div class="step-icon">2</div>Renderizando PNG 1080x1440px cada</div>
-        <div class="step" id="rstep3"><div class="step-icon">3</div>Salvando no historico</div>
+        <div class="step" id="rstep2"><div class="step-icon">2</div>Renderizando PNG 1080×1440px cada</div>
+        <div class="step" id="rstep3"><div class="step-icon">3</div>Salvando no histórico</div>
       </div>
       <div class="error-msg" id="renderError"></div>
     </div>
@@ -278,11 +261,11 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
         <div>
           <div class="section-label">Pronto para postar</div>
           <div class="result-title" id="resultTitle">Carrossel</div>
-          <div class="result-meta" id="resultMeta">&mdash; slides &middot; @j.karv</div>
+          <div class="result-meta" id="resultMeta">— slides · @j.karv</div>
         </div>
         <div class="result-actions">
-          <button class="btn-outline btn-sm" onclick="voltarEditor()">&larr; Editar</button>
-          <button class="btn-outline btn-sm" id="btnDownload" onclick="baixarZip()">&darr; Baixar ZIP</button>
+          <button class="btn-outline btn-sm" onclick="voltarEditor()">← Editar</button>
+          <button class="btn-outline btn-sm" id="btnDownload" onclick="baixarZip()">↓ Baixar ZIP</button>
           <button class="btn-outline btn-sm" onclick="novoCarrossel()">+ Novo</button>
         </div>
       </div>
@@ -291,16 +274,16 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
 
   </div><!-- /content -->
 
-  <footer>Gerador de Carrosseis &middot; Julio Carvalho &middot; IDEVA &middot; @j.karv</footer>
+  <footer>Gerador de Carrosseis · Julio Carvalho · IDEVA · @j.karv</footer>
 </div><!-- /main -->
 </div><!-- /app -->
 
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLb(event)">
   <div class="lb-close" onclick="closeLb()">ESC / fechar</div>
-  <span class="lb-nav lb-prev" onclick="navLb(-1,event)">&lsaquo;</span>
+  <span class="lb-nav lb-prev" onclick="navLb(-1,event)">‹</span>
   <img id="lbImg" src="" alt="">
-  <span class="lb-nav lb-next" onclick="navLb(1,event)">&rsaquo;</span>
+  <span class="lb-nav lb-next" onclick="navLb(1,event)">›</span>
 </div>
 
 <script>
@@ -309,28 +292,18 @@ let avatarDataUrl = null;
 let carrosselJson = null;
 let currentPreviews = [];
 let lbIdx = 0;
-let selectedEstilo = 'dark';
 
 // SLIDE FIELDS per type
 const SLIDE_FIELDS = {
-  cover:       [{k:'eyebrow',l:'Eyebrow',t:'input'},{k:'headline',l:'Headline (max 5 palavras)',t:'input'},{k:'subtitle',l:'Subtitulo',t:'textarea'}],
+  cover:       [{k:'eyebrow',l:'Eyebrow',t:'input'},{k:'headline',l:'Headline (máx 5 palavras)',t:'input'},{k:'subtitle',l:'Subtítulo',t:'textarea'}],
   hook:        [{k:'headline',l:'Headline',t:'input'},{k:'body',l:'Body',t:'textarea'},{k:'destaque',l:'Destaque (em ouro)',t:'input'}],
   corpo:       [{k:'headline',l:'Headline',t:'input'},{k:'body',l:'Body',t:'textarea'},{k:'destaque',l:'Destaque (opcional)',t:'input'}],
-  dado:        [{k:'numero',l:'Numero / Dado',t:'input'},{k:'label',l:'Label do dado',t:'input'},{k:'body',l:'Contexto',t:'textarea'}],
-  quote:       [{k:'quote',l:'Citacao',t:'textarea'},{k:'atribuicao',l:'Atribuicao',t:'input'}],
-  versus:      [{k:'label_nao',l:'O mercado faz (riscado)',t:'input'},{k:'label_sim',l:'A realidade e (destaque)',t:'input'},{k:'body',l:'Logica por tras',t:'textarea'}],
-  diagnostico: [{k:'headline',l:'Headline diagnostico',t:'input'},{k:'itens[0]',l:'Item 1',t:'input'},{k:'itens[1]',l:'Item 2',t:'input'},{k:'itens[2]',l:'Item 3',t:'input'},{k:'conclusao',l:'Conclusao / causa raiz',t:'textarea'}],
-  cta:         [{k:'headline',l:'Headline do CTA',t:'input'},{k:'sub',l:'Subtitulo / proximo passo',t:'textarea'}],
+  dado:        [{k:'numero',l:'Número / Dado',t:'input'},{k:'label',l:'Label do dado',t:'input'},{k:'body',l:'Contexto',t:'textarea'}],
+  quote:       [{k:'quote',l:'Citação',t:'textarea'},{k:'atribuicao',l:'Atribuição',t:'input'}],
+  versus:      [{k:'label_nao',l:'O mercado faz (riscado)',t:'input'},{k:'label_sim',l:'A realidade é (destaque)',t:'input'},{k:'body',l:'Lógica por trás',t:'textarea'}],
+  diagnostico: [{k:'headline',l:'Headline diagnóstico',t:'input'},{k:'itens[0]',l:'Item 1',t:'input'},{k:'itens[1]',l:'Item 2',t:'input'},{k:'itens[2]',l:'Item 3',t:'input'},{k:'conclusao',l:'Conclusão / causa raiz',t:'textarea'}],
+  cta:         [{k:'headline',l:'Headline do CTA',t:'input'},{k:'sub',l:'Subtítulo / próximo passo',t:'textarea'}],
 };
-
-// ─── ESTILO SELECTOR ────────────────────────────────────────────────────────
-document.getElementById('estiloRow').addEventListener('click', (e) => {
-  const btn = e.target.closest('.estilo-btn');
-  if (!btn) return;
-  document.querySelectorAll('.estilo-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  selectedEstilo = btn.dataset.estilo;
-});
 
 // ─── SIDEBAR ─────────────────────────────────────────────────────────────────
 function toggleSidebar(){
@@ -352,7 +325,7 @@ async function carregarHistorico(){
           <div class="sb-meta">${escHtml(it.pilar||'')}</div>
           <div class="sb-date">${formatDate(it.timestamp)}</div>
         </div>
-        <button class="sb-del" onclick="deletarItem('${it.id}',event)" title="Deletar">&#10005;</button>
+        <button class="sb-del" onclick="deletarItem('${it.id}',event)" title="Deletar">✕</button>
       </div>`).join('');
   }catch(e){console.error(e)}
 }
@@ -364,17 +337,18 @@ async function carregarItem(id){
     currentPreviews = d.previews.map(p=>p.startsWith('data:')?p:`data:image/png;base64,${p}`);
     carrosselJson = d.carrossel_json;
     document.getElementById('resultTitle').textContent = d.titulo||'Carrossel';
-    document.getElementById('resultMeta').textContent = `${d.total_slides} slides \u00b7 ${d.pilar||''} \u00b7 @j.karv`;
+    document.getElementById('resultMeta').textContent = `${d.total_slides} slides · ${d.pilar||''} · @j.karv`;
     renderGrid();
     document.getElementById('editorSection').classList.remove('on');
     document.getElementById('resultSection').classList.add('on');
     document.getElementById('resultSection').scrollIntoView({behavior:'smooth',block:'start'});
+    // open sidebar on mobile
   }catch(e){showError('errorMsg','Erro ao carregar: '+e.message)}
 }
 
 async function deletarItem(id, e){
   e.stopPropagation();
-  if(!confirm('Deletar este carrossel do historico?')) return;
+  if(!confirm('Deletar este carrossel do histórico?')) return;
   await fetch(`/historico/${id}`,{method:'DELETE'});
   carregarHistorico();
 }
@@ -400,7 +374,7 @@ function animSteps(prefix,count){
   function set(idx){
     ids.forEach((id,si)=>{
       const el=document.getElementById(id); if(!el) return;
-      if(si<idx){el.className='step done';el.querySelector('.step-icon').textContent='\u2713';}
+      if(si<idx){el.className='step done';el.querySelector('.step-icon').textContent='✓';}
       else if(si===idx) el.className='step active';
       else el.className='step';
     });
@@ -412,11 +386,22 @@ function completeSteps(prefix,count){
   clearInterval(stepTimer);
   [...Array(count)].map((_,i)=>`${prefix}${i+1}`).forEach(id=>{
     const el=document.getElementById(id); if(!el) return;
-    el.className='step done'; el.querySelector('.step-icon').textContent='\u2713';
+    el.className='step done'; el.querySelector('.step-icon').textContent='✓';
   });
 }
 
 // ─── ETAPA 1: GERAR COPY ─────────────────────────────────────────────────────
+
+// ── SELETOR DE ESTILO ──
+let selectedEstilo = 'dark';
+document.getElementById('estiloRow').addEventListener('click', e => {
+  const btn = e.target.closest('.estilo-btn');
+  if (!btn) return;
+  document.querySelectorAll('.estilo-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedEstilo = btn.dataset.estilo;
+});
+
 document.getElementById('gerarForm').addEventListener('submit',async e=>{
   e.preventDefault();
   const tema=document.getElementById('tema').value.trim();
@@ -425,7 +410,7 @@ document.getElementById('gerarForm').addEventListener('submit',async e=>{
   if(!tema) return;
 
   document.getElementById('btnGerar').disabled=true;
-  document.getElementById('btnGerar').textContent='\u27F3 Gerando...';
+  document.getElementById('btnGerar').textContent='⟳ Gerando...';
   hideEl('errorMsg');
   showEl('loadingState');
   animSteps('step',3);
@@ -433,7 +418,7 @@ document.getElementById('gerarForm').addEventListener('submit',async e=>{
   try{
     const res=await fetch('/gerar',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({tema,pilar,slides,avatar_url:avatarDataUrl||null})
+      body:JSON.stringify({tema,pilar,slides,avatar_url:avatarDataUrl||null,estilo:selectedEstilo})
     });
     if(!res.ok){const err=await res.json();throw new Error(err.detail||'Erro desconhecido');}
     const data=await res.json();
@@ -445,7 +430,7 @@ document.getElementById('gerarForm').addEventListener('submit',async e=>{
     showError('errorMsg','Erro: '+err.message);
   }finally{
     document.getElementById('btnGerar').disabled=false;
-    document.getElementById('btnGerar').textContent='\u2192 Gerar Copy com IA';
+    document.getElementById('btnGerar').textContent='→ Gerar Copy com IA';
   }
 });
 
@@ -454,7 +439,7 @@ function mostrarEditor(data){
   hideEl('loadingState');
   carrosselJson=data.carrossel_json;
   document.getElementById('editorTitle').textContent=data.titulo||'Carrossel';
-  document.getElementById('editorSub').textContent=`${data.total_slides} slides \u00b7 ${data.pilar||''} \u00b7 revise antes de renderizar`;
+  document.getElementById('editorSub').textContent=`${data.total_slides} slides · ${data.pilar||''} · revise antes de renderizar`;
   buildEditor(carrosselJson);
   showEl('editorSection');
   document.getElementById('editorSection').scrollIntoView({behavior:'smooth',block:'start'});
@@ -481,12 +466,13 @@ function buildEditor(json){
         <div class="slide-card-head" onclick="toggleCard(this)">
           <span class="slide-badge">${tipo}</span>
           <span class="slide-num">Slide ${i+1} de ${slides.length}</span>
-          <span class="slide-toggle">\u25be</span>
+          <span class="slide-toggle">▾</span>
         </div>
         <div class="slide-fields">${fhtml}</div>
       </div>`;
   }).join('');
 
+  // Listen for changes
   container.querySelectorAll('input,textarea').forEach(el=>{
     el.addEventListener('input',syncField);
   });
@@ -496,7 +482,7 @@ function toggleCard(head){
   const fields=head.nextElementSibling;
   const open=fields.style.display!=='none';
   fields.style.display=open?'none':'';
-  head.querySelector('.slide-toggle').textContent=open?'\u25b8':'\u25be';
+  head.querySelector('.slide-toggle').textContent=open?'▸':'▾';
 }
 
 function syncField(e){
@@ -516,7 +502,7 @@ function syncField(e){
 async function renderizar(){
   if(!carrosselJson) return;
   document.getElementById('btnRenderizar').disabled=true;
-  document.getElementById('btnRenderizar').textContent='\u27F3 Renderizando...';
+  document.getElementById('btnRenderizar').textContent='⟳ Renderizando...';
   hideEl('renderError');
   showEl('loadingRender');
   animSteps('rstep',3);
@@ -537,7 +523,7 @@ async function renderizar(){
     showError('renderError','Erro: '+err.message);
   }finally{
     document.getElementById('btnRenderizar').disabled=false;
-    document.getElementById('btnRenderizar').textContent='\u27F6 Renderizar Carrossel';
+    document.getElementById('btnRenderizar').textContent='⟶ Renderizar Carrossel';
   }
 }
 
@@ -546,7 +532,7 @@ function mostrarResultado(data){
   hideEl('loadingRender');
   currentPreviews=data.previews.map(p=>p.startsWith('data:')?p:`data:image/png;base64,${p}`);
   document.getElementById('resultTitle').textContent=data.titulo||'Carrossel';
-  document.getElementById('resultMeta').textContent=`${data.total_slides} slides \u00b7 ${data.pilar||''} \u00b7 @j.karv`;
+  document.getElementById('resultMeta').textContent=`${data.total_slides} slides · ${data.pilar||''} · @j.karv`;
   renderGrid();
   showEl('resultSection');
   document.getElementById('resultSection').scrollIntoView({behavior:'smooth',block:'start'});
@@ -561,7 +547,7 @@ function renderGrid(){
     </div>`).join('');
 }
 
-// ─── NAVEGACAO ───────────────────────────────────────────────────────────────
+// ─── NAVEGAÇÃO ───────────────────────────────────────────────────────────────
 function voltarForm(){
   hideEl('editorSection');hideEl('resultSection');
   document.getElementById('formSection').scrollIntoView({behavior:'smooth'});
@@ -605,7 +591,7 @@ async function baixarZip() {
   btn.disabled = true;
   try {
     const resp = await fetch("/baixar");
-    if (!resp.ok) { alert("Erro ao baixar - tente novamente"); return; }
+    if (!resp.ok) { alert("Erro ao baixar — tente novamente"); return; }
     const blob = await resp.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

@@ -23,7 +23,7 @@ from generator import gerar_carrossel_completo, CLAUDE_BIN
 from slide_builder import build_all_slides
 from renderer import renderizar_e_empacotar
 
-# ─── HISTÕRICO ───────────────────────────────────────────────────────────────
+# ─── HISTÕ2ICO ────────────────────────────────────────────────────────────────
 HISTORICO_DIR = Path.home() / "carousel-api" / "historico"
 HISTORICO_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -49,7 +49,7 @@ class GerarRequest(BaseModel):
 class RenderizarRequest(BaseModel):
     carrossel_json: dict
     avatar_url: str | None = None
-    estilo: str = Field("dark")
+    estilo: str = "dark"
 
 # ─── ENDPOINTS ────────────────────────────────────────────────────────────────
 @app.get("/health")
@@ -109,9 +109,9 @@ async def renderizar(req: RenderizarRequest):
         "id": carousel_id,
         "titulo": titulo,
         "pilar": pilar,
-        "estilo": req.estilo,
         "timestamp": datetime.now().isoformat(),
         "total_slides": len(slides_html),
+        "estilo": req.estilo,
         "carrossel_json": carrossel,
     }
     (hist_dir / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2))

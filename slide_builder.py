@@ -1,10 +1,25 @@
-"""
-slide_builder.py — Converte dados de slide em HTML renderizável (1080x1440px)
-Redesign v2: breathing room generoso, hierarquia clara, ritmo tipográfico consistente.
+"""slide_builder.py — Sistema de design fechado. Uma regra por vez, nenhuma exceção.
+
+Sistema tipográfico:
+  T1 — cover-h  : Fraunces 900  108px / lh 0.90  (covers: ≤ 4 palavras)
+  T2 — h2       : Fraunces 700  96px  / lh 0.95  (hooks: ≤ 6 palavras, cta)
+  T3 — h3       : Fraunces 700  72px  / lh 1.05  (corpo, diagnostico)
+  B1 — body-l   : DM Sans  300  44px  / lh 1.55  (corpo principal)
+  L1 — label    : DM Mono  400  26px  / lh 1.4   (eyebrow, slide-num, cta-label, dado-label)
+
+Espaçamento fixo (tokens): 16 · 24 · 40 · 64 · 96
+Padding interno mínimo: 96px (> 2× body-l 44px)
+
+Alinhamento:
+  .si          = flex-start / text-align left  (padrão para todo conteúdo)
+  .si.center   = center (SOMENTE cover, cta, quote, dado)
+
+Itálico serifado: UMA ocorrência por slide, nunca em título.
+Labels: só existem se legíveis — mínimo L1 (26px render ≈ 9px phone).
+Elementos repetidos (sig, progress): posição fixa — absolute, bottom constante.
 """
 
 # ─── CSS BASE ─────────────────────────────────────────────────────────────────
-
 BASE_CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
 
@@ -15,18 +30,27 @@ BASE_CSS = """
   --gold-light: #e8d5b0;
   --dark2:      #1a1714;
   --dark3:      #2a2520;
+  --blood:      #3d1010;
+  --rust:       #6b2d1f;
+  --gold-dark:  #8a6228;
+  --warm-gray:  #7a7268;
   --muted:      rgba(244,240,232,0.5);
+
+  /* tokens de espaçamento */
+  --sp1: 16px;
+  --sp2: 24px;
+  --sp3: 40px;
+  --sp4: 64px;
+  --sp5: 96px;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-
 html, body {
   width: 1080px;
   height: 1440px;
   overflow: hidden;
   background: var(--ink);
 }
-
 .s {
   width: 1080px;
   height: 1440px;
@@ -48,14 +72,35 @@ html, body {
   z-index: 10;
 }
 
-/* ── PADDING INTERNO — generoso e consistente ── */
+/* ── PADDING INTERNO ── */
+/* Padrão: alinhamento esquerdo. .center só em cover / cta / quote / dado */
 .si {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 88px 100px 80px;
+  align-items: flex-start;
+  text-align: left;
+  padding: 88px var(--sp5) 200px;   /* 200px bottom reserva espaço p/ elementos fixos */
   position: relative;
   z-index: 2;
+  overflow: hidden;
+}
+.si.center {
+  align-items: center;
+  text-align: center;
+}
+
+/* ── ELEMENTOS FIXOS NO RODAPÉ ── */
+/* Sig e progress ficam sempre na mesma posição, independente do conteúdo */
+.footer-fixed {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: var(--sp3);
+  z-index: 5;
+  gap: var(--sp2);
 }
 
 /* ── BACKGROUNDS ── */
@@ -75,7 +120,6 @@ html, body {
     rgba(14,12,10,0.80) 45%,
     rgba(14,12,10,0.90) 100%);
 }
-
 .bg-grid {
   background-image:
     linear-gradient(rgba(184,135,58,0.035) 1px, transparent 1px),
@@ -83,31 +127,13 @@ html, body {
   background-size: 80px 80px;
 }
 
-/* ── ESPACADORES ── */
-.sp   { flex: 1; }
-.sp2  { flex: 2; }
-.sp3  { flex: 3; }
+/* ── SPACERS ── */
+.sp  { flex: 1; }
+.sp2 { flex: 2; }
 
-/* ── EYEBROW ── */
-.eyebrow {
-  font-family: 'DM Mono', monospace;
-  font-size: 18px;
-  letter-spacing: 0.30em;
-  text-transform: uppercase;
-  color: rgba(184,135,58,0.65);
-  line-height: 1.4;
-}
+/* ── SISTEMA TIPOGRÁFICO ── */
 
-/* ── SLIDE NUMBER ── */
-.slide-num {
-  font-family: 'DM Mono', monospace;
-  font-size: 16px;
-  letter-spacing: 0.20em;
-  color: rgba(244,240,232,0.22);
-}
-
-/* ── TIPOGRAFIA ── */
-/* cover usa tamanho proprio — comporta headlines de até 5 palavras */
+/* T1 — cover headline */
 .cover-h {
   font-family: 'Fraunces', serif;
   font-size: 108px;
@@ -115,48 +141,67 @@ html, body {
   line-height: 0.90;
   letter-spacing: -0.040em;
   color: var(--paper);
+  max-width: 860px;
 }
 
+/* T2 — hook / cta headline */
 h2 {
   font-family: 'Fraunces', serif;
-  font-size: 112px;
+  font-size: 96px;
   font-weight: 700;
-  line-height: 0.91;
-  letter-spacing: -0.038em;
+  line-height: 0.95;
+  letter-spacing: -0.035em;
   color: var(--paper);
+  max-width: 860px;
 }
 
+/* T3 — corpo / diagnostico headline */
 h3 {
   font-family: 'Fraunces', serif;
-  font-size: 84px;
+  font-size: 72px;
   font-weight: 700;
-  line-height: 1.02;
-  letter-spacing: -0.028em;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
   color: var(--paper);
+  max-width: 860px;
 }
 
+/* B1 — corpo de texto */
 .body-l {
   font-family: 'DM Sans', sans-serif;
-  font-size: 46px;
-  line-height: 1.52;
-  color: rgba(244,240,232,0.78);
+  font-size: 44px;
+  line-height: 1.55;           /* 44 × 1.55 = 68px — espaçamento confortável */
+  color: rgba(244,240,232,0.82);
   font-weight: 300;
   letter-spacing: -0.01em;
+  max-width: 860px;
+  flex-shrink: 1;
+  min-height: 0;
 }
 
-.body-m {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 40px;
-  line-height: 1.55;
-  color: rgba(244,240,232,0.75);
-  font-weight: 300;
-  letter-spacing: -0.01em;
+/* L1 — labels */
+.label {
+  font-family: 'DM Mono', monospace;
+  font-size: 26px;             /* ≈ 9px em celular — mínimo legível */
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(184,135,58,0.65);
+  line-height: 1.4;
 }
 
-.gold      { color: var(--gold); }
-.gold-lt   { color: var(--gold-light); }
-.italic    { font-style: italic; }
-.w700      { font-weight: 700; }
+/* Slide number: variante da label */
+.slide-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 24px;
+  letter-spacing: 0.18em;
+  color: rgba(244,240,232,0.22);
+}
+
+/* Helpers */
+.gold    { color: var(--gold); }
+.gold-lt { color: var(--gold-light); }
+.italic  { font-style: italic; }
+.w700    { font-weight: 700; }
 
 /* ── REVEAL BAR ── */
 .reveal-bar {
@@ -165,7 +210,6 @@ h3 {
   background: var(--gold);
   flex-shrink: 0;
 }
-
 .reveal-bar-full {
   width: 100%;
   height: 1px;
@@ -173,46 +217,49 @@ h3 {
   flex-shrink: 0;
 }
 
-/* ── SUBTÍTULO do cover ── */
+/* ── SUBTÍTULO do cover (único italic serifado neste slide) ── */
 .subtitle {
   font-family: 'Fraunces', serif;
   font-style: italic;
-  font-size: 52px;
+  font-size: 48px;
   font-weight: 300;
-  color: var(--gold-light);
-  line-height: 1.22;
-  letter-spacing: -0.015em;
-}
-
-/* ── DESTAQUE inline ── */
-.destaque-block {
-  font-family: 'Fraunces', serif;
-  font-style: italic;
-  font-size: 50px;
-  font-weight: 400;
   color: var(--gold-light);
   line-height: 1.25;
   letter-spacing: -0.015em;
-  padding-left: 28px;
+  max-width: 820px;
+}
+
+/* ── DESTAQUE (único italic serifado em slides corpo/hook) ── */
+.destaque-block {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 48px;
+  font-weight: 400;
+  color: var(--gold-light);
+  line-height: 1.28;
+  letter-spacing: -0.015em;
+  padding: var(--sp2) 0 var(--sp2) var(--sp2);
   border-left: 4px solid var(--gold);
+  align-self: flex-start;      /* alinha à esquerda com o restante do conteúdo */
+  max-width: 820px;
 }
 
 /* ── ASSINATURA ── */
 .sig {
   display: flex;
   align-items: center;
-  gap: 22px;
+  gap: 20px;
 }
 .sig-avatar {
-  width: 68px;
-  height: 68px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   background: var(--gold);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Fraunces', serif;
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 900;
   color: var(--ink);
   overflow: hidden;
@@ -231,7 +278,7 @@ h3 {
   font-size: 20px;
   color: var(--gold);
   letter-spacing: 0.05em;
-  margin-top: 3px;
+  margin-top: 2px;
 }
 
 /* ── PROGRESS ── */
@@ -241,18 +288,17 @@ h3 {
   align-items: center;
 }
 .dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: rgba(244,240,232,0.20);
+  background: rgba(244,240,232,0.18);
   flex-shrink: 0;
 }
 .dot.active {
   background: var(--gold);
-  width: 32px;
-  border-radius: 5px;
+  width: 24px;
+  border-radius: 4px;
 }
-
 .progress-line-wrap {
   position: absolute;
   bottom: 0; left: 0; right: 0;
@@ -268,19 +314,11 @@ h3 {
 /* ── DADO ── */
 .dado-numero {
   font-family: 'Fraunces', serif;
-  font-size: 240px;
+  font-size: 220px;
   font-weight: 900;
   line-height: 0.82;
   letter-spacing: -0.06em;
   color: var(--gold);
-}
-.dado-label {
-  font-family: 'DM Mono', monospace;
-  font-size: 24px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(184,135,58,0.65);
-  margin-top: 20px;
 }
 
 /* ── QUOTE ── */
@@ -291,37 +329,40 @@ h3 {
   color: rgba(184,135,58,0.10);
   line-height: 0.7;
   user-select: none;
-  margin-bottom: -24px;
+  margin-bottom: -16px;
 }
 .quote-text {
   font-family: 'Fraunces', serif;
   font-style: italic;
-  font-size: 68px;
+  font-size: 64px;
   font-weight: 400;
-  line-height: 1.22;
+  line-height: 1.25;
   letter-spacing: -0.02em;
   color: var(--paper);
+  max-width: 840px;
 }
 .quote-attr {
   font-family: 'DM Mono', monospace;
-  font-size: 20px;
+  font-size: 26px;
   color: var(--gold);
   letter-spacing: 0.10em;
-  margin-top: 48px;
+  margin-top: var(--sp3);
 }
 
 /* ── VERSUS ── */
 .versus-wrap {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 20px;
   width: 100%;
+  align-self: stretch;
 }
 .versus-col {
-  padding: 52px 56px;
+  padding: 48px 56px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
+  text-align: left;
 }
 .versus-col.nao {
   background: rgba(255,255,255,0.03);
@@ -329,59 +370,68 @@ h3 {
 }
 .versus-col.sim {
   background: rgba(184,135,58,0.09);
-  border: 2px solid rgba(184,135,58,0.40);
+  border: 1px solid rgba(184,135,58,0.28);
 }
 .versus-tag {
   font-family: 'DM Mono', monospace;
-  font-size: 16px;
+  font-size: 22px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
 }
-.versus-col.nao .versus-tag { color: rgba(244,240,232,0.30); }
+.versus-col.nao .versus-tag { color: rgba(244,240,232,0.28); }
 .versus-col.sim .versus-tag { color: var(--gold); }
 .versus-label {
   font-family: 'Fraunces', serif;
   font-size: 56px;
   font-weight: 700;
-  line-height: 1.10;
+  line-height: 1.05;
   letter-spacing: -0.02em;
+  max-width: 820px;
 }
 .versus-col.nao .versus-label {
-  color: rgba(244,240,232,0.38);
+  color: rgba(244,240,232,0.35);
   text-decoration: line-through;
-  text-decoration-thickness: 3px;
-  text-decoration-color: rgba(255,255,255,0.22);
+  text-decoration-color: rgba(255,255,255,0.12);
 }
 .versus-col.sim .versus-label { color: var(--paper); }
 
 /* ── DIAGNÓSTICO ── */
-.diag-list { display: flex; flex-direction: column; }
+.diag-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-self: stretch;
+}
 .diag-item {
   display: flex;
   align-items: flex-start;
-  gap: 32px;
-  padding: 44px 0;
+  gap: var(--sp2);
+  padding: var(--sp3) 0;
   border-bottom: 1px solid rgba(244,240,232,0.07);
+  text-align: left;
+  width: 100%;
 }
-.diag-item:first-child { padding-top: 32px; }
+.diag-item:first-child { padding-top: var(--sp2); }
 .diag-item:last-child  { border-bottom: none; }
 .diag-num {
   font-family: 'DM Mono', monospace;
-  font-size: 18px;
+  font-size: 22px;
   color: var(--gold);
   letter-spacing: 0.12em;
   flex-shrink: 0;
-  padding-top: 6px;
+  padding-top: 8px;
   min-width: 36px;
 }
 .diag-text {
   font-family: 'DM Sans', sans-serif;
   font-size: 42px;
   font-weight: 300;
-  line-height: 1.40;
+  line-height: 1.45;           /* 42 × 1.45 = 61px */
   color: rgba(244,240,232,0.85);
   letter-spacing: -0.01em;
+  max-width: 820px;
 }
+/* único italic serifado no slide diagnostico */
 .diag-conclusao {
   font-family: 'Fraunces', serif;
   font-style: italic;
@@ -390,38 +440,26 @@ h3 {
   color: var(--gold-light);
   line-height: 1.22;
   letter-spacing: -0.015em;
-  padding-top: 36px;
+  padding-top: var(--sp3);
   border-top: 2px solid rgba(184,135,58,0.4);
+  max-width: 860px;
 }
 
-/* ── CTA ── */
+/* ── CTA DIVIDER ── */
 .cta-divider {
   width: 100%;
   height: 1px;
   background: rgba(184,135,58,0.22);
 }
-.cta-label {
-  font-family: 'DM Mono', monospace;
-  font-size: 17px;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: rgba(184,135,58,0.55);
-}
 
-/* ── CONTINUIDADE — direção visual para o próximo slide ── */
+/* == CONTINUIDADE */
 .right-bar {
   position: absolute;
   right: 0;
   top: 80px;
   bottom: 80px;
   width: 4px;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(184,135,58,0.55) 18%,
-    rgba(184,135,58,0.55) 82%,
-    transparent 100%
-  );
+  background: linear-gradient(to bottom, transparent 0%, rgba(184,135,58,0.55) 18%, rgba(184,135,58,0.55) 82%, transparent 100%);
   z-index: 10;
 }
 .swipe-cue {
@@ -451,13 +489,13 @@ h3 {
 """
 
 
+
 # ─── TEMAS ────────────────────────────────────────────────────────────────────
 
 LIGHT = (
     ':root{'
     '--ink:#f5f1e8;--paper:#0e0c0a;--gold:#7a4e18;--gold-light:#5a3812;'
     '--dark2:#ece8de;--dark3:#e2ddd3;--blood:#e4e0d6;'
-    '--gold-dark:#5a3812;--warm-gray:#5a5248;'
     '}'
     '.body-l{color:rgba(14,12,10,.75);}'
     '.slide-num{color:rgba(14,12,10,.28);}'
@@ -476,23 +514,20 @@ LIGHT = (
     '.versus-col.sim{background:rgba(122,78,24,.10);border:1px solid rgba(122,78,24,.30);}'
     '.quote-mark{color:rgba(122,78,24,.12);}'
     '.reveal-bar-full{background:rgba(122,78,24,.20);}'
-    '.dot{background:rgba(14,12,10,.15);}'
-    '.dot.active{background:var(--gold);}'
+    '.dot{background:rgba(14,12,10,.15);}.dot.active{background:var(--gold);}'
     '.sig-handle{color:var(--gold);}'
     '.cta-divider{background:rgba(122,78,24,.22);}'
     '.destaque-block{border-left-color:var(--gold);color:var(--gold-light);}'
-    '.cover-h{color:var(--paper);}'
-    'h2{color:var(--paper);}h3{color:var(--paper);}'
-    '.quote-text{color:var(--paper);}'
-    '.versus-label{color:var(--paper);}'
-    '.subtitle{color:var(--gold-light);}'
+    '.cover-h{color:var(--paper);}h2{color:var(--paper);}h3{color:var(--paper);}'
+    '.quote-text{color:var(--paper);}.subtitle{color:var(--gold-light);}'
+    '.footer-fixed{border-top-color:rgba(122,78,24,.15);}'
+    'html,body,.s{background:var(--paper);}'
 )
 
 FERRUGEM = (
     ':root{'
     '--ink:#1a0a04;--paper:#f5e8d5;--gold:#c8683a;--gold-light:#e0a070;'
     '--dark2:#280e06;--dark3:#3e1c0c;--blood:#5c2210;'
-    '--gold-dark:#a0501e;--warm-gray:#8a6050;'
     '}'
     '.body-l{color:rgba(245,232,213,.82);}'
     '.slide-num{color:rgba(245,232,213,.22);}'
@@ -509,170 +544,152 @@ FERRUGEM = (
     '.versus-col.sim{background:rgba(200,104,58,.10);border:1px solid rgba(200,104,58,.30);}'
     '.quote-mark{color:rgba(200,104,58,.12);}'
     '.reveal-bar-full{background:rgba(200,104,58,.25);}'
-    '.dot{background:rgba(245,232,213,.18);}'
-    '.dot.active{background:var(--gold);}'
+    '.dot{background:rgba(245,232,213,.18);}.dot.active{background:var(--gold);}'
     '.sig-handle{color:var(--gold);}'
     '.cta-divider{background:rgba(200,104,58,.22);}'
     '.destaque-block{border-left-color:var(--gold);color:var(--gold-light);}'
 )
 
 THEME_CSS = {
-    'dark':     '',
-    'light':    LIGHT,
-    'ferrugem': FERRUGEM,
+    "dark":     "",
+    "light":    LIGHT,
+    "ferrugem": FERRUGEM,
 }
 
-
 # ─── HELPERS ──────────────────────────────────────────────────────────────────
-
-def _html(body: str, theme: str = 'dark') -> str:
-    theme_override = THEME_CSS.get(theme, '')
-    return f"""<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<style>{BASE_CSS}{theme_override}</style>
-</head>
-<body>{body}</body>
-</html>"""
+def _html(body: str) -> str:
+    return f"""<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><style>{BASE_CSS}</style></head><body>{body}</body></html>"""
 
 
-def _dark_bg(imagem_url: str | None, theme: str = 'dark') -> str:
-    """Fundo do slide — imagem ou fallback gradient temático."""
-    if imagem_url:
-        return f'<div class="bg-img" style="background-image:url(\'{imagem_url}\')"></div>'
-    if theme == 'light':
-        return '<div style="position:absolute;inset:0;z-index:0;background:linear-gradient(160deg,#ece8de 0%,#e4e0d5 60%,#dad6cc 100%);"><div style="position:absolute;inset:0;background-image:linear-gradient(rgba(122,78,24,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(122,78,24,.03) 1px,transparent 1px);background-size:60px 60px;"></div></div>'
-    if theme == 'ferrugem':
-        return '<div style="position:absolute;inset:0;z-index:0;background:var(--blood);"><div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 20%,rgba(200,104,58,.20) 0%,transparent 50%),linear-gradient(160deg,#3d1208 0%,#2a0a04 50%,#1a0804 100%);"></div><div style="position:absolute;inset:0;background-image:linear-gradient(rgba(200,104,58,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(200,104,58,.05) 1px,transparent 1px);background-size:60px 60px;"></div></div>'
-    return '<div style="position:absolute;inset:0;z-index:0;background:var(--blood);"><div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 20%,rgba(184,135,58,.12) 0%,transparent 50%),radial-gradient(ellipse at 20% 80%,rgba(107,45,31,.4) 0%,transparent 50%),linear-gradient(160deg,#2a0a0a 0%,#1a0808 40%,#0e0c0a 100%);"></div><div style="position:absolute;inset:0;background-image:linear-gradient(rgba(184,135,58,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(184,135,58,.04) 1px,transparent 1px);background-size:60px 60px;"></div></div>'
-
-
-def _right_bar() -> str:
-    return '<div class="right-bar"></div>'
-
-
-def _swipe_cue() -> str:
-    return (
-        '<div class="swipe-cue">'
-        '<div class="swipe-cue-label">pr&#xF3;ximo</div>'
-        '<div class="swipe-cue-arrow">&#x2192;</div>'
-        '</div>'
-    )
-
-
-def _dots(index: int, total: int, is_last: bool = False) -> str:
+def _footer(index: int, total: int, avatar_url: str | None = None, show_sig: bool = False, is_last: bool = False) -> str:
+    """Rodapé fixo: sig (opcional) + progress dots + barra de progresso.
+    Sempre posicionado no mesmo lugar em todos os slides."""
     dots = "".join(
         f'<div class="dot{"  active" if i == index else ""}"></div>'
         for i in range(1, total + 1)
     )
     pct = int(index / total * 100)
-    continuidade = "" if is_last else f"{_right_bar()}{_swipe_cue()}"
-    return f"""<div class="progress">{dots}</div>
+
+    sig_html = ""
+    if show_sig:
+        inner = f'<img src="{avatar_url}" alt="">' if avatar_url else "J"
+        sig_html = f"""
+    <div class="sig">
+      <div class="sig-avatar">{inner}</div>
+      <div>
+        <div class="sig-name">Julio Carvalho</div>
+        <div class="sig-handle">@j.karv</div>
+      </div>
+    </div>"""
+
+    return f"""
+<div class="footer-fixed">
+  {sig_html}
+  <div class="progress">{dots}</div>
+</div>
 <div class="progress-line-wrap">
   <div class="progress-line-fill" style="width:{pct}%"></div>
-</div>{continuidade}"""
+</div>{_right_bar() if not is_last else ""}{_swipe_cue() if not is_last else ""}"""
 
 
-def _sig(avatar_url: str | None = None) -> str:
-    inner = f'<img src="{avatar_url}" alt="">' if avatar_url else "J"
-    return f"""<div class="sig">
-  <div class="sig-avatar">{inner}</div>
-  <div>
-    <div class="sig-name">Julio Carvalho</div>
-    <div class="sig-handle">@j.karv</div>
-  </div>
+def _dark_bg(imagem_url: str | None) -> str:
+    if imagem_url:
+        return f'<div class="bg-img" style="background-image:url(\'{imagem_url}\')"></div>'
+    return """<div style="position:absolute;inset:0;z-index:0;background:var(--blood);">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 20%,rgba(184,135,58,.12) 0%,transparent 50%),radial-gradient(ellipse at 20% 80%,rgba(107,45,31,.4) 0%,transparent 50%),linear-gradient(160deg,#2a0a0a 0%,#1a0808 40%,#0e0c0a 100%);"></div>
+  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(184,135,58,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(184,135,58,.04) 1px,transparent 1px);background-size:60px 60px;"></div>
 </div>"""
 
 
-# ─── COVER ────────────────────────────────────────────────────────────────────
-# Estrutura: eyebrow → [espaço] → h1 → reveal-bar → subtitle → [espaço menor] → sig → dots
 
-def slide_cover(data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = 'dark') -> str:
+def _right_bar():
+    return '<div class="right-bar"></div>'
+
+def _swipe_cue():
+    return ('<div class="swipe-cue">' + '<div class="swipe-cue-label">pr&#xF3;ximo</div>' + '<div class="swipe-cue-arrow">&#x2192;</div>' + '</div>')
+
+# ─── COVER ────────────────────────────────────────────────────────────────────
+# Centrado: headline curto (≤ 5 palavras) + subtitle (1 italic por slide)
+# Sig aparece no cover porque é o cartão de visita do criador
+def slide_cover(data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = "dark") -> str:
     headline = data.get("headline", "").replace("\n", "<br>")
     subtitle = data.get("subtitle", "")
     eyebrow  = data.get("eyebrow", "")
     index, total = data.get("index", 1), data.get("total", 7)
 
-    bg = _dark_bg(imagem_url, theme)
+    eyebrow_html = f'<div class="label" style="margin-bottom:var(--sp4);">{eyebrow}</div>' if eyebrow else f'<div style="height:var(--sp4);"></div>'
+    subtitle_html = f'<div style="margin-top:var(--sp3);" class="subtitle">{subtitle}</div>' if subtitle else ""
 
     return _html(f"""<div class="s">
   <div class="top-bar"></div>
-  {bg}
-  <div class="si">
-    <div class="eyebrow">{eyebrow}</div>
-    <div style="height:64px;flex-shrink:0;"></div>
+  {_dark_bg(imagem_url, theme)}
+  <div class="si center">
+    <div class="sp" style="flex:0.8"></div>
+    {eyebrow_html}
     <div class="cover-h">{headline}</div>
-    <div style="margin-top:48px;">
-      <div class="reveal-bar"></div>
-      <div style="margin-top:32px;" class="subtitle">{subtitle}</div>
-    </div>
+    <div style="margin-top:var(--sp3);"><div class="reveal-bar" style="margin:0 auto;"></div></div>
+    {subtitle_html}
     <div class="sp"></div>
-    <div class="reveal-bar-full"></div>
-    <div style="margin-top:40px;">{_sig(avatar_url)}</div>
-    <div style="margin-top:32px;">{_dots(index, total)}</div>
   </div>
+  {_footer(index, total, avatar_url, show_sig=True)}
 </div>""", theme=theme)
 
 
 # ─── HOOK ─────────────────────────────────────────────────────────────────────
-# Estrutura: [espaço] → h2 grande → [24px gap] → body → reveal-bar + destaque → [espaço] → dots
-
-def slide_hook(data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = 'dark') -> str:
+# Esquerda: headline médio (≤ 7 palavras) + body + 1 destaque italic
+def slide_hook(data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = "dark") -> str:
     headline = data.get("headline", "").replace("\n", "<br>")
     body_txt = data.get("body", "").replace("\n", "<br>")
     destaque = data.get("destaque", "")
     index, total = data.get("index", 2), data.get("total", 7)
 
     destaque_html = f"""
-    <div style="margin-top:48px;">
-      <div class="reveal-bar"></div>
-      <div style="margin-top:28px;" class="destaque-block">{destaque}</div>
+    <div style="margin-top:var(--sp4);">
+      <div class="destaque-block">{destaque}</div>
     </div>""" if destaque else ""
 
     return _html(f"""<div class="s bg-grid">
   <div class="top-bar"></div>
   <div class="si">
-    <div class="sp"></div>
+    <div class="sp" style="flex:0.5"></div>
     <h2>{headline}</h2>
-    <div style="margin-top:40px;" class="body-l">{body_txt}</div>
+    <div style="margin-top:var(--sp2);"><div class="reveal-bar"></div></div>
+    <div style="margin-top:var(--sp3);" class="body-l">{body_txt}</div>
     {destaque_html}
     <div class="sp"></div>
-    {_dots(index, total)}
   </div>
+  {_footer(index, total, avatar_url)}
 </div>""", theme=theme)
 
 
 # ─── CORPO ────────────────────────────────────────────────────────────────────
-# Estrutura: slide-num → [espaço] → h3 → line → body → destaque (opcional) → [espaço] → dots
-
-def slide_corpo(data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = 'dark') -> str:
+# Esquerda: slide-num (L1) + h3 + linha + body + destaque (opcional)
+def slide_corpo(data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = "dark") -> str:
     headline = data.get("headline", "").replace("\n", "<br>")
     body_txt = data.get("body", "").replace("\n", "<br>")
     destaque = data.get("destaque", "")
     index, total = data.get("index", 3), data.get("total", 7)
 
-    destaque_html = f'<div style="margin-top:44px;" class="destaque-block">{destaque}</div>' if destaque else ""
+    destaque_html = f'<div style="margin-top:var(--sp3);" class="destaque-block">{destaque}</div>' if destaque else ""
 
     return _html(f"""<div class="s">
   <div class="top-bar"></div>
   <div class="si">
     <div class="slide-num">{index:02d} — {total:02d}</div>
-    <div class="sp" style="flex:0.6"></div>
+    <div class="sp" style="flex:0.5;min-height:var(--sp4);flex-shrink:0;"></div>
     <h3>{headline}</h3>
-    <div style="margin-top:36px;" class="reveal-bar-full"></div>
-    <div style="margin-top:40px;" class="body-l">{body_txt}</div>
+    <div style="margin-top:var(--sp2);"><div class="reveal-bar-full"></div></div>
+    <div style="margin-top:var(--sp3);" class="body-l">{body_txt}</div>
     {destaque_html}
     <div class="sp"></div>
-    {_dots(index, total)}
   </div>
+  {_footer(index, total, avatar_url)}
 </div>""", theme=theme)
 
 
 # ─── DADO ─────────────────────────────────────────────────────────────────────
-# Estrutura: [espaço] → número enorme → label → divider → body → [espaço] → dots
-
-def slide_dado(data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = 'dark') -> str:
+# Centrado: número enorme + label (L1) + corpo de texto
+def slide_dado(data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = "dark") -> str:
     numero   = data.get("numero", "—")
     label    = data.get("label", "")
     body_txt = data.get("body", "").replace("\n", "<br>")
@@ -680,54 +697,52 @@ def slide_dado(data: dict, imagem_url: str | None = None, avatar_url: str | None
 
     return _html(f"""<div class="s bg-grid">
   <div class="top-bar"></div>
-  <div class="si">
-    <div class="sp"></div>
-    <div class="dado-numero">{numero}</div>
-    <div class="dado-label">{label}</div>
-    <div style="margin-top:52px;width:56px;height:3px;background:var(--gold)"></div>
-    <div style="margin-top:36px;" class="body-l">{body_txt}</div>
+  <div class="si center">
     <div class="sp" style="flex:0.6"></div>
-    {_dots(index, total)}
+    <div class="dado-numero">{numero}</div>
+    <div style="margin-top:var(--sp2);" class="label">{label}</div>
+    <div style="margin-top:var(--sp4);width:56px;height:3px;background:var(--gold);margin-left:auto;margin-right:auto;"></div>
+    <div style="margin-top:var(--sp3);" class="body-l" style="text-align:left;">{body_txt}</div>
+    <div class="sp" style="flex:0.4"></div>
   </div>
+  {_footer(index, total, avatar_url)}
 </div>""", theme=theme)
 
 
 # ─── QUOTE ────────────────────────────────────────────────────────────────────
-# Estrutura: [espaço] → aspas decorativas → quote text → atribuição → [espaço] → dots
-
-def slide_quote(data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = 'dark') -> str:
+# Centrado: aspas decorativas + quote (todo italic) + atribuição (L1)
+def slide_quote(data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = "dark") -> str:
     quote_txt = data.get("quote", "").replace("\n", "<br>")
     attr      = data.get("atribuicao", "Julio Carvalho")
     index, total = data.get("index", 5), data.get("total", 7)
 
     return _html(f"""<div class="s" style="background:var(--dark2);">
   <div class="top-bar"></div>
-  <div class="si">
+  <div class="si center">
     <div class="sp" style="flex:0.5"></div>
     <div class="quote-mark">"</div>
-    <div style="margin-top:8px;" class="quote-text">{quote_txt}</div>
+    <div style="margin-top:var(--sp1);" class="quote-text">{quote_txt}</div>
     <div class="quote-attr">— {attr}</div>
     <div class="sp"></div>
-    {_dots(index, total)}
   </div>
+  {_footer(index, total, avatar_url)}
 </div>""", theme=theme)
 
 
 # ─── VERSUS ───────────────────────────────────────────────────────────────────
-# Layout vertical (stacked) — mais respiro do que lado a lado
-
-def slide_versus(data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = 'dark') -> str:
+# Esquerda: cards empilhados + body explicativo embaixo
+def slide_versus(data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = "dark") -> str:
     label_nao = data.get("label_nao", "").replace("\n", "<br>")
     label_sim = data.get("label_sim", "").replace("\n", "<br>")
     body_txt  = data.get("body", "").replace("\n", "<br>")
     index, total = data.get("index", 6), data.get("total", 7)
 
-    body_html = f'<div style="margin-top:52px;" class="body-m">{body_txt}</div>' if body_txt else ""
+    body_html = f'<div style="margin-top:var(--sp3);" class="body-l">{body_txt}</div>' if body_txt else ""
 
     return _html(f"""<div class="s bg-grid">
   <div class="top-bar"></div>
   <div class="si">
-    <div class="sp"></div>
+    <div class="sp" style="flex:0.3"></div>
     <div class="versus-wrap">
       <div class="versus-col nao">
         <div class="versus-tag">O mercado faz</div>
@@ -740,22 +755,18 @@ def slide_versus(data: dict, imagem_url: str | None = None, avatar_url: str | No
     </div>
     {body_html}
     <div class="sp"></div>
-    {_dots(index, total)}
   </div>
+  {_footer(index, total, avatar_url)}
 </div>""", theme=theme)
 
 
 # ─── DIAGNÓSTICO ──────────────────────────────────────────────────────────────
-# Estrutura: headline → itens numerados (max 3) → linha + conclusão → dots
-
-def slide_diagnostico(data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = 'dark') -> str:
+# Esquerda: h3 + linha + itens numerados (max 3) + conclusão italic
+def slide_diagnostico(data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = "dark") -> str:
     headline  = data.get("headline", "").replace("\n", "<br>")
-    itens     = data.get("itens", [])[:3]          # máximo 3 para não afogar
+    itens     = data.get("itens", [])[:3]
     conclusao = data.get("conclusao", "").replace("\n", "<br>")
     index, total = data.get("index", 7), data.get("total", 7)
-
-    # Reduz font se headline longo (>40 chars)
-    h_style = 'style="font-size:64px;line-height:1.08;"' if len(headline) > 40 else ''
 
     itens_html = "".join(f"""
     <div class="diag-item">
@@ -763,48 +774,49 @@ def slide_diagnostico(data: dict, imagem_url: str | None = None, avatar_url: str
       <div class="diag-text">{item}</div>
     </div>""" for i, item in enumerate(itens))
 
+    conclusao_html = f'<div style="margin-top:var(--sp2);" class="diag-conclusao">{conclusao}</div>' if conclusao else ""
+
     return _html(f"""<div class="s">
   <div class="top-bar"></div>
   <div class="si">
-    <h3 {h_style}>{headline}</h3>
-    <div style="margin-top:12px;" class="reveal-bar-full"></div>
+    <div class="sp" style="flex:0.35;min-height:40px;flex-shrink:0;"></div>
+    <h3>{headline}</h3>
+    <div style="margin-top:var(--sp2);"><div class="reveal-bar-full"></div></div>
     <div class="diag-list">{itens_html}</div>
-    <div style="margin-top:16px;" class="diag-conclusao">{conclusao}</div>
+    {conclusao_html}
     <div class="sp"></div>
-    {_dots(index, total)}
   </div>
+  {_footer(index, total, avatar_url)}
 </div>""", theme=theme)
 
 
 # ─── CTA ──────────────────────────────────────────────────────────────────────
-# Estrutura: [espaço] → label → reveal-bar → h2 → sub → [espaço] → divider → sig → dots
-
-def slide_cta(data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = 'dark') -> str:
+# Centrado: label (L1) + h2 + sub + divisor + sig (sig aparece aqui também)
+def slide_cta(data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = "dark") -> str:
     headline = data.get("headline", "").replace("\n", "<br>")
     sub      = data.get("sub", "")
     index, total = data.get("index", 7), data.get("total", 7)
 
-    bg = _dark_bg(imagem_url, theme)
+    sub_html = f'<div style="margin-top:var(--sp3);" class="body-l gold-lt">{sub}</div>' if sub else ""
 
     return _html(f"""<div class="s">
   <div class="top-bar"></div>
-  {bg}
-  <div class="si">
+  {_dark_bg(imagem_url, theme)}
+  <div class="si center">
     <div class="sp"></div>
-    <div class="cta-label">Próximo passo</div>
-    <div style="margin-top:28px;" class="reveal-bar"></div>
-    <div style="margin-top:44px;"><h2>{headline}</h2></div>
-    <div style="margin-top:44px;" class="body-l gold-lt">{sub}</div>
+    <div class="label" style="color:rgba(184,135,58,0.55);">Próximo passo</div>
+    <div style="margin-top:var(--sp2);"><div class="reveal-bar" style="margin:0 auto;"></div></div>
+    <div style="margin-top:var(--sp3);"><h2>{headline}</h2></div>
+    {sub_html}
     <div class="sp" style="flex:0.5"></div>
-    <div class="cta-divider"></div>
-    <div style="margin-top:40px;">{_sig(avatar_url)}</div>
-    <div style="margin-top:36px;">{_dots(index, total, is_last=True)}</div>
+    <div style="width:100%;height:1px;background:rgba(184,135,58,0.22);"></div>
+    <div style="height:var(--sp4);"></div>
   </div>
+  {_footer(index, total, avatar_url, show_sig=True, is_last=True)}
 </div>""", theme=theme)
 
 
 # ─── DISPATCHER ───────────────────────────────────────────────────────────────
-
 SLIDE_BUILDERS = {
     "cover":       slide_cover,
     "hook":        slide_hook,
@@ -817,13 +829,13 @@ SLIDE_BUILDERS = {
 }
 
 
-def build_slide(slide_data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = 'dark') -> str:
+def build_slide(slide_data: dict, imagem_url: str | None = None, avatar_url: str | None = None, theme: str = "dark") -> str:
     tipo = slide_data.get("tipo", "corpo")
     fn   = SLIDE_BUILDERS.get(tipo, slide_corpo)
     return fn(slide_data, imagem_url=imagem_url, avatar_url=avatar_url, theme=theme)
 
 
-def build_all_slides(carrossel: dict, avatar_url: str | None = None, theme: str = 'dark') -> list[str]:
+def build_all_slides(carrossel: dict, avatar_url: str | None = None, theme: str = "dark") -> list[str]:
     imagem_url  = carrossel.get("imagem_url")
     slides_data = carrossel.get("slides", [])
     return [build_slide(s, imagem_url=imagem_url, avatar_url=avatar_url, theme=theme) for s in slides_data]
