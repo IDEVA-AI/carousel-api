@@ -230,7 +230,9 @@ def baixar_zip():
     if not cached:
         raise HTTPException(status_code=404, detail="Nenhum carrossel gerado ainda.")
     zip_bytes, _ = renderizar_e_empacotar(cached["slides_html"], prefixo="julio_carvalho")
-    filename = cached["titulo"].lower().replace(" ", "_")[:40] + ".zip"
+    import unicodedata
+    safe_title = unicodedata.normalize("NFKD", cached["titulo"]).encode("ascii", "ignore").decode()
+    filename = safe_title.lower().replace(" ", "_")[:40] + ".zip"
     return StreamingResponse(
         io.BytesIO(zip_bytes), media_type="application/zip",
         headers={"Content-Disposition": f"attachment; filename={filename}"},
