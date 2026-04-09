@@ -126,7 +126,8 @@ def _gerar_via_bridge(prompt_completo: str) -> dict:
     data = r.json()
     if "error" in data:
         raise RuntimeError(f"Claude Bridge erro: {data['error']}")
-    return _parse_json_response(data.get("result", ""))
+    raw = data.get("text") or data.get("result") or ""
+    return _parse_json_response(raw)
 
 # ─── GERAÇÃO VIA CLAUDE CODE CLI ─────────────────────────────────────────────
 def _gerar_via_cli(prompt_completo: str) -> dict:
