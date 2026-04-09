@@ -1022,7 +1022,26 @@ def build_slide(slide_data: dict, imagem_url: str | None = None, avatar_url: str
     return fn(slide_data, imagem_url=imagem_url, avatar_url=avatar_url, theme=theme)
 
 
+def _misto_theme(tipo: str, index: int) -> str:
+    """Tema misto: alterna dark/light conforme tipo e posição."""
+    # Cover e CTA sempre dark (com imagem)
+    if tipo in ("cover", "cover_foto", "cta"):
+        return "dark"
+    # Quote sempre light (contraste editorial)
+    if tipo == "quote":
+        return "light"
+    # Demais slides alternam: ímpares=dark, pares=light
+    return "light" if index % 2 == 0 else "dark"
+
+
 def build_all_slides(carrossel: dict, avatar_url: str | None = None, theme: str = "dark") -> list[str]:
     imagem_url  = carrossel.get("imagem_url")
     slides_data = carrossel.get("slides", [])
-    return [build_slide(s, imagem_url=imagem_url, avatar_url=avatar_url, theme=theme) for s in slides_data]
+    result = []
+    for i, s in enumerate(slides_data):
+        if theme == "misto":
+            slide_theme = _misto_theme(s.get("tipo", "corpo"), i)
+        else:
+            slide_theme = theme
+        result.append(build_slide(s, imagem_url=imagem_url, avatar_url=avatar_url, theme=slide_theme))
+    return result
