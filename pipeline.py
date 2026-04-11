@@ -14,6 +14,38 @@ import httpx
 
 CLAUDE_BRIDGE_URL = os.environ.get("CLAUDE_BRIDGE_URL", "")
 
+# ─── AVATAR DO INSTAGRAM ─────────────────────────────────────────────────────
+_avatar_cache: str | None = None
+
+def _get_avatar_url() -> str | None:
+    """Busca foto de perfil do Instagram e converte pra base64."""
+    global _avatar_cache
+    if _avatar_cache:
+        return _avatar_cache
+    token = os.environ.get("INSTAGRAM_ACCESS_TOKEN", "")
+    if not token:
+        return None
+    try:
+        r = httpx.get(
+            "https://graph.instagram.com/v22.0/me",
+            params={"fields": "profile_picture_url", "access_token": token},
+            timeout=10,
+        )
+        r.raise_for_status()
+        pic_url = r.json().get("profile_picture_url")
+        if not pic_url:
+            return None
+        # Baixar e converter pra base64
+        img_r = httpx.get(pic_url, timeout=10, follow_redirects=True)
+        img_r.raise_for_status()
+        b64 = base64.b64encode(img_r.content).decode()
+        _avatar_cache = f"data:image/jpeg;base64,{b64}"
+        print(f"[Pipeline] Avatar carregado ({len(img_r.content)//1024}KB)")
+        return _avatar_cache
+    except Exception as e:
+        print(f"[Pipeline] Erro ao carregar avatar: {e}")
+        return None
+
 
 # ─── ETAPA 1+2: TRENDING + TEMA ─────────────────────────────────────────────
 
@@ -42,7 +74,8 @@ def etapa_render(carrossel: dict, estilo: str = "dark", visual: str = "editorial
     from slide_builder import build_all_slides
     from renderer import renderizar_e_empacotar
 
-    slides_html = build_all_slides(carrossel, theme=estilo, visual=visual)
+    avatar = _get_avatar_url()
+    slides_html = build_all_slides(carrossel, avatar_url=avatar, theme=estilo, visual=visual)
     zip_bytes, previews = renderizar_e_empacotar(slides_html)
 
     # Extrair PNGs do ZIP
