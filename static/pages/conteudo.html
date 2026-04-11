@@ -21,7 +21,7 @@
 <div id="dnaArea" style="display:none;"></div>
 
 <!-- ADD BUTTON -->
-<button class="btn btn-outline" style="margin-top:20px;width:100%;padding:16px;" id="btnAddItem" onclick="addItem()">+ Adicionar novo</button>
+<button class="btn btn-outline btn-full" style="margin-top:20px;padding:16px;" id="btnAddItem" onclick="addItem()">+ Adicionar novo</button>
 
 <script>
 let conteudoData = {};
@@ -123,9 +123,7 @@ async function loadDnaModules() {
           </div>
         </div>
         <div style="display:none;">
-          <textarea id="dna_${key}" rows="15" style="width:100%;font-family:'DM Mono',monospace;font-size:11px;color:var(--paper);
-            line-height:1.7;padding:16px;background:rgba(244,240,232,.03);border:1px solid var(--border);border-radius:4px;
-            outline:none;resize:vertical;">${esc(content)}</textarea>
+          <textarea id="dna_${key}" rows="15" class="fi fi-mono" style="font-size:11px;line-height:1.7;padding:16px;">${esc(content)}</textarea>
           <div style="display:flex;gap:8px;margin-top:8px;">
             <button class="btn btn-gold" onclick="saveDnaModule('${key}')">Salvar ${DNA_LABELS[key] || key}</button>
             <span id="dnaStatus_${key}" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);padding-top:10px;"></span>
@@ -174,19 +172,19 @@ function renderItems() {
       if (f.t === 'list') {
         const listVal = Array.isArray(val) ? val.join('\n') : val;
         return `<div style="margin-bottom:12px;">
-          <label style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px;">${f.l}</label>
-          <textarea data-idx="${idx}" data-key="${f.k}" data-list="true" rows="3" style="width:100%;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;border-radius:4px;outline:none;resize:vertical;">${esc(listVal)}</textarea>
+          <label class="fl">${f.l}</label>
+          <textarea data-idx="${idx}" data-key="${f.k}" data-list="true" rows="3" class="fi">${esc(listVal)}</textarea>
         </div>`;
       }
       if (f.t === 'textarea') {
         return `<div style="margin-bottom:12px;">
-          <label style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px;">${f.l}</label>
-          <textarea data-idx="${idx}" data-key="${f.k}" rows="3" style="width:100%;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;border-radius:4px;outline:none;resize:vertical;">${esc(val)}</textarea>
+          <label class="fl">${f.l}</label>
+          <textarea data-idx="${idx}" data-key="${f.k}" rows="3" class="fi">${esc(val)}</textarea>
         </div>`;
       }
       return `<div style="margin-bottom:12px;">
-        <label style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px;">${f.l}</label>
-        <input type="text" data-idx="${idx}" data-key="${f.k}" value="${esc(val)}" style="width:100%;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;border-radius:4px;outline:none;">
+        <label class="fl">${f.l}</label>
+        <input type="text" data-idx="${idx}" data-key="${f.k}" value="${esc(val)}" class="fi">
       </div>`;
     }).join('');
 
@@ -276,8 +274,6 @@ async function addItem() {
     }, 100);
   } catch(e) {}
 }
-
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 loadConteudo();
 </script>
