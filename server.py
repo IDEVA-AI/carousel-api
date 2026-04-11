@@ -358,6 +358,51 @@ def instagram_quota():
 
 # ─── BASE DE CONTEÚDO API ─────────────────────────────────────────────────────
 
+# ─── POST FORMATS (tweet, feed single, story) ────────────────────────────────
+
+@app.post("/api/post/render")
+async def render_post_endpoint(payload: dict):
+    """Renderiza um post em formato específico (tweet, feed_single, story)."""
+    from post_builder import render_post, FORMAT_BUILDERS
+    import base64 as b64mod
+
+    formato = payload.get("formato", "tweet")
+    data = payload.get("data", {})
+    theme = payload.get("theme", "dark")
+
+    if formato not in FORMAT_BUILDERS:
+        raise HTTPException(status_code=400, detail=f"Formato '{formato}' nao existe. Disponiveis: {list(FORMAT_BUILDERS.keys())}")
+
+    try:
+        # Buscar avatar do Instagram se disponível
+        avatar = None
+        token = os.environ.get("INSTAGRAM_ACCESS_TOKEN", "")
+        if token:
+            try:
+                r = httpx.get(f"https://graph.instagram.com/v22.0/me", params={"fields": "profile_picture_url", "access_token": token}, timeout=5)
+                pic_url = r.json().get("profile_picture_url", "")
+                if pic_url:
+                    img_r = httpx.get(pic_url, timeout=5, follow_redirects=True)
+                    avatar = f"data:image/jpeg;base64,{b64mod.b64encode(img_r.content).decode()}"
+            except Exception:
+                pass
+
+        png = render_post(formato, data, theme, avatar_url=avatar)
+        preview = f"data:image/png;base64,{b64mod.b64encode(png).decode()}"
+        return {"preview": preview, "formato": formato, "size_kb": len(png) // 1024}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/post/formatos")
+def list_formatos():
+    from post_builder import FORMAT_BUILDERS, FORMAT_DIMENSIONS
+    return {
+        "formatos": [
+            {"id": k, "dimensions": FORMAT_DIMENSIONS.get(k, [1080, 1080])}
+            for k in FORMAT_BUILDERS
+        ]
+    }
+
 # ─── AUTOMATION: WEBHOOK ──────────────────────────────────────────────────────
 
 @app.get("/webhook/instagram")
