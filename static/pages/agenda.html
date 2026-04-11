@@ -88,25 +88,49 @@ function renderJobs() {
     return;
   }
 
-  area.innerHTML = schedConfig.jobs.map((job, i) => `
-    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);">
-      <input type="checkbox" ${job.ativo ? 'checked' : ''} onchange="schedConfig.jobs[${i}].ativo=this.checked" style="accent-color:var(--gold);">
-      <input type="time" value="${job.hora}" onchange="schedConfig.jobs[${i}].hora=this.value" style="background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:8px;font-family:'DM Mono',monospace;font-size:13px;border-radius:4px;width:100px;">
-      <select onchange="schedConfig.jobs[${i}].estilo=this.value" style="flex:1;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:8px;font-family:'DM Sans',sans-serif;font-size:12px;border-radius:4px;">
-        <option value="dark" ${job.estilo==='dark'?'selected':''}>Dark</option>
-        <option value="light" ${job.estilo==='light'?'selected':''}>Light</option>
-        <option value="ferrugem" ${job.estilo==='ferrugem'?'selected':''}>Ferrugem</option>
-      </select>
-      <select onchange="schedConfig.jobs[${i}].visual=this.value" style="flex:1;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:8px;font-family:'DM Sans',sans-serif;font-size:12px;border-radius:4px;">
-        <option value="none" ${job.visual==='none'?'selected':''}>Limpo</option>
-        <option value="editorial" ${job.visual==='editorial'?'selected':''}>Editorial</option>
-      </select>
-      <button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;" onclick="removeJob(${i})">&#10005;</button>
-    </div>`).join('');
+  const tipoOpts = [
+    {v:'auto',l:'Auto (trending)'},
+    {v:'provocacao',l:'Provocacao'},
+    {v:'diagnostico',l:'Diagnostico'},
+    {v:'framework',l:'Framework'},
+    {v:'dado',l:'Dado/Estatistica'},
+    {v:'mito_vs_realidade',l:'Mito vs Realidade'},
+    {v:'historia',l:'Historia/Case'},
+    {v:'opiniao',l:'Opiniao forte'},
+    {v:'checklist',l:'Checklist/How-to'},
+    {v:'noticia',l:'Noticia adaptada'},
+    {v:'cta_direto',l:'CTA direto'},
+  ];
+  const selStyle = 'background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:8px;font-family:"DM Sans",sans-serif;font-size:12px;border-radius:4px;';
+
+  area.innerHTML = schedConfig.jobs.map((job, i) => {
+    const tipoSelect = tipoOpts.map(o => `<option value="${o.v}" ${(job.tipo_conteudo||'auto')===o.v?'selected':''}>${o.l}</option>`).join('');
+    return `
+    <div style="padding:14px 0;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <input type="checkbox" ${job.ativo ? 'checked' : ''} onchange="schedConfig.jobs[${i}].ativo=this.checked" style="accent-color:var(--gold);">
+        <input type="time" value="${job.hora}" onchange="schedConfig.jobs[${i}].hora=this.value" style="${selStyle}width:100px;font-family:'DM Mono',monospace;font-size:13px;">
+        <select onchange="schedConfig.jobs[${i}].estilo=this.value" style="${selStyle}flex:1;">
+          <option value="dark" ${job.estilo==='dark'?'selected':''}>Dark</option>
+          <option value="light" ${job.estilo==='light'?'selected':''}>Light</option>
+          <option value="ferrugem" ${job.estilo==='ferrugem'?'selected':''}>Ferrugem</option>
+        </select>
+        <select onchange="schedConfig.jobs[${i}].visual=this.value" style="${selStyle}flex:1;">
+          <option value="none" ${job.visual==='none'?'selected':''}>Limpo</option>
+          <option value="editorial" ${job.visual==='editorial'?'selected':''}>Editorial</option>
+        </select>
+        <button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;" onclick="removeJob(${i})">&#10005;</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding-left:30px;">
+        <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;">TIPO:</span>
+        <select onchange="schedConfig.jobs[${i}].tipo_conteudo=this.value" style="${selStyle}flex:1;">${tipoSelect}</select>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function addJob() {
-  schedConfig.jobs.push({ hora: '12:00', estilo: 'dark', visual: 'editorial', slides: 7, ativo: true });
+  schedConfig.jobs.push({ hora: '12:00', estilo: 'dark', visual: 'editorial', slides: 7, ativo: true, tipo_conteudo: 'auto' });
   renderJobs();
 }
 

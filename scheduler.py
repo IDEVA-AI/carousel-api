@@ -45,12 +45,12 @@ _scheduler: BackgroundScheduler | None = None
 _lock = threading.Lock()
 
 
-def _run_job(estilo: str, visual: str, slides: int):
+def _run_job(estilo: str, visual: str, slides: int, tipo_conteudo: str = "auto"):
     """Executa o pipeline num thread separado."""
     from pipeline import executar_pipeline
-    print(f"[Scheduler] Executando job: estilo={estilo}, visual={visual}, slides={slides}")
+    print(f"[Scheduler] Executando job: estilo={estilo}, visual={visual}, tipo={tipo_conteudo}")
     try:
-        resultado = executar_pipeline(num_slides=slides, estilo=estilo, visual=visual)
+        resultado = executar_pipeline(num_slides=slides, estilo=estilo, visual=visual, tipo_conteudo=tipo_conteudo)
         status = resultado.get("status", "?")
         print(f"[Scheduler] Job concluído: {status}")
 
@@ -102,7 +102,7 @@ def start_scheduler():
             _scheduler.add_job(
                 _run_job,
                 trigger=trigger,
-                args=[job.get("estilo", "dark"), job.get("visual", "editorial"), job.get("slides", 7)],
+                args=[job.get("estilo", "dark"), job.get("visual", "editorial"), job.get("slides", 7), job.get("tipo_conteudo", "auto")],
                 id=f"carousel_job_{i}",
                 replace_existing=True,
             )

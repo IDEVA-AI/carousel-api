@@ -263,10 +263,24 @@ def _salvar_postagem(post: dict):
 
 # ─── PIPELINE COMPLETO ───────────────────────────────────────────────────────
 
+TIPO_INSTRUCOES = {
+    "provocacao": "Gere um carrossel de PROVOCAÇÃO. Headline agressiva, tensão imediata, confronta uma crença do lead.",
+    "diagnostico": "Gere um carrossel de DIAGNÓSTICO. Liste 3 sintomas e revele a causa raiz que o lead não nomeou.",
+    "framework": "Gere um carrossel de FRAMEWORK. Ensine um modelo/método com etapas claras. Use dados da base de frameworks.",
+    "dado": "Gere um carrossel centrado em DADO/ESTATÍSTICA. Número impactante como protagonista. Use dados da base.",
+    "mito_vs_realidade": "Gere um carrossel MITO vs REALIDADE. Desconstrua uma narrativa que o mercado vende. Use as opiniões fortes da base.",
+    "historia": "Gere um carrossel de HISTÓRIA/CASE. Narre um case real (anonimizado) da base de cases.",
+    "opiniao": "Gere um carrossel de OPINIÃO FORTE. Posicionamento polêmico dentro do nicho. Use as opiniões da base.",
+    "checklist": "Gere um carrossel CHECKLIST/HOW-TO. Lista acionável com passos práticos.",
+    "noticia": "Gere um carrossel de NOTÍCIA ADAPTADA. Adapte o trending topic ao universo do Julio.",
+    "cta_direto": "Gere um carrossel de CTA DIRETO. Foco em conversão — DM, aplicação, diagnóstico gratuito.",
+}
+
 def executar_pipeline(
     num_slides: int = 7,
     estilo: str = "dark",
     visual: str = "editorial",
+    tipo_conteudo: str = "auto",
 ) -> dict:
     """
     Executa o pipeline completo: trending → copy → render → caption → post → notify.
@@ -288,6 +302,11 @@ def executar_pipeline(
 
         tema = tema_info["tema_adaptado"]
         pilar = tema_info.get("pilar", "auto")
+
+        # Injetar instrução do tipo de conteúdo no tema
+        tipo_instrucao = TIPO_INSTRUCOES.get(tipo_conteudo, "")
+        if tipo_instrucao:
+            tema = f"{tema}\n\nINSTRUÇÃO DE TIPO: {tipo_instrucao}"
 
         # 3. Copy
         carrossel = etapa_copy(tema, pilar, num_slides, estilo)
