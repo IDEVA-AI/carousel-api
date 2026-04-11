@@ -8,6 +8,9 @@ from datetime import datetime
 from pathlib import Path
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
+import pytz
+
+BR_TZ = pytz.timezone("America/Sao_Paulo")
 
 # ─── CONFIG PERSISTENCE ──────────────────────────────────────────────────────
 _app_hist = Path("/app/historico")
@@ -95,7 +98,7 @@ def start_scheduler():
                 continue
             hora = job.get("hora", "09:00")
             h, m = hora.split(":")
-            trigger = CronTrigger(hour=int(h), minute=int(m))
+            trigger = CronTrigger(hour=int(h), minute=int(m), timezone=BR_TZ)
             _scheduler.add_job(
                 _run_job,
                 trigger=trigger,
