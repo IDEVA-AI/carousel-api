@@ -358,6 +358,99 @@ def instagram_quota():
 
 # ─── BASE DE CONTEÚDO API ─────────────────────────────────────────────────────
 
+# ─── AUTOMATION: WEBHOOK ──────────────────────────────────────────────────────
+
+@app.get("/webhook/instagram")
+async def webhook_verify(request: Request):
+    """Verificação do webhook pelo Meta."""
+    from automation.webhook import verify_webhook
+    params = request.query_params
+    result = verify_webhook(
+        params.get("hub.mode", ""),
+        params.get("hub.verify_token", ""),
+        params.get("hub.challenge", ""),
+    )
+    from fastapi.responses import PlainTextResponse
+    return PlainTextResponse(result)
+
+@app.post("/webhook/instagram")
+async def webhook_receive(request: Request):
+    """Recebe eventos de webhook do Instagram."""
+    from automation.webhook import handle_webhook
+    from automation.comment_handler import process_comment
+    result = await handle_webhook(request)
+    # Processar cada evento de comentário
+    for event in result.get("events", []):
+        if event["type"] == "comment":
+            process_comment(event)
+    return {"ok": True}
+
+# ─── AUTOMATION: KEYWORDS ────────────────────────────────────────────────────
+
+@app.get("/api/automation/keywords")
+def get_keywords():
+    from automation.comment_handler import load_keywords
+    return {"keywords": load_keywords()}
+
+@app.post("/api/automation/keywords")
+def set_keywords(payload: dict):
+    from automation.comment_handler import save_keywords
+    save_keywords(payload.get("keywords", []))
+    return {"ok": True}
+
+@app.get("/api/automation/logs")
+def get_automation_logs():
+    from automation.comment_handler import load_logs
+    return {"logs": load_logs()}
+
+# ─── AUTOMATION: DM SEQUENCES ────────────────────────────────────────────────
+
+@app.get("/api/dm/sequences")
+def get_dm_sequences():
+    from automation.dm_sequences import load_sequences
+    return {"sequences": load_sequences()}
+
+@app.post("/api/dm/sequences")
+def set_dm_sequences(payload: dict):
+    from automation.dm_sequences import save_sequences
+    save_sequences(payload.get("sequences", []))
+    return {"ok": True}
+
+@app.get("/api/dm/active")
+def get_active_dms():
+    from automation.dm_sequences import load_active_dms
+    return {"active": load_active_dms()}
+
+@app.post("/api/dm/send")
+def send_dm_manual(payload: dict):
+    from automation.dm_sequences import send_dm
+    ok = send_dm(payload.get("user_id", ""), payload.get("message", ""))
+    return {"ok": ok}
+
+# ─── AUTOMATION: LEADS ────────────────────────────────────────────────────────
+
+@app.get("/api/leads")
+def get_leads():
+    from automation.lead_scoring import get_all_leads
+    return {"leads": get_all_leads()}
+
+@app.get("/api/leads/quentes")
+def get_hot_leads():
+    from automation.lead_scoring import get_hot_leads
+    return {"leads": get_hot_leads()}
+
+# ─── AUTOMATION: ANALYTICS ────────────────────────────────────────────────────
+
+@app.get("/api/analytics")
+def get_analytics():
+    from automation.analytics import get_analytics
+    return get_analytics()
+
+@app.post("/api/analytics/snapshot")
+def take_snapshot():
+    from automation.analytics import save_snapshot
+    return save_snapshot()
+
 # ─── POSTAGENS API ───────────────────────────────────────────────────────────
 
 @app.get("/api/postagens")

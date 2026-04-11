@@ -1,0 +1,212 @@
+<div class="section-label">Instagram Automation</div>
+<div class="section-title">Automacao</div>
+
+<!-- TABS -->
+<div style="display:flex;gap:4px;margin-bottom:24px;flex-wrap:wrap;" id="autoTabs">
+  <button class="btn btn-gold" data-tab="keywords" onclick="switchAutoTab('keywords')">Keywords</button>
+  <button class="btn btn-outline" data-tab="sequences" onclick="switchAutoTab('sequences')">DM Sequences</button>
+  <button class="btn btn-outline" data-tab="leads" onclick="switchAutoTab('leads')">Leads</button>
+  <button class="btn btn-outline" data-tab="analytics" onclick="switchAutoTab('analytics')">Analytics</button>
+  <button class="btn btn-outline" data-tab="logs" onclick="switchAutoTab('logs')">Logs</button>
+</div>
+
+<div id="autoContent"></div>
+
+<script>
+let autoTab = 'keywords';
+
+function switchAutoTab(tab) {
+  autoTab = tab;
+  document.querySelectorAll('#autoTabs button').forEach(b => {
+    b.className = b.dataset.tab === tab ? 'btn btn-gold' : 'btn btn-outline';
+  });
+  loadAutoTab();
+}
+
+async function loadAutoTab() {
+  const area = document.getElementById('autoContent');
+  area.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);">Carregando...</div>';
+
+  if (autoTab === 'keywords') await renderKeywords(area);
+  else if (autoTab === 'sequences') await renderSequences(area);
+  else if (autoTab === 'leads') await renderLeads(area);
+  else if (autoTab === 'analytics') await renderAnalytics(area);
+  else if (autoTab === 'logs') await renderLogs(area);
+}
+
+// ─── KEYWORDS ──────────────────────────────────────────
+async function renderKeywords(area) {
+  try {
+    const r = await fetch('/api/automation/keywords');
+    const d = await r.json();
+    const kws = d.keywords || [];
+
+    area.innerHTML = `
+      <div class="section-label">Palavras-chave de gatilho</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:20px;">
+        Quando alguem comenta uma dessas palavras, o sistema responde automaticamente e envia DM.
+      </div>
+      <div class="table-wrap">
+        ${kws.map((kw, i) => `
+          <div class="table-row" style="cursor:default;">
+            <div style="flex:0 0 30px;"><input type="checkbox" ${kw.ativo?'checked':''} style="accent-color:var(--gold);"></div>
+            <div style="flex:0 0 120px;font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--gold);">${kw.keyword}</div>
+            <div style="flex:1;font-size:12px;color:var(--paper);">${kw.reply || ''}</div>
+            <div style="flex:0 0 140px;"><span class="badge badge-wait">${kw.dm_sequence || 'nenhuma'}</span></div>
+          </div>`).join('')}
+      </div>
+      <div style="margin-top:16px;padding:20px;background:var(--dark2);border:1px solid var(--border);border-radius:8px;">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px;">COMO FUNCIONA</div>
+        <div style="font-size:13px;color:var(--paper);line-height:1.6;">
+          1. Voce posta um carrossel com CTA "comenta SISTEMA"<br>
+          2. Pessoa comenta "SISTEMA" no post<br>
+          3. Bot responde no comentario: "${kws[0]?.reply || '...'}"<br>
+          4. Bot envia DM automatica com a sequencia configurada
+        </div>
+      </div>`;
+  } catch(e) { area.innerHTML = '<div style="color:#e85050;">Erro ao carregar</div>'; }
+}
+
+// ─── SEQUENCES ──────────────────────────────────────────
+async function renderSequences(area) {
+  try {
+    const r = await fetch('/api/dm/sequences');
+    const d = await r.json();
+    const seqs = d.sequences || [];
+
+    area.innerHTML = `
+      <div class="section-label">Sequencias de DM</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:20px;">
+        Mini-funis automaticos. Cada sequencia envia mensagens com delay configuravel.
+      </div>
+      ${seqs.map(seq => `
+        <div class="card" style="cursor:default;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div>
+              <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;">${seq.nome || seq.id}</div>
+              <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--gold);margin-top:2px;">Keyword: ${seq.trigger_keyword} &middot; ${seq.steps?.length || 0} mensagens</div>
+            </div>
+            <span class="badge ${seq.ativo?'badge-ok':'badge-err'}">${seq.ativo?'Ativa':'Inativa'}</span>
+          </div>
+          ${(seq.steps||[]).map((step, j) => `
+            <div style="padding:10px 0;border-top:1px solid var(--border);display:flex;gap:12px;align-items:flex-start;">
+              <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);min-width:60px;padding-top:2px;">
+                ${step.delay_minutes === 0 ? 'Imediata' : step.delay_minutes < 60 ? step.delay_minutes + 'min' : Math.round(step.delay_minutes/60) + 'h'}
+              </div>
+              <div style="font-size:12px;color:var(--paper);line-height:1.5;">${step.message}</div>
+            </div>`).join('')}
+        </div>`).join('')}`;
+  } catch(e) { area.innerHTML = '<div style="color:#e85050;">Erro ao carregar</div>'; }
+}
+
+// ─── LEADS ──────────────────────────────────────────
+async function renderLeads(area) {
+  try {
+    const r = await fetch('/api/leads');
+    const d = await r.json();
+    const leads = d.leads || [];
+
+    if (!leads.length) {
+      area.innerHTML = '<div style="padding:60px;text-align:center;color:var(--muted);">Nenhum lead registrado ainda. Leads aparecem quando pessoas interagem com seus posts.</div>';
+      return;
+    }
+
+    const header = '<div class="table-header"><div style="flex:1;">Username</div><div style="flex:0 0 80px;">Score</div><div style="flex:0 0 80px;">Status</div><div style="flex:1;">Ultima interacao</div></div>';
+    const rows = leads.map(l => {
+      const badge = l.status==='quente'?'badge-ok':l.status==='morno'?'badge-wait':'badge-err';
+      return `<div class="table-row" style="cursor:default;">
+        <div style="flex:1;font-family:'DM Mono',monospace;font-size:13px;color:var(--gold);">@${l.username}</div>
+        <div style="flex:0 0 80px;font-family:'Fraunces',serif;font-size:20px;font-weight:900;color:var(--paper);">${l.score}</div>
+        <div style="flex:0 0 80px;"><span class="badge ${badge}">${l.status}</span></div>
+        <div style="flex:1;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">${formatDate(l.last_seen)}</div>
+      </div>`;
+    }).join('');
+
+    area.innerHTML = `<div class="section-label">Leads por engajamento</div>
+      <div class="table-wrap">${header}${rows}</div>`;
+  } catch(e) { area.innerHTML = '<div style="color:#e85050;">Erro ao carregar</div>'; }
+}
+
+// ─── ANALYTICS ──────────────────────────────────────────
+async function renderAnalytics(area) {
+  try {
+    const r = await fetch('/api/analytics');
+    const d = await r.json();
+    const profile = d.profile || {};
+    const posts = d.posts || [];
+
+    const avgEng = d.avg_engagement ? d.avg_engagement.toFixed(1) : '0';
+
+    area.innerHTML = `
+      <div class="cards-grid">
+        <div class="card" style="cursor:default;">
+          <div class="card-label">Seguidores</div>
+          <div class="card-value">${profile.followers || '—'}</div>
+        </div>
+        <div class="card" style="cursor:default;">
+          <div class="card-label">Total posts</div>
+          <div class="card-value">${profile.posts || '—'}</div>
+        </div>
+        <div class="card" style="cursor:default;">
+          <div class="card-label">Engajamento medio</div>
+          <div class="card-value">${avgEng}</div>
+          <div class="card-sub">likes + comments por post</div>
+        </div>
+      </div>
+      <div class="section-label" style="margin-top:24px;">Performance dos posts</div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <div style="flex:2;">Post</div>
+          <div style="flex:0 0 60px;">Likes</div>
+          <div style="flex:0 0 60px;">Comments</div>
+          <div style="flex:0 0 80px;">Tipo</div>
+          <div style="flex:1;">Data</div>
+        </div>
+        ${posts.map(p => `
+          <div class="table-row" ${p.permalink?`onclick="window.open('${p.permalink}','_blank')"`:''}>
+            <div style="flex:2;font-size:12px;color:var(--paper);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.caption || 'Sem legenda'}</div>
+            <div style="flex:0 0 60px;font-family:'Fraunces',serif;font-weight:700;color:var(--paper);">${p.likes}</div>
+            <div style="flex:0 0 60px;font-family:'Fraunces',serif;font-weight:700;color:var(--paper);">${p.comments}</div>
+            <div style="flex:0 0 80px;"><span class="badge badge-wait">${p.type==='VIDEO'?'Reel':p.type==='CAROUSEL_ALBUM'?'Carousel':'Image'}</span></div>
+            <div style="flex:1;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">${formatDate(p.timestamp)}</div>
+          </div>`).join('')}
+      </div>`;
+  } catch(e) { area.innerHTML = '<div style="color:#e85050;">Erro ao carregar analytics</div>'; }
+}
+
+// ─── LOGS ──────────────────────────────────────────
+async function renderLogs(area) {
+  try {
+    const r = await fetch('/api/automation/logs');
+    const d = await r.json();
+    const logs = d.logs || [];
+
+    if (!logs.length) {
+      area.innerHTML = '<div style="padding:60px;text-align:center;color:var(--muted);">Nenhum log de automacao ainda.</div>';
+      return;
+    }
+
+    area.innerHTML = `<div class="section-label">Historico de automacoes</div>
+      <div class="table-wrap">
+        ${logs.slice(0,50).map(log => {
+          const badge = log.type.includes('match') ? 'badge-ok' : 'badge-wait';
+          return `<div class="table-row" style="cursor:default;">
+            <div style="flex:0 0 120px;"><span class="badge ${badge}">${log.type.replace('comment_','')}</span></div>
+            <div style="flex:0 0 100px;font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);">@${log.username||''}</div>
+            <div style="flex:1;font-size:12px;color:var(--paper);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${log.text||log.keyword||''}</div>
+            <div style="flex:0 0 100px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">${formatDate(log.timestamp)}</div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  } catch(e) { area.innerHTML = '<div style="color:#e85050;">Erro ao carregar logs</div>'; }
+}
+
+function formatDate(iso) {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) + ' ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  } catch { return iso||''; }
+}
+
+loadAutoTab();
+</script>
