@@ -357,6 +357,13 @@ def instagram_quota():
 def get_conteudo():
     return _load_conteudo()
 
+@app.post("/api/conteudo/importar")
+def importar_conteudo(payload: dict):
+    """Importa base completa (substitui tudo)."""
+    _save_conteudo(payload)
+    totals = {k: len(v) for k, v in payload.items() if isinstance(v, list)}
+    return {"ok": True, "totals": totals}
+
 @app.get("/api/conteudo/{tipo}")
 def get_conteudo_tipo(tipo: str):
     data = _load_conteudo()
@@ -390,12 +397,6 @@ def delete_conteudo_item(tipo: str, index: int):
     data[tipo].pop(index)
     _save_conteudo(data)
     return {"ok": True, "total": len(data[tipo])}
-
-@app.post("/api/conteudo/importar")
-def importar_conteudo(payload: dict):
-    """Importa base completa (substitui tudo)."""
-    _save_conteudo(payload)
-    return {"ok": True}
 
 # ─── TEMP IMAGE SERVING (para Instagram upload) ─────────────────────────────
 TEMP_DIR = Path("/tmp/carousel-temp")
