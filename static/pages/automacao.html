@@ -51,18 +51,20 @@ async function renderKeywords(area) {
       <div id="kwList">
         ${kwData.map((kw,i) => `
         <div class="card" style="cursor:default;margin-bottom:12px;">
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-            <input type="checkbox" ${kw.ativo?'checked':''} onchange="kwData[${i}].ativo=this.checked" style="accent-color:var(--gold);">
-            <input type="text" value="${esc(kw.keyword)}" onchange="kwData[${i}].keyword=this.value" style="${ss}max-width:150px;font-family:'DM Mono',monospace;font-weight:700;color:var(--gold);" placeholder="KEYWORD">
-            <button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;margin-left:auto;" onclick="kwData.splice(${i},1);renderKeywords(document.getElementById('autoContent'))">&#10005;</button>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+            <input type="checkbox" ${kw.ativo?'checked':''} onchange="kwData[${i}].ativo=this.checked" style="accent-color:var(--gold);width:18px;height:18px;">
+            <input type="text" value="${esc(kw.keyword)}" onchange="kwData[${i}].keyword=this.value" style="${ss}flex:1;font-family:'DM Mono',monospace;font-weight:700;color:var(--gold);font-size:16px;" placeholder="KEYWORD">
+            <button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;" onclick="kwData.splice(${i},1);renderKeywords(document.getElementById('autoContent'))">&#10005;</button>
           </div>
-          <div style="margin-bottom:8px;">
-            <label style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:4px;">Resposta no comentario</label>
-            <input type="text" value="${esc(kw.reply||'')}" onchange="kwData[${i}].reply=this.value" style="${ss}" placeholder="Acabei de te mandar no DM!">
-          </div>
-          <div>
-            <label style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:4px;">Sequencia de DM vinculada</label>
-            <input type="text" value="${esc(kw.dm_sequence||'')}" onchange="kwData[${i}].dm_sequence=this.value" style="${ss}" placeholder="diagnostico_gratis">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div>
+              <label style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:4px;">Resposta no comentario</label>
+              <input type="text" value="${esc(kw.reply||'')}" onchange="kwData[${i}].reply=this.value" style="${ss}" placeholder="Acabei de te mandar no DM! 👆">
+            </div>
+            <div>
+              <label style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:4px;">Sequencia de DM vinculada</label>
+              <input type="text" value="${esc(kw.dm_sequence||'')}" onchange="kwData[${i}].dm_sequence=this.value" style="${ss}font-family:'DM Mono',monospace;" placeholder="diagnostico_gratis">
+            </div>
           </div>
         </div>`).join('')}
       </div>
