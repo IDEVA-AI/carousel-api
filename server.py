@@ -333,6 +333,20 @@ def instagram_quota():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# ─── TEMP IMAGE SERVING (para Instagram upload) ─────────────────────────────
+TEMP_DIR = Path("/tmp/carousel-temp")
+TEMP_DIR.mkdir(parents=True, exist_ok=True)
+
+from fastapi.responses import FileResponse
+
+@app.get("/api/temp/{filename}")
+def serve_temp(filename: str):
+    """Serve imagem temporária pra upload no Instagram."""
+    filepath = TEMP_DIR / filename
+    if not filepath.exists():
+        raise HTTPException(status_code=404, detail="Arquivo nao encontrado")
+    return FileResponse(filepath, media_type="image/png")
+
 # ─── STATIC FILES ─────────────────────────────────────────────────────────────
 static_dir = Path(__file__).parent / "static"
 if static_dir.exists():

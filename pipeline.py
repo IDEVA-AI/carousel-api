@@ -136,8 +136,8 @@ def etapa_postar(pngs: list[bytes], caption: str, upload_base_url: str = "") -> 
     if not upload_base_url:
         upload_base_url = os.environ.get("PUBLIC_BASE_URL", "https://carousel.onexos.com.br")
 
-    # Salvar PNGs temporários e gerar URLs
-    temp_dir = Path("/app/static/temp")
+    # Salvar PNGs temporários e gerar URLs públicas
+    temp_dir = Path("/tmp/carousel-temp")
     temp_dir.mkdir(parents=True, exist_ok=True)
 
     image_urls = []
@@ -145,9 +145,13 @@ def etapa_postar(pngs: list[bytes], caption: str, upload_base_url: str = "") -> 
     for i, png in enumerate(pngs):
         filename = f"post_{timestamp}_{i+1}.png"
         (temp_dir / filename).write_bytes(png)
-        image_urls.append(f"{upload_base_url}/static/temp/{filename}")
+        image_urls.append(f"{upload_base_url}/api/temp/{filename}")
 
     print(f"[Pipeline] {len(image_urls)} imagens servidas pra upload")
+
+    # Aguardar URLs ficarem acessíveis
+    import time
+    time.sleep(2)
 
     # Postar
     resultado = postar_carousel(image_urls, caption)
