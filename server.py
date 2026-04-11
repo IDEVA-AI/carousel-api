@@ -353,6 +353,28 @@ def instagram_quota():
 
 # ─── BASE DE CONTEÚDO API ─────────────────────────────────────────────────────
 
+# ─── DNA API ─────────────────────────────────────────────────────────────────
+
+@app.get("/api/dna")
+def get_dna():
+    """Retorna todos os módulos do DNA."""
+    from dna.identidade import IDENTIDADE
+    from dna.avatar import AVATAR
+    from dna.pilares import PILARES
+    from dna.metodo import METODO
+    from dna.credenciais import CREDENCIAIS
+    from dna.tom import TOM
+    return {
+        "identidade": IDENTIDADE.strip(),
+        "avatar": AVATAR.strip(),
+        "pilares": PILARES.strip(),
+        "metodo": METODO.strip(),
+        "credenciais": CREDENCIAIS.strip(),
+        "tom": TOM.strip(),
+    }
+
+# ─── BASE DE CONTEÚDO API ─────────────────────────────────────────────────────
+
 @app.get("/api/conteudo")
 def get_conteudo():
     return _load_conteudo()

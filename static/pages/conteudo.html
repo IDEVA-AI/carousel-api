@@ -11,13 +11,17 @@
   <button class="btn btn-outline" data-tipo="dados" onclick="switchTab('dados')">Dados</button>
   <button class="btn btn-outline" data-tipo="opinioes" onclick="switchTab('opinioes')">Opinioes</button>
   <button class="btn btn-outline" data-tipo="sintomas" onclick="switchTab('sintomas')">Sintomas</button>
+  <button class="btn btn-outline" data-tipo="dna" onclick="switchTab('dna')" style="margin-left:8px;border-color:var(--gold);">DNA da Marca</button>
 </div>
 
 <!-- CONTENT AREA -->
 <div id="conteudoArea"></div>
 
+<!-- DNA AREA (hidden by default) -->
+<div id="dnaArea" style="display:none;"></div>
+
 <!-- ADD BUTTON -->
-<button class="btn btn-outline" style="margin-top:20px;width:100%;padding:16px;" onclick="addItem()">+ Adicionar novo</button>
+<button class="btn btn-outline" style="margin-top:20px;width:100%;padding:16px;" id="btnAddItem" onclick="addItem()">+ Adicionar novo</button>
 
 <script>
 let conteudoData = {};
@@ -78,9 +82,54 @@ async function loadConteudo() {
 function switchTab(tipo) {
   currentTipo = tipo;
   document.querySelectorAll('#conteudoTabs button').forEach(b => {
-    b.className = b.dataset.tipo === tipo ? 'btn btn-gold' : 'btn btn-outline';
+    const match = b.dataset.tipo === tipo;
+    b.className = match ? 'btn btn-gold' : 'btn btn-outline';
+    if (b.dataset.tipo === 'dna' && !match) b.style.borderColor = 'var(--gold)';
   });
-  renderItems();
+
+  if (tipo === 'dna') {
+    document.getElementById('conteudoArea').style.display = 'none';
+    document.getElementById('dnaArea').style.display = 'block';
+    document.getElementById('btnAddItem').style.display = 'none';
+    loadDnaModules();
+  } else {
+    document.getElementById('conteudoArea').style.display = 'block';
+    document.getElementById('dnaArea').style.display = 'none';
+    document.getElementById('btnAddItem').style.display = 'block';
+    renderItems();
+  }
+}
+
+const DNA_LABELS = {
+  identidade: 'Identidade & Posicionamento',
+  avatar: 'Avatar — CEO que virou gargalo',
+  pilares: '5 Pilares de Conteudo',
+  metodo: 'Metodo Arquiteto',
+  credenciais: 'Credenciais, Cases & Dados',
+  tom: 'Tom de Voz & Design',
+};
+
+async function loadDnaModules() {
+  const area = document.getElementById('dnaArea');
+  try {
+    const r = await fetch('/api/dna');
+    const data = await r.json();
+    area.innerHTML = Object.entries(data).map(([key, content]) => `
+      <div class="card" style="cursor:default;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;cursor:pointer;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;">${DNA_LABELS[key] || key}</div>
+          <span class="badge badge-ok">dna/${key}.py</span>
+        </div>
+        <div style="display:none;">
+          <pre style="font-family:'DM Mono',monospace;font-size:11px;color:var(--paper);opacity:0.8;
+            line-height:1.7;white-space:pre-wrap;max-height:500px;overflow-y:auto;
+            padding:16px;background:rgba(244,240,232,.03);border:1px solid var(--border);border-radius:4px;">${esc(content)}</pre>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    area.innerHTML = '<div style="color:#e85050;">Erro ao carregar DNA</div>';
+  }
 }
 
 function renderItems() {
