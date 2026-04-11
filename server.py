@@ -571,6 +571,21 @@ def serve_temp(filename: str):
         raise HTTPException(status_code=404, detail="Arquivo nao encontrado")
     return FileResponse(filepath, media_type="image/png")
 
+# ─── PRIVACY POLICY ──────────────────────────────────────────────────────────
+from fastapi.responses import HTMLResponse
+
+@app.get("/privacy", response_class=HTMLResponse)
+def privacy_policy():
+    return """<!DOCTYPE html><html><head><title>Política de Privacidade — Carousel Julio</title>
+    <style>body{font-family:sans-serif;max-width:700px;margin:40px auto;padding:20px;color:#333;line-height:1.6;}</style></head>
+    <body><h1>Política de Privacidade</h1>
+    <p><strong>Carousel Julio</strong> — Aplicação de gestão de conteúdo para Instagram.</p>
+    <p>Este aplicativo acessa dados da sua conta Instagram (perfil, posts, comentários, mensagens) exclusivamente para:</p>
+    <ul><li>Gerar e publicar carrosseis de conteúdo</li><li>Responder comentários automaticamente</li><li>Enviar mensagens diretas autorizadas</li><li>Analisar métricas de performance</li></ul>
+    <p>Seus dados não são compartilhados com terceiros. Não armazenamos senhas. O acesso pode ser revogado a qualquer momento nas configurações do Instagram.</p>
+    <p>Contato: gestao@ideva.ai</p>
+    <p><em>Última atualização: abril 2026</em></p></body></html>"""
+
 # ─── STATIC FILES ─────────────────────────────────────────────────────────────
 static_dir = Path(__file__).parent / "static"
 if static_dir.exists():
