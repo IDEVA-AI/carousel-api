@@ -1,0 +1,121 @@
+<div class="section-label">Agendamento</div>
+<div class="section-title">Agenda</div>
+
+<div style="display:flex;gap:24px;flex-wrap:wrap;">
+
+  <!-- CALENDARIO -->
+  <div style="flex:1;min-width:320px;">
+    <div class="table-wrap" style="padding:20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <button class="btn btn-outline" style="padding:6px 12px;" onclick="calNav(-1)">&larr;</button>
+        <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:700;" id="calTitle">Abril 2026</div>
+        <button class="btn btn-outline" style="padding:6px 12px;" onclick="calNav(1)">&rarr;</button>
+      </div>
+      <div class="cal-grid">
+        <div class="cal-header">Dom</div><div class="cal-header">Seg</div><div class="cal-header">Ter</div>
+        <div class="cal-header">Qua</div><div class="cal-header">Qui</div><div class="cal-header">Sex</div>
+        <div class="cal-header">Sab</div>
+      </div>
+      <div class="cal-grid" id="calDays"></div>
+    </div>
+  </div>
+
+  <!-- PAINEL DE AGENDAMENTO -->
+  <div style="flex:1;min-width:300px;">
+    <div class="section-label">Pipeline automatico</div>
+    <div class="table-wrap" style="padding:24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <div>
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;">Postagem diaria</div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:4px;">Trending &rarr; Copy &rarr; Render &rarr; Post</div>
+        </div>
+        <label style="position:relative;display:inline-block;width:48px;height:26px;cursor:pointer;">
+          <input type="checkbox" id="pipelineToggle" style="opacity:0;width:0;height:0;" onchange="togglePipeline(this.checked)">
+          <span style="position:absolute;inset:0;background:var(--dark3);border-radius:13px;transition:.3s;"></span>
+          <span style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:var(--muted);border-radius:50%;transition:.3s;" id="toggleDot"></span>
+        </label>
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <label style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:block;">Horario diario</label>
+        <input type="time" value="09:00" id="scheduleTime" style="background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:10px 14px;font-family:'DM Mono',monospace;font-size:14px;border-radius:4px;width:100%;">
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <label style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:block;">Estilo</label>
+        <select id="scheduleEstilo" style="background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:14px;border-radius:4px;width:100%;appearance:none;">
+          <option value="dark">Dark</option>
+          <option value="light">Light</option>
+          <option value="ferrugem">Ferrugem</option>
+        </select>
+      </div>
+
+      <button class="btn btn-gold" style="width:100%;padding:14px;" onclick="runPipelineNow()">Executar pipeline agora</button>
+      <div id="pipelineResult" style="margin-top:12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);"></div>
+    </div>
+
+    <div class="section-label" style="margin-top:24px;">Proximos agendados</div>
+    <div class="table-wrap" id="scheduleList">
+      <div style="padding:32px;text-align:center;color:var(--muted);font-size:13px;">Nenhum agendamento</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let calDate = new Date();
+
+function renderCalendar() {
+  const year = calDate.getFullYear();
+  const month = calDate.getMonth();
+  const months = ['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  document.getElementById('calTitle').textContent = `${months[month]} ${year}`;
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const today = new Date();
+
+  let html = '';
+  for (let i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
+  for (let d = 1; d <= daysInMonth; d++) {
+    const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+    html += `<div class="cal-day${isToday ? ' today' : ''}">${d}</div>`;
+  }
+  document.getElementById('calDays').innerHTML = html;
+}
+
+function calNav(dir) {
+  calDate.setMonth(calDate.getMonth() + dir);
+  renderCalendar();
+}
+
+function togglePipeline(on) {
+  const dot = document.getElementById('toggleDot');
+  if (on) {
+    dot.style.transform = 'translateX(22px)';
+    dot.style.background = 'var(--gold)';
+    document.getElementById('pipelineResult').textContent = 'Pipeline ativado (em breve: cron BRAINIAC)';
+  } else {
+    dot.style.transform = 'translateX(0)';
+    dot.style.background = 'var(--muted)';
+    document.getElementById('pipelineResult').textContent = 'Pipeline desativado';
+  }
+}
+
+async function runPipelineNow() {
+  const res = document.getElementById('pipelineResult');
+  res.textContent = 'Executando pipeline...';
+  try {
+    const r = await fetch('/pipeline/executar', {method:'POST'});
+    const d = await r.json();
+    if (d.status === 'success') {
+      res.innerHTML = '<span style="color:#2ecc71;">Pipeline concluido com sucesso!</span>';
+    } else {
+      res.innerHTML = `<span style="color:#e85050;">Erro: ${d.error || 'desconhecido'}</span>`;
+    }
+  } catch(e) {
+    res.innerHTML = `<span style="color:#e85050;">Erro: ${e.message}</span>`;
+  }
+}
+
+renderCalendar();
+</script>

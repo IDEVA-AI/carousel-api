@@ -1,0 +1,102 @@
+<div class="section-label">Visao geral</div>
+<div class="section-title">Painel de controle</div>
+
+<div class="cards-grid" id="dashCards">
+  <div class="card" onclick="navigateTo('historico')">
+    <div class="card-label">Carrosseis gerados</div>
+    <div class="card-value" id="dashTotal">—</div>
+    <div class="card-sub">Total no historico</div>
+  </div>
+  <div class="card" onclick="navigateTo('postagens')">
+    <div class="card-label">Publicados</div>
+    <div class="card-value" id="dashPublished">0</div>
+    <div class="card-sub">Posts no Instagram</div>
+  </div>
+  <div class="card" onclick="navigateTo('agenda')">
+    <div class="card-label">Agendados</div>
+    <div class="card-value" id="dashScheduled">0</div>
+    <div class="card-sub">Proximos posts</div>
+  </div>
+  <div class="card">
+    <div class="card-label">Quota Instagram</div>
+    <div class="card-value" id="dashQuota">—</div>
+    <div class="card-sub">Posts restantes hoje</div>
+  </div>
+</div>
+
+<div style="display:flex;gap:20px;flex-wrap:wrap;">
+  <div style="flex:1;min-width:300px;">
+    <div class="section-label">Ultimo carrossel</div>
+    <div class="table-wrap" id="dashLatest">
+      <div style="padding:40px;text-align:center;color:var(--muted);font-size:13px;">Carregando...</div>
+    </div>
+  </div>
+
+  <div style="flex:1;min-width:300px;">
+    <div class="section-label">Acoes rapidas</div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <button class="btn btn-gold" style="width:100%;padding:16px" onclick="navigateTo('criar')">+ Criar Carrossel</button>
+      <button class="btn btn-outline" style="width:100%;padding:16px" id="btnPreview" onclick="runPreview()">Pipeline Preview</button>
+    </div>
+    <div id="previewResult" style="margin-top:16px;display:none;"></div>
+  </div>
+</div>
+
+<script>
+async function loadDashboard() {
+  try {
+    const r = await fetch('/historico');
+    const d = await r.json();
+    const items = d.historico || [];
+    document.getElementById('dashTotal').textContent = items.length;
+
+    if (items.length > 0) {
+      const last = items[0];
+      document.getElementById('dashLatest').innerHTML = `
+        <div class="table-row" onclick="navigateTo('historico')">
+          ${last.thumbnail ? `<img class="table-thumb" src="${last.thumbnail}" alt="">` : ''}
+          <div style="flex:1">
+            <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;">${last.titulo || 'Carrossel'}</div>
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--gold);margin-top:4px;">${last.pilar || ''}</div>
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;">${last.total_slides} slides</div>
+          </div>
+        </div>`;
+    } else {
+      document.getElementById('dashLatest').innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);font-size:13px;">Nenhum carrossel gerado ainda</div>';
+    }
+  } catch(e) {
+    document.getElementById('dashLatest').innerHTML = '<div style="padding:20px;color:var(--muted);">Erro ao carregar</div>';
+  }
+}
+
+async function runPreview() {
+  const btn = document.getElementById('btnPreview');
+  btn.textContent = 'Gerando...';
+  btn.disabled = true;
+  const res = document.getElementById('previewResult');
+  res.style.display = 'none';
+
+  try {
+    const r = await fetch('/pipeline/preview', {method: 'POST'});
+    if (!r.ok) throw new Error('Erro no pipeline');
+    const d = await r.json();
+    res.innerHTML = `
+      <div class="card" style="cursor:default">
+        <div class="card-label">Preview gerado</div>
+        <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:700;margin-bottom:8px;">${d.titulo || ''}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);margin-bottom:12px;">${d.pilar || ''} &middot; ${d.total_slides} slides</div>
+        ${d.previews && d.previews[0] ? `<img src="${d.previews[0]}" style="width:100%;max-width:200px;border:1px solid var(--border);border-radius:4px;" alt="">` : ''}
+        <div style="margin-top:12px;font-size:12px;color:var(--muted);max-height:100px;overflow:hidden;">${(d.caption || '').slice(0, 200)}...</div>
+      </div>`;
+    res.style.display = 'block';
+  } catch(e) {
+    res.innerHTML = `<div style="color:#e85050;font-size:13px;">Erro: ${e.message}</div>`;
+    res.style.display = 'block';
+  } finally {
+    btn.textContent = 'Pipeline Preview';
+    btn.disabled = false;
+  }
+}
+
+loadDashboard();
+</script>
