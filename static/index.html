@@ -16,6 +16,8 @@
   --muted: rgba(244,240,232,0.4);
   --border: rgba(244,240,232,0.08);
   --sidebar-w: 220px;
+  --error: #e85050;
+  --success: #2ecc71;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{min-height:100vh;background:var(--ink);color:var(--paper);font-family:'DM Sans',sans-serif;font-weight:300}
@@ -89,24 +91,45 @@ html,body{min-height:100vh;background:var(--ink);color:var(--paper);font-family:
 .table-col.gold{color:var(--gold);font-family:'DM Mono',monospace;font-size:11px}
 .table-thumb{width:48px;height:64px;object-fit:cover;border:1px solid var(--border);border-radius:4px;flex-shrink:0;margin-right:16px}
 
+/* ── FORMS ── */
+.fi{
+  width:100%;background:rgba(244,240,232,.04);border:1px solid var(--border);
+  color:var(--paper);padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:13px;
+  border-radius:4px;outline:none;transition:border-color .2s;
+}
+.fi:focus{border-color:var(--gold)}
+.fi::placeholder{color:var(--muted)}
+.fi-mono{font-family:'DM Mono',monospace}
+.fi-bold{font-weight:700;font-size:16px;color:var(--gold)}
+select.fi{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23b8873a' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+textarea.fi{resize:vertical;min-height:60px}
+label.fl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px}
+
 /* ── BUTTONS ── */
 .btn{
-  padding:10px 20px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.12em;
+  padding:12px 24px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.12em;
   text-transform:uppercase;cursor:pointer;transition:all .2s;border-radius:4px;
 }
+.btn:disabled{opacity:.4;cursor:not-allowed}
 .btn-gold{background:var(--gold);color:var(--ink);border:none}
-.btn-gold:hover{opacity:.85}
+.btn-gold:hover:not(:disabled){opacity:.85}
 .btn-outline{background:transparent;border:1px solid var(--gold);color:var(--gold)}
-.btn-outline:hover{background:var(--gold);color:var(--ink)}
+.btn-outline:hover:not(:disabled){background:var(--gold);color:var(--ink)}
+.btn-full{width:100%}
+.btn-danger{border-color:#e85050;color:#e85050}
+.btn-danger:hover:not(:disabled){background:#e85050;color:var(--paper)}
 
 /* ── BADGE ── */
 .badge{
-  display:inline-block;padding:3px 10px;border-radius:12px;
+  display:inline-block;padding:4px 12px;border-radius:12px;
   font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;
 }
 .badge-ok{background:rgba(46,204,113,.12);color:#2ecc71}
 .badge-wait{background:rgba(184,135,58,.12);color:var(--gold)}
 .badge-err{background:rgba(220,60,60,.12);color:#e85050}
+
+/* ── ERROR ── */
+.error-text{color:var(--error);font-family:'DM Mono',monospace;font-size:12px}
 
 /* ── SECTION ── */
 .section-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;margin-bottom:20px}
@@ -148,7 +171,9 @@ html.light{
   --ink: #f5f1e8;
   --paper: #0e0c0a;
   --gold: #7a4e18;
-  --gold-light: #5a3812;
+  --gold-light: #a07030;
+  --error: #c04040;
+  --success: #1a8a4a;
   --dark2: #ece8de;
   --dark3: #e2ddd3;
   --muted: rgba(14,12,10,0.4);
@@ -167,6 +192,13 @@ html.light .badge-ok{background:rgba(46,204,113,.08)}
 html.light .cal-day:hover{background:rgba(14,12,10,.04)}
 html.light .cal-day.has-post{background:rgba(122,78,24,.10)}
 html.light .sb-status-dot.off{background:rgba(14,12,10,.15)}
+html.light .fi{background:rgba(14,12,10,.04);border-color:rgba(14,12,10,.10)}
+html.light .fi:focus{border-color:var(--gold)}
+html.light select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a4e18' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")}
+html.light .badge-ok{background:rgba(26,138,74,.10);color:var(--success)}
+html.light .badge-err{background:rgba(192,64,64,.10);color:var(--error)}
+html.light .btn-gold{color:#fff}
+html.light .error-text{color:var(--error)}
 </style>
 </head>
 <body>
@@ -244,6 +276,10 @@ html.light .sb-status-dot.off{background:rgba(14,12,10,.15)}
 </div>
 
 <script>
+// ─── GLOBAL UTILS ───────────────────────────────────────────────────────────
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function formatDate(iso){try{const d=new Date(iso);return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'})+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}catch{return iso||'';}}
+
 // ─── THEME ──────────────────────────────────────────────────────────────────
 function toggleAppTheme() {
   const isLight = document.documentElement.classList.toggle('light');
