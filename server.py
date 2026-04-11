@@ -11,6 +11,7 @@ import zipfile
 from datetime import datetime
 from pathlib import Path
 
+import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -331,8 +332,6 @@ def instagram_quota():
         return data[0] if data else {}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-import httpx as _httpx
 
 # ─── STATIC FILES ─────────────────────────────────────────────────────────────
 static_dir = Path(__file__).parent / "static"
