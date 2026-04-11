@@ -1,0 +1,332 @@
+<div class="section-label">Configuracoes</div>
+<div class="section-title">Fontes de Conteudo</div>
+
+<div style="margin-bottom:32px;font-size:14px;color:var(--muted);max-width:640px;">
+  Configure de onde o pipeline busca inspiracao pra gerar os carrosseis. Quanto mais fontes ativas, mais autenticidade no conteudo.
+</div>
+
+<!-- FONTES -->
+<div style="display:flex;flex-direction:column;gap:16px;max-width:800px;" id="fontesConfig">
+
+  <!-- GOOGLE TRENDS -->
+  <div class="card" style="cursor:default;">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div style="width:40px;height:40px;border-radius:8px;background:rgba(184,135,58,.08);display:flex;align-items:center;justify-content:center;font-size:20px;">&#9729;</div>
+        <div>
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;">Google Trends</div>
+          <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;">Trending topics do Brasil adaptados ao DNA</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="badge badge-ok">Ativo</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BANCO DE TEMAS -->
+  <div class="card" style="cursor:default;">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div style="width:40px;height:40px;border-radius:8px;background:rgba(184,135,58,.08);display:flex;align-items:center;justify-content:center;font-size:20px;">&#9997;</div>
+        <div>
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;">Banco de Temas</div>
+          <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;">Temas curados manualmente (fallback)</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="badge badge-ok">Ativo</span>
+        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);" id="temasCount">— temas</span>
+      </div>
+    </div>
+    <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px;">
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <input type="text" id="novoTema" placeholder="Adicionar novo tema..." style="flex:1;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:13px;border-radius:4px;outline:none;">
+        <button class="btn btn-gold" onclick="addTema()">+</button>
+      </div>
+      <div id="temasLista" style="max-height:200px;overflow-y:auto;"></div>
+    </div>
+  </div>
+
+  <!-- POSTS DO INSTAGRAM -->
+  <div class="card" style="cursor:default;">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div style="width:40px;height:40px;border-radius:8px;background:rgba(184,135,58,.08);display:flex;align-items:center;justify-content:center;font-size:20px;">&#128247;</div>
+        <div>
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;">Posts do Instagram</div>
+          <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;">Analisa posts anteriores pra manter tom e temas que engajaram</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="badge badge-wait" id="igSourceBadge">Disponivel</span>
+      </div>
+    </div>
+    <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px;" id="igSourcePosts">
+      <div style="color:var(--muted);font-size:12px;">Carregando posts...</div>
+    </div>
+  </div>
+
+  <!-- DNA DA MARCA -->
+  <div class="card" style="cursor:default;">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div style="width:40px;height:40px;border-radius:8px;background:rgba(184,135,58,.08);display:flex;align-items:center;justify-content:center;font-size:20px;">&#9733;</div>
+        <div>
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;">DNA da Marca</div>
+          <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;">Posicionamento, pilares, tom de voz, publico-alvo</div>
+        </div>
+      </div>
+      <span class="badge badge-ok">Sempre ativo</span>
+    </div>
+    <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px;">
+      <div id="dnaPreview" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);max-height:200px;overflow-y:auto;white-space:pre-wrap;line-height:1.6;"></div>
+    </div>
+  </div>
+
+  <!-- ANOTACOES MANUAIS -->
+  <div class="card" style="cursor:default;">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div style="width:40px;height:40px;border-radius:8px;background:rgba(184,135,58,.08);display:flex;align-items:center;justify-content:center;font-size:20px;">&#128221;</div>
+        <div>
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;">Anotacoes e Ideias</div>
+          <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;">Rascunhos, insights, frases que voce quer usar</div>
+        </div>
+      </div>
+      <span class="badge badge-wait" id="notasBadge">0 notas</span>
+    </div>
+    <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px;">
+      <textarea id="novaNota" rows="3" placeholder="Escreva uma ideia, frase ou insight que queira virar carrossel..." style="width:100%;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:13px;border-radius:4px;outline:none;resize:vertical;"></textarea>
+      <button class="btn btn-gold" style="margin-top:8px;" onclick="addNota()">Salvar nota</button>
+      <div id="notasLista" style="margin-top:16px;max-height:200px;overflow-y:auto;"></div>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:40px;max-width:800px;">
+  <div class="section-label">Instagram</div>
+  <div class="section-title" style="font-size:18px;">Conta conectada</div>
+  <div class="card" style="cursor:default;" id="igConfigCard">
+    <div style="color:var(--muted);font-size:13px;">Carregando...</div>
+  </div>
+</div>
+
+<div style="margin-top:40px;max-width:800px;">
+  <div class="section-label">Pipeline</div>
+  <div class="section-title" style="font-size:18px;">Configuracao de geracao</div>
+  <div class="card" style="cursor:default;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <label style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">Slides por carrossel</label>
+        <select id="cfgSlides" style="width:100%;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:10px;font-family:'DM Sans',sans-serif;font-size:14px;border-radius:4px;appearance:none;">
+          <option value="5">5 slides</option>
+          <option value="7" selected>7 slides</option>
+          <option value="9">9 slides</option>
+          <option value="10">10 slides</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">Estilo padrao</label>
+        <select id="cfgEstilo" style="width:100%;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:10px;font-family:'DM Sans',sans-serif;font-size:14px;border-radius:4px;appearance:none;">
+          <option value="dark" selected>Dark</option>
+          <option value="light">Light</option>
+          <option value="ferrugem">Ferrugem</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">Visual padrao</label>
+        <select id="cfgVisual" style="width:100%;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:10px;font-family:'DM Sans',sans-serif;font-size:14px;border-radius:4px;appearance:none;">
+          <option value="none">Limpo</option>
+          <option value="editorial" selected>Editorial</option>
+          <option value="esquema">Esquema</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">Horario do pipeline</label>
+        <input type="time" value="09:00" id="cfgHorario" style="width:100%;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:10px;font-family:'DM Mono',monospace;font-size:14px;border-radius:4px;">
+      </div>
+    </div>
+    <button class="btn btn-gold" style="margin-top:20px;width:100%;padding:14px;" onclick="saveConfig()">Salvar configuracoes</button>
+    <div id="cfgStatus" style="margin-top:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);"></div>
+  </div>
+</div>
+
+<script>
+// ─── LOCAL STORAGE KEYS ─────────────────────────────────────────────────────
+const TEMAS_KEY = 'carousel-temas-custom';
+const NOTAS_KEY = 'carousel-notas';
+const CONFIG_KEY = 'carousel-config';
+
+// ─── TEMAS ──────────────────────────────────────────────────────────────────
+function getTemas() { return JSON.parse(localStorage.getItem(TEMAS_KEY) || '[]'); }
+function saveTemas(t) { localStorage.setItem(TEMAS_KEY, JSON.stringify(t)); }
+
+function renderTemas() {
+  const temas = getTemas();
+  document.getElementById('temasCount').textContent = temas.length + ' temas';
+  document.getElementById('temasLista').innerHTML = temas.map((t, i) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
+      <div style="flex:1;font-size:13px;color:var(--paper);">${t}</div>
+      <button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;" onclick="removeTema(${i})">&#10005;</button>
+    </div>`).join('');
+}
+
+function addTema() {
+  const input = document.getElementById('novoTema');
+  const tema = input.value.trim();
+  if (!tema) return;
+  const temas = getTemas();
+  temas.push(tema);
+  saveTemas(temas);
+  input.value = '';
+  renderTemas();
+}
+
+function removeTema(i) {
+  const temas = getTemas();
+  temas.splice(i, 1);
+  saveTemas(temas);
+  renderTemas();
+}
+
+document.getElementById('novoTema').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addTema();
+});
+
+// ─── NOTAS ──────────────────────────────────────────────────────────────────
+function getNotas() { return JSON.parse(localStorage.getItem(NOTAS_KEY) || '[]'); }
+function saveNotas(n) { localStorage.setItem(NOTAS_KEY, JSON.stringify(n)); }
+
+function renderNotas() {
+  const notas = getNotas();
+  document.getElementById('notasBadge').textContent = notas.length + ' notas';
+  document.getElementById('notasLista').innerHTML = notas.map((n, i) => `
+    <div style="padding:10px 0;border-bottom:1px solid var(--border);">
+      <div style="font-size:13px;color:var(--paper);line-height:1.5;">${n.texto}</div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;">
+        <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">${n.data}</span>
+        <button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;" onclick="removeNota(${i})">&#10005;</button>
+      </div>
+    </div>`).join('');
+}
+
+function addNota() {
+  const textarea = document.getElementById('novaNota');
+  const texto = textarea.value.trim();
+  if (!texto) return;
+  const notas = getNotas();
+  notas.unshift({ texto, data: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}) });
+  saveNotas(notas);
+  textarea.value = '';
+  renderNotas();
+}
+
+function removeNota(i) {
+  const notas = getNotas();
+  notas.splice(i, 1);
+  saveNotas(notas);
+  renderNotas();
+}
+
+// ─── INSTAGRAM POSTS (como fonte) ───────────────────────────────────────────
+async function loadIgSource() {
+  try {
+    const r = await fetch('/api/instagram/media?limit=5');
+    if (!r.ok) throw new Error();
+    const d = await r.json();
+    const items = d.data || [];
+
+    if (!items.length) {
+      document.getElementById('igSourcePosts').innerHTML = '<div style="color:var(--muted);font-size:12px;">Nenhum post encontrado</div>';
+      return;
+    }
+
+    document.getElementById('igSourceBadge').textContent = items.length + ' posts';
+    document.getElementById('igSourceBadge').className = 'badge badge-ok';
+
+    document.getElementById('igSourcePosts').innerHTML = items.map(it => {
+      const caption = (it.caption || '').slice(0, 80);
+      return `<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);">
+        <div style="flex:1;">
+          <div style="font-size:12px;color:var(--paper);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${caption || 'Sem legenda'}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;">${it.like_count || 0} likes &middot; ${it.comments_count || 0} comments</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('igSourcePosts').innerHTML = '<div style="color:var(--muted);font-size:12px;">Instagram nao conectado</div>';
+  }
+}
+
+// ─── DNA PREVIEW ────────────────────────────────────────────────────────────
+async function loadDNA() {
+  document.getElementById('dnaPreview').textContent =
+    '5 PILARES:\n' +
+    '01 — O Sistema Invisivel\n' +
+    '02 — Arquitetura de Decisao\n' +
+    '03 — Diagnostico Cirurgico\n' +
+    '04 — Comportamento e Sistema\n' +
+    '05 — Narrativas vs. Realidade\n\n' +
+    'PUBLICO: CEOs, founders, donos de empresa\n' +
+    'TOM: direto, cirurgico, sem enrolacao\n' +
+    'HANDLE: @j.karv\n' +
+    'EMPRESA: IDEVA';
+}
+
+// ─── INSTAGRAM CONFIG ───────────────────────────────────────────────────────
+async function loadIgConfig() {
+  try {
+    const r = await fetch('/api/instagram/profile');
+    if (!r.ok) throw new Error();
+    const d = await r.json();
+    const quota = await fetch('/api/instagram/quota').then(r=>r.json()).catch(()=>({}));
+    const remaining = (quota.config?.quota_total || 100) - (quota.quota_usage || 0);
+
+    document.getElementById('igConfigCard').innerHTML = `
+      <div style="display:flex;align-items:center;gap:16px;">
+        ${d.profile_picture_url ? `<img src="${d.profile_picture_url}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;" alt="">` : ''}
+        <div style="flex:1;">
+          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;">@${d.username}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;">${d.account_type} &middot; ${d.followers_count} seguidores &middot; ${d.media_count} posts</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:900;color:var(--gold);">${remaining}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">POSTS RESTANTES</div>
+        </div>
+      </div>`;
+  } catch(e) {
+    document.getElementById('igConfigCard').innerHTML = '<div style="color:var(--muted);font-size:13px;">Instagram nao conectado. Configure INSTAGRAM_ACCESS_TOKEN no servidor.</div>';
+  }
+}
+
+// ─── CONFIG ─────────────────────────────────────────────────────────────────
+function loadConfig() {
+  const cfg = JSON.parse(localStorage.getItem(CONFIG_KEY) || '{}');
+  if (cfg.slides) document.getElementById('cfgSlides').value = cfg.slides;
+  if (cfg.estilo) document.getElementById('cfgEstilo').value = cfg.estilo;
+  if (cfg.visual) document.getElementById('cfgVisual').value = cfg.visual;
+  if (cfg.horario) document.getElementById('cfgHorario').value = cfg.horario;
+}
+
+function saveConfig() {
+  const cfg = {
+    slides: document.getElementById('cfgSlides').value,
+    estilo: document.getElementById('cfgEstilo').value,
+    visual: document.getElementById('cfgVisual').value,
+    horario: document.getElementById('cfgHorario').value,
+  };
+  localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
+  document.getElementById('cfgStatus').textContent = 'Configuracoes salvas!';
+  setTimeout(() => document.getElementById('cfgStatus').textContent = '', 3000);
+}
+
+// ─── INIT ───────────────────────────────────────────────────────────────────
+renderTemas();
+renderNotas();
+loadIgSource();
+loadDNA();
+loadIgConfig();
+loadConfig();
+</script>
