@@ -118,17 +118,42 @@ async function loadDnaModules() {
       <div class="card" style="cursor:default;margin-bottom:16px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;cursor:pointer;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
           <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;">${DNA_LABELS[key] || key}</div>
-          <span class="badge badge-ok">dna/${key}.py</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="badge badge-ok">dna/${key}.py</span>
+          </div>
         </div>
         <div style="display:none;">
-          <pre style="font-family:'DM Mono',monospace;font-size:11px;color:var(--paper);opacity:0.8;
-            line-height:1.7;white-space:pre-wrap;max-height:500px;overflow-y:auto;
-            padding:16px;background:rgba(244,240,232,.03);border:1px solid var(--border);border-radius:4px;">${esc(content)}</pre>
+          <textarea id="dna_${key}" rows="15" style="width:100%;font-family:'DM Mono',monospace;font-size:11px;color:var(--paper);
+            line-height:1.7;padding:16px;background:rgba(244,240,232,.03);border:1px solid var(--border);border-radius:4px;
+            outline:none;resize:vertical;">${esc(content)}</textarea>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button class="btn btn-gold" onclick="saveDnaModule('${key}')">Salvar ${DNA_LABELS[key] || key}</button>
+            <span id="dnaStatus_${key}" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);padding-top:10px;"></span>
+          </div>
         </div>
       </div>
     `).join('');
   } catch(e) {
     area.innerHTML = '<div style="color:#e85050;">Erro ao carregar DNA</div>';
+  }
+}
+
+async function saveDnaModule(key) {
+  const textarea = document.getElementById('dna_' + key);
+  if (!textarea) return;
+  try {
+    const r = await fetch('/api/dna/' + key, {
+      method: 'PUT', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({content: textarea.value})
+    });
+    if (r.ok) {
+      document.getElementById('dnaStatus_' + key).textContent = 'Salvo!';
+      setTimeout(() => { const el = document.getElementById('dnaStatus_' + key); if(el) el.textContent = ''; }, 3000);
+    } else {
+      document.getElementById('dnaStatus_' + key).textContent = 'Erro ao salvar';
+    }
+  } catch(e) {
+    document.getElementById('dnaStatus_' + key).textContent = 'Erro: ' + e.message;
   }
 }
 

@@ -510,6 +510,28 @@ def get_dna():
         "tom": TOM.strip(),
     }
 
+@app.put("/api/dna/{modulo}")
+def update_dna(modulo: str, payload: dict):
+    """Atualiza um módulo do DNA."""
+    valid = ["identidade", "avatar", "pilares", "metodo", "credenciais", "tom"]
+    if modulo not in valid:
+        raise HTTPException(status_code=404, detail=f"Modulo '{modulo}' nao encontrado")
+    content = payload.get("content", "")
+    if not content:
+        raise HTTPException(status_code=400, detail="Content vazio")
+    # Escrever no arquivo Python
+    dna_dir = Path(__file__).parent / "dna"
+    var_name = modulo.upper()
+    file_path = dna_dir / f"{modulo}.py"
+    file_path.write_text(f'{var_name} = """\n{content}\n"""\n')
+    # Recarregar módulo
+    import importlib
+    import dna
+    mod = importlib.import_module(f"dna.{modulo}")
+    importlib.reload(mod)
+    importlib.reload(dna)
+    return {"ok": True}
+
 # ─── BASE DE CONTEÚDO API ─────────────────────────────────────────────────────
 
 @app.get("/api/conteudo")
