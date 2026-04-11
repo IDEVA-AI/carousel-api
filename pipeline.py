@@ -63,7 +63,23 @@ def etapa_copy(tema: str, pilar: str, num_slides: int = 7, estilo: str = "dark")
     """Gera JSON do carrossel via Claude."""
     from generator import gerar_carrossel_completo
     carrossel = gerar_carrossel_completo(tema, num_slides, pilar, estilo=estilo)
-    print(f"[Pipeline] Copy gerado: {carrossel.get('titulo')} | {len(carrossel.get('slides', []))} slides")
+
+    # Validar slides — garantir que nenhum saiu vazio
+    slides = carrossel.get("slides", [])
+    for i, s in enumerate(slides):
+        tipo = s.get("tipo", "")
+        headline = s.get("headline", s.get("quote", ""))
+        if not headline and tipo not in ("dado",):
+            print(f"[Pipeline] AVISO: Slide {i+1} ({tipo}) sem headline — preenchendo fallback")
+            if tipo == "cta":
+                s["headline"] = "Quer o diagnóstico?"
+                s["sub"] = s.get("sub") or "Chama no DM."
+            elif tipo == "cover":
+                s["headline"] = carrossel.get("titulo", "Carrossel")
+            else:
+                s["headline"] = "..."
+
+    print(f"[Pipeline] Copy gerado: {carrossel.get('titulo')} | {len(slides)} slides")
     return carrossel
 
 
