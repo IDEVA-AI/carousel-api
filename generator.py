@@ -36,7 +36,7 @@ CLAUDE_BIN = _find_claude_bin()
 CAROUSEL_SCHEMA = """Retorne um JSON com exatamente este formato:
 {
   "titulo": "título interno do carrossel (para referência)",
-  "pilar": "nome do pilar de conteúdo usado",
+  "pilar": "OBRIGATÓRIO: um dos 5 pilares EXATOS: 'O Sistema Invisível' | 'Arquitetura de Decisão' | 'Diagnóstico Cirúrgico' | 'Comportamento e Sistema' | 'Narrativas vs. Realidade'",
   "unsplash_query": "query curta em inglês para imagem de fundo dark/editorial (ex: 'dark architecture blueprint minimal')",
   "slides": [
     {
