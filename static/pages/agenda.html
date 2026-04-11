@@ -3,119 +3,183 @@
 
 <div style="display:flex;gap:24px;flex-wrap:wrap;">
 
-  <!-- CALENDARIO -->
-  <div style="flex:1;min-width:320px;">
-    <div class="table-wrap" style="padding:20px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <button class="btn btn-outline" style="padding:6px 12px;" onclick="calNav(-1)">&larr;</button>
-        <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:700;" id="calTitle">Abril 2026</div>
-        <button class="btn btn-outline" style="padding:6px 12px;" onclick="calNav(1)">&rarr;</button>
+  <!-- PAINEL DE AGENDAMENTO -->
+  <div style="flex:1;min-width:400px;">
+    <div class="section-label">Pipeline automatico</div>
+    <div class="table-wrap" style="padding:24px;">
+
+      <!-- TOGGLE MASTER -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border);">
+        <div>
+          <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:700;">Postagem automatica</div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:4px;" id="schedStatus">Carregando...</div>
+        </div>
+        <button class="btn btn-gold" id="btnToggleSched" onclick="toggleScheduler()">Ativar</button>
       </div>
-      <div class="cal-grid">
-        <div class="cal-header">Dom</div><div class="cal-header">Seg</div><div class="cal-header">Ter</div>
-        <div class="cal-header">Qua</div><div class="cal-header">Qui</div><div class="cal-header">Sex</div>
-        <div class="cal-header">Sab</div>
+
+      <!-- JOBS -->
+      <div id="jobsList"></div>
+
+      <!-- ADD JOB -->
+      <button class="btn btn-outline" style="width:100%;padding:12px;margin-top:16px;" onclick="addJob()">+ Adicionar horario</button>
+
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+        <button class="btn btn-gold" style="width:100%;padding:14px;" onclick="saveSchedule()">Salvar configuracao</button>
+        <div id="saveStatus" style="margin-top:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);"></div>
       </div>
-      <div class="cal-grid" id="calDays"></div>
     </div>
   </div>
 
-  <!-- PAINEL DE AGENDAMENTO -->
+  <!-- LOGS -->
   <div style="flex:1;min-width:300px;">
-    <div class="section-label">Pipeline automatico</div>
-    <div class="table-wrap" style="padding:24px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-        <div>
-          <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;">Postagem diaria</div>
-          <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:4px;">Trending &rarr; Copy &rarr; Render &rarr; Post</div>
-        </div>
-        <label style="position:relative;display:inline-block;width:48px;height:26px;cursor:pointer;">
-          <input type="checkbox" id="pipelineToggle" style="opacity:0;width:0;height:0;" onchange="togglePipeline(this.checked)">
-          <span style="position:absolute;inset:0;background:var(--dark3);border-radius:13px;transition:.3s;"></span>
-          <span style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:var(--muted);border-radius:50%;transition:.3s;" id="toggleDot"></span>
-        </label>
-      </div>
+    <div class="section-label">Ultimas execucoes</div>
+    <div class="table-wrap" id="logsArea">
+      <div style="padding:32px;text-align:center;color:var(--muted);font-size:13px;">Carregando...</div>
+    </div>
 
-      <div style="margin-bottom:16px;">
-        <label style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:block;">Horario diario</label>
-        <input type="time" value="09:00" id="scheduleTime" style="background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:10px 14px;font-family:'DM Mono',monospace;font-size:14px;border-radius:4px;width:100%;">
-      </div>
-
-      <div style="margin-bottom:16px;">
-        <label style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:block;">Estilo</label>
-        <select id="scheduleEstilo" style="background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:14px;border-radius:4px;width:100%;appearance:none;">
+    <div style="margin-top:20px;">
+      <div class="section-label">Execucao manual</div>
+      <div style="display:flex;gap:8px;">
+        <select id="manualEstilo" style="flex:1;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:10px;font-family:'DM Sans',sans-serif;font-size:13px;border-radius:4px;">
           <option value="dark">Dark</option>
           <option value="light">Light</option>
           <option value="ferrugem">Ferrugem</option>
         </select>
+        <button class="btn btn-gold" id="btnManual" onclick="runManual()">Executar agora</button>
       </div>
-
-      <button class="btn btn-gold" style="width:100%;padding:14px;" onclick="runPipelineNow()">Executar pipeline agora</button>
-      <div id="pipelineResult" style="margin-top:12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);"></div>
-    </div>
-
-    <div class="section-label" style="margin-top:24px;">Proximos agendados</div>
-    <div class="table-wrap" id="scheduleList">
-      <div style="padding:32px;text-align:center;color:var(--muted);font-size:13px;">Nenhum agendamento</div>
+      <div id="manualResult" style="margin-top:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);"></div>
     </div>
   </div>
+
 </div>
 
 <script>
-let calDate = new Date();
+let schedConfig = { ativo: false, jobs: [] };
 
-function renderCalendar() {
-  const year = calDate.getFullYear();
-  const month = calDate.getMonth();
-  const months = ['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  document.getElementById('calTitle').textContent = `${months[month]} ${year}`;
+async function loadSchedule() {
+  try {
+    const r = await fetch('/api/scheduler');
+    const d = await r.json();
+    schedConfig = { ativo: d.ativo, jobs: d.jobs || [] };
 
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const today = new Date();
+    // Toggle button
+    const btn = document.getElementById('btnToggleSched');
+    if (d.ativo) {
+      btn.textContent = 'Desativar';
+      btn.className = 'btn btn-outline';
+      document.getElementById('schedStatus').textContent = `Ativo — ${d.jobs.filter(j=>j.ativo).length} horarios configurados`;
+    } else {
+      btn.textContent = 'Ativar';
+      btn.className = 'btn btn-gold';
+      document.getElementById('schedStatus').textContent = 'Desativado';
+    }
 
-  let html = '';
-  for (let i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
-  for (let d = 1; d <= daysInMonth; d++) {
-    const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
-    html += `<div class="cal-day${isToday ? ' today' : ''}">${d}</div>`;
-  }
-  document.getElementById('calDays').innerHTML = html;
-}
-
-function calNav(dir) {
-  calDate.setMonth(calDate.getMonth() + dir);
-  renderCalendar();
-}
-
-function togglePipeline(on) {
-  const dot = document.getElementById('toggleDot');
-  if (on) {
-    dot.style.transform = 'translateX(22px)';
-    dot.style.background = 'var(--gold)';
-    document.getElementById('pipelineResult').textContent = 'Pipeline ativado (em breve: cron BRAINIAC)';
-  } else {
-    dot.style.transform = 'translateX(0)';
-    dot.style.background = 'var(--muted)';
-    document.getElementById('pipelineResult').textContent = 'Pipeline desativado';
+    renderJobs();
+    renderLogs(d.logs || []);
+  } catch(e) {
+    document.getElementById('schedStatus').textContent = 'Erro ao carregar';
   }
 }
 
-async function runPipelineNow() {
-  const res = document.getElementById('pipelineResult');
-  res.textContent = 'Executando pipeline...';
+function renderJobs() {
+  const area = document.getElementById('jobsList');
+  if (!schedConfig.jobs.length) {
+    area.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">Nenhum horario configurado</div>';
+    return;
+  }
+
+  area.innerHTML = schedConfig.jobs.map((job, i) => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);">
+      <input type="checkbox" ${job.ativo ? 'checked' : ''} onchange="schedConfig.jobs[${i}].ativo=this.checked" style="accent-color:var(--gold);">
+      <input type="time" value="${job.hora}" onchange="schedConfig.jobs[${i}].hora=this.value" style="background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:8px;font-family:'DM Mono',monospace;font-size:13px;border-radius:4px;width:100px;">
+      <select onchange="schedConfig.jobs[${i}].estilo=this.value" style="flex:1;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:8px;font-family:'DM Sans',sans-serif;font-size:12px;border-radius:4px;">
+        <option value="dark" ${job.estilo==='dark'?'selected':''}>Dark</option>
+        <option value="light" ${job.estilo==='light'?'selected':''}>Light</option>
+        <option value="ferrugem" ${job.estilo==='ferrugem'?'selected':''}>Ferrugem</option>
+      </select>
+      <select onchange="schedConfig.jobs[${i}].visual=this.value" style="flex:1;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:8px;font-family:'DM Sans',sans-serif;font-size:12px;border-radius:4px;">
+        <option value="none" ${job.visual==='none'?'selected':''}>Limpo</option>
+        <option value="editorial" ${job.visual==='editorial'?'selected':''}>Editorial</option>
+      </select>
+      <button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;" onclick="removeJob(${i})">&#10005;</button>
+    </div>`).join('');
+}
+
+function addJob() {
+  schedConfig.jobs.push({ hora: '12:00', estilo: 'dark', visual: 'editorial', slides: 7, ativo: true });
+  renderJobs();
+}
+
+function removeJob(i) {
+  schedConfig.jobs.splice(i, 1);
+  renderJobs();
+}
+
+async function saveSchedule() {
+  try {
+    await fetch('/api/scheduler/config', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(schedConfig)
+    });
+    document.getElementById('saveStatus').textContent = 'Salvo e aplicado!';
+    setTimeout(() => document.getElementById('saveStatus').textContent = '', 3000);
+    loadSchedule();
+  } catch(e) {
+    document.getElementById('saveStatus').textContent = 'Erro ao salvar';
+  }
+}
+
+async function toggleScheduler() {
+  const endpoint = schedConfig.ativo ? '/api/scheduler/stop' : '/api/scheduler/start';
+  await fetch(endpoint, {method:'POST'});
+  loadSchedule();
+}
+
+function renderLogs(logs) {
+  const area = document.getElementById('logsArea');
+  if (!logs.length) {
+    area.innerHTML = '<div style="padding:32px;text-align:center;color:var(--muted);font-size:13px;">Nenhuma execucao registrada</div>';
+    return;
+  }
+  area.innerHTML = logs.map(log => {
+    const badge = log.status === 'success' ? 'badge-ok' : 'badge-err';
+    const label = log.status === 'success' ? 'OK' : 'ERRO';
+    const date = new Date(log.timestamp);
+    const time = date.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+    const day = date.toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit'});
+    return `<div class="table-row" style="cursor:default;">
+      <div style="flex:0 0 60px;"><span class="badge ${badge}">${label}</span></div>
+      <div style="flex:1;font-size:12px;color:var(--paper);">${log.titulo || log.error || '—'}</div>
+      <div style="flex:0 0 50px;font-family:'DM Mono',monospace;font-size:10px;color:var(--gold);">${log.estilo}</div>
+      <div style="flex:0 0 80px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">${day} ${time}</div>
+    </div>`;
+  }).join('');
+}
+
+async function runManual() {
+  const btn = document.getElementById('btnManual');
+  const res = document.getElementById('manualResult');
+  const estilo = document.getElementById('manualEstilo').value;
+  btn.disabled = true;
+  btn.textContent = 'Executando...';
+  res.textContent = 'Pipeline rodando — pode levar 1-2 minutos...';
+
   try {
     const r = await fetch('/pipeline/executar', {method:'POST'});
     const d = await r.json();
     if (d.status === 'success') {
-      res.innerHTML = '<span style="color:#2ecc71;">Pipeline concluido com sucesso!</span>';
+      res.innerHTML = '<span style="color:#2ecc71;">Sucesso! ' + (d.permalink || '') + '</span>';
     } else {
-      res.innerHTML = `<span style="color:#e85050;">Erro: ${d.error || 'desconhecido'}</span>`;
+      res.innerHTML = '<span style="color:#e85050;">Erro: ' + (d.error || 'desconhecido') + '</span>';
     }
+    loadSchedule(); // refresh logs
   } catch(e) {
-    res.innerHTML = `<span style="color:#e85050;">Erro: ${e.message}</span>`;
+    res.innerHTML = '<span style="color:#e85050;">Erro: ' + e.message + '</span>';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Executar agora';
   }
 }
 
-renderCalendar();
+loadSchedule();
 </script>

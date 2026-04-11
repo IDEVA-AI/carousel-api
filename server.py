@@ -54,6 +54,11 @@ def _save_conteudo(data: dict):
 # ─── APP ──────────────────────────────────────────────────────────────────────
 app = FastAPI(title="Gerador de Carrosseis — Julio Carvalho", version="2.0.0")
 
+@app.on_event("startup")
+def on_startup():
+    from scheduler import start_scheduler
+    start_scheduler()
+
 PILARES = [
     "auto",
     "O Sistema Invisível",
@@ -352,6 +357,38 @@ def instagram_quota():
         raise HTTPException(status_code=500, detail=str(e))
 
 # ─── BASE DE CONTEÚDO API ─────────────────────────────────────────────────────
+
+# ─── SCHEDULER API ───────────────────────────────────────────────────────────
+
+@app.get("/api/scheduler")
+def scheduler_status():
+    from scheduler import get_status
+    return get_status()
+
+@app.post("/api/scheduler/config")
+def scheduler_update(config: dict):
+    from scheduler import save_config, start_scheduler
+    save_config(config)
+    start_scheduler()
+    return {"ok": True}
+
+@app.post("/api/scheduler/start")
+def scheduler_start():
+    from scheduler import load_config, save_config, start_scheduler
+    config = load_config()
+    config["ativo"] = True
+    save_config(config)
+    start_scheduler()
+    return {"ok": True}
+
+@app.post("/api/scheduler/stop")
+def scheduler_stop():
+    from scheduler import load_config, save_config, stop_scheduler
+    config = load_config()
+    config["ativo"] = False
+    save_config(config)
+    stop_scheduler()
+    return {"ok": True}
 
 # ─── DNA API ─────────────────────────────────────────────────────────────────
 
