@@ -64,6 +64,14 @@ def etapa_copy(tema: str, pilar: str, num_slides: int = 7, estilo: str = "dark")
     from generator import gerar_carrossel_completo
     carrossel = gerar_carrossel_completo(tema, num_slides, pilar, estilo=estilo)
 
+    # Validar pilar — forçar um dos 5 válidos
+    from trending import _validar_pilar
+    pilar_gerado = carrossel.get("pilar", "")
+    pilar_valido = _validar_pilar(pilar_gerado)
+    if pilar_gerado != pilar_valido:
+        print(f"[Pipeline] Pilar corrigido pós-geração: '{pilar_gerado}' → '{pilar_valido}'")
+        carrossel["pilar"] = pilar_valido
+
     # Validar slides — garantir que nenhum saiu vazio
     slides = carrossel.get("slides", [])
     for i, s in enumerate(slides):
