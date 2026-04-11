@@ -1,48 +1,150 @@
 <div class="section-label">Visao geral</div>
 <div class="section-title">Painel de controle</div>
 
-<div class="cards-grid" id="dashCards">
+<!-- PERFIL INSTAGRAM -->
+<div style="display:flex;align-items:center;gap:20px;padding:24px;background:var(--dark2);border:1px solid var(--border);border-radius:8px;margin-bottom:24px;" id="igProfile">
+  <div style="width:64px;height:64px;border-radius:50%;background:var(--dark3);overflow:hidden;flex-shrink:0;" id="igAvatar"></div>
+  <div style="flex:1;">
+    <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:700;" id="igUsername">Carregando...</div>
+    <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);margin-top:2px;" id="igBio"></div>
+  </div>
+  <div style="display:flex;gap:32px;">
+    <div style="text-align:center;">
+      <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:900;color:var(--paper);" id="igFollowers">—</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.1em;">SEGUIDORES</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:900;color:var(--paper);" id="igFollowing">—</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.1em;">SEGUINDO</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:900;color:var(--paper);" id="igPosts">—</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.1em;">POSTS</div>
+    </div>
+  </div>
+</div>
+
+<!-- CARDS -->
+<div class="cards-grid">
   <div class="card" onclick="navigateTo('historico')">
     <div class="card-label">Carrosseis gerados</div>
     <div class="card-value" id="dashTotal">—</div>
     <div class="card-sub">Total no historico</div>
   </div>
-  <div class="card" onclick="navigateTo('postagens')">
-    <div class="card-label">Publicados</div>
-    <div class="card-value" id="dashPublished">0</div>
-    <div class="card-sub">Posts no Instagram</div>
-  </div>
-  <div class="card" onclick="navigateTo('agenda')">
-    <div class="card-label">Agendados</div>
-    <div class="card-value" id="dashScheduled">0</div>
-    <div class="card-sub">Proximos posts</div>
-  </div>
   <div class="card">
     <div class="card-label">Quota Instagram</div>
     <div class="card-value" id="dashQuota">—</div>
-    <div class="card-sub">Posts restantes hoje</div>
+    <div class="card-sub" id="dashQuotaSub">Posts restantes hoje</div>
+  </div>
+  <div class="card" onclick="navigateTo('criar')">
+    <div class="card-label">Acao rapida</div>
+    <div class="card-value" style="font-size:24px;">+ Criar</div>
+    <div class="card-sub">Novo carrossel</div>
   </div>
 </div>
 
-<div style="display:flex;gap:20px;flex-wrap:wrap;">
-  <div style="flex:1;min-width:300px;">
-    <div class="section-label">Ultimo carrossel</div>
-    <div class="table-wrap" id="dashLatest">
+<!-- POSTS RECENTES -->
+<div style="display:flex;gap:24px;flex-wrap:wrap;">
+  <div style="flex:2;min-width:400px;">
+    <div class="section-label">Posts recentes no Instagram</div>
+    <div class="table-wrap" id="igMediaList">
       <div style="padding:40px;text-align:center;color:var(--muted);font-size:13px;">Carregando...</div>
     </div>
   </div>
 
-  <div style="flex:1;min-width:300px;">
-    <div class="section-label">Acoes rapidas</div>
-    <div style="display:flex;flex-direction:column;gap:12px;">
-      <button class="btn btn-gold" style="width:100%;padding:16px" onclick="navigateTo('criar')">+ Criar Carrossel</button>
-      <button class="btn btn-outline" style="width:100%;padding:16px" id="btnPreview" onclick="runPreview()">Pipeline Preview</button>
+  <div style="flex:1;min-width:280px;">
+    <div class="section-label">Ultimo carrossel gerado</div>
+    <div class="table-wrap" id="dashLatest">
+      <div style="padding:40px;text-align:center;color:var(--muted);font-size:13px;">Carregando...</div>
     </div>
-    <div id="previewResult" style="margin-top:16px;display:none;"></div>
+
+    <div style="margin-top:20px;">
+      <button class="btn btn-outline" style="width:100%;padding:14px;" id="btnPreview" onclick="runPreview()">Pipeline Preview</button>
+      <div id="previewResult" style="margin-top:12px;display:none;"></div>
+    </div>
   </div>
 </div>
 
 <script>
+// ─── INSTAGRAM PROFILE ──────────────────────────────────────────────────────
+async function loadProfile() {
+  try {
+    const r = await fetch('/api/instagram/profile');
+    if (!r.ok) return;
+    const d = await r.json();
+    document.getElementById('igUsername').textContent = '@' + (d.username || '');
+    document.getElementById('igBio').textContent = (d.biography || '').split('\n')[0];
+    document.getElementById('igFollowers').textContent = d.followers_count || 0;
+    document.getElementById('igFollowing').textContent = d.follows_count || 0;
+    document.getElementById('igPosts').textContent = d.media_count || 0;
+    if (d.profile_picture_url) {
+      document.getElementById('igAvatar').innerHTML = `<img src="${d.profile_picture_url}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
+    }
+  } catch(e) {
+    document.getElementById('igUsername').textContent = 'Instagram nao conectado';
+  }
+}
+
+// ─── INSTAGRAM MEDIA ────────────────────────────────────────────────────────
+async function loadMedia() {
+  try {
+    const r = await fetch('/api/instagram/media?limit=6');
+    if (!r.ok) return;
+    const d = await r.json();
+    const items = d.data || [];
+
+    if (!items.length) {
+      document.getElementById('igMediaList').innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);">Nenhum post</div>';
+      return;
+    }
+
+    const rows = items.map(it => {
+      const thumb = it.thumbnail_url || it.media_url || '';
+      const date = formatDate(it.timestamp);
+      const caption = (it.caption || '').slice(0, 60);
+      const type = it.media_type === 'VIDEO' ? 'Reel' : it.media_type === 'CAROUSEL_ALBUM' ? 'Carrossel' : 'Imagem';
+
+      return `<div class="table-row" onclick="window.open('${it.permalink}','_blank')">
+        ${thumb ? `<img class="table-thumb" src="${thumb}" alt="" onerror="this.style.display='none'">` : '<div class="table-thumb" style="background:var(--dark3);"></div>'}
+        <div style="flex:2;min-width:0;">
+          <div style="font-size:13px;color:var(--paper);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${caption || 'Sem legenda'}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:4px;">${date}</div>
+        </div>
+        <div style="flex:0 0 80px;text-align:center;">
+          <span class="badge badge-wait">${type}</span>
+        </div>
+        <div style="flex:0 0 100px;display:flex;gap:16px;justify-content:flex-end;">
+          <div style="text-align:center;">
+            <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;color:var(--paper);">${it.like_count || 0}</div>
+            <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);">LIKES</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;color:var(--paper);">${it.comments_count || 0}</div>
+            <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);">COMENTS</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('igMediaList').innerHTML = rows;
+  } catch(e) {
+    document.getElementById('igMediaList').innerHTML = '<div style="padding:20px;color:var(--muted);">Erro ao carregar posts</div>';
+  }
+}
+
+// ─── QUOTA ───────────────────────────────────────────────────────────────────
+async function loadQuota() {
+  try {
+    const r = await fetch('/api/instagram/quota');
+    if (!r.ok) return;
+    const d = await r.json();
+    const remaining = (d.config?.quota_total || 100) - (d.quota_usage || 0);
+    document.getElementById('dashQuota').textContent = remaining;
+    document.getElementById('dashQuotaSub').textContent = `de ${d.config?.quota_total || 100} por dia`;
+  } catch(e) {}
+}
+
+// ─── HISTORICO ───────────────────────────────────────────────────────────────
 async function loadDashboard() {
   try {
     const r = await fetch('/historico');
@@ -62,13 +164,12 @@ async function loadDashboard() {
           </div>
         </div>`;
     } else {
-      document.getElementById('dashLatest').innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);font-size:13px;">Nenhum carrossel gerado ainda</div>';
+      document.getElementById('dashLatest').innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);font-size:13px;">Nenhum carrossel gerado</div>';
     }
-  } catch(e) {
-    document.getElementById('dashLatest').innerHTML = '<div style="padding:20px;color:var(--muted);">Erro ao carregar</div>';
-  }
+  } catch(e) {}
 }
 
+// ─── PIPELINE PREVIEW ───────────────────────────────────────────────────────
 async function runPreview() {
   const btn = document.getElementById('btnPreview');
   btn.textContent = 'Gerando...';
@@ -83,10 +184,9 @@ async function runPreview() {
     res.innerHTML = `
       <div class="card" style="cursor:default">
         <div class="card-label">Preview gerado</div>
-        <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:700;margin-bottom:8px;">${d.titulo || ''}</div>
-        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);margin-bottom:12px;">${d.pilar || ''} &middot; ${d.total_slides} slides</div>
+        <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;margin-bottom:8px;">${d.titulo || ''}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);margin-bottom:12px;">${d.pilar || ''}</div>
         ${d.previews && d.previews[0] ? `<img src="${d.previews[0]}" style="width:100%;max-width:200px;border:1px solid var(--border);border-radius:4px;" alt="">` : ''}
-        <div style="margin-top:12px;font-size:12px;color:var(--muted);max-height:100px;overflow:hidden;">${(d.caption || '').slice(0, 200)}...</div>
       </div>`;
     res.style.display = 'block';
   } catch(e) {
@@ -98,5 +198,17 @@ async function runPreview() {
   }
 }
 
+function formatDate(iso) {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'2-digit'}) + ' ' +
+      d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+  } catch { return iso || ''; }
+}
+
+// ─── INIT ───────────────────────────────────────────────────────────────────
+loadProfile();
+loadMedia();
+loadQuota();
 loadDashboard();
 </script>

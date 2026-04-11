@@ -277,6 +277,63 @@ async def pipeline_preview():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Preview falhou: {str(e)}")
 
+# ─── INSTAGRAM INFO ──────────────────────────────────────────────────────────
+
+@app.get("/api/instagram/profile")
+def instagram_profile():
+    """Retorna perfil do Instagram conectado."""
+    token = os.environ.get("INSTAGRAM_ACCESS_TOKEN", "")
+    if not token:
+        raise HTTPException(status_code=400, detail="Instagram não conectado")
+    try:
+        r = httpx.get(
+            "https://graph.instagram.com/v22.0/me",
+            params={"fields": "id,username,account_type,media_count,profile_picture_url,biography,followers_count,follows_count,website", "access_token": token},
+            timeout=10,
+        )
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/instagram/media")
+def instagram_media(limit: int = 10):
+    """Retorna posts recentes do Instagram."""
+    token = os.environ.get("INSTAGRAM_ACCESS_TOKEN", "")
+    if not token:
+        raise HTTPException(status_code=400, detail="Instagram não conectado")
+    try:
+        r = httpx.get(
+            "https://graph.instagram.com/v22.0/me/media",
+            params={"fields": "id,caption,media_type,timestamp,like_count,comments_count,permalink,thumbnail_url,media_url", "limit": limit, "access_token": token},
+            timeout=10,
+        )
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/instagram/quota")
+def instagram_quota():
+    """Retorna quota de publicação do Instagram."""
+    token = os.environ.get("INSTAGRAM_ACCESS_TOKEN", "")
+    account_id = os.environ.get("INSTAGRAM_BUSINESS_ACCOUNT_ID", "")
+    if not token or not account_id:
+        raise HTTPException(status_code=400, detail="Instagram não conectado")
+    try:
+        r = httpx.get(
+            f"https://graph.instagram.com/v22.0/{account_id}/content_publishing_limit",
+            params={"fields": "config,quota_usage", "access_token": token},
+            timeout=10,
+        )
+        r.raise_for_status()
+        data = r.json().get("data", [{}])
+        return data[0] if data else {}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+import httpx as _httpx
+
 # ─── STATIC FILES ─────────────────────────────────────────────────────────────
 static_dir = Path(__file__).parent / "static"
 if static_dir.exists():
