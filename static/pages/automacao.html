@@ -41,7 +41,6 @@ async function renderKeywords(area) {
     const r = await fetch('/api/automation/keywords');
     const d = await r.json();
     kwData = d.keywords || [];
-    const ss = 'background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:8px 12px;font-family:"DM Sans",sans-serif;font-size:13px;border-radius:4px;width:100%;outline:none;';
 
     area.innerHTML = `
       <div class="section-label">Palavras-chave de gatilho</div>
@@ -53,17 +52,17 @@ async function renderKeywords(area) {
         <div class="card" style="cursor:default;margin-bottom:12px;">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
             <input type="checkbox" ${kw.ativo?'checked':''} onchange="kwData[${i}].ativo=this.checked" style="accent-color:var(--gold);width:18px;height:18px;">
-            <input type="text" value="${esc(kw.keyword)}" onchange="kwData[${i}].keyword=this.value" style="${ss}flex:1;font-family:'DM Mono',monospace;font-weight:700;color:var(--gold);font-size:16px;" placeholder="KEYWORD">
+            <input type="text" value="${esc(kw.keyword)}" onchange="kwData[${i}].keyword=this.value" class="fi fi-mono fi-bold" style="flex:1;" placeholder="KEYWORD">
             <button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;" onclick="kwData.splice(${i},1);renderKeywords(document.getElementById('autoContent'))">&#10005;</button>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
             <div>
-              <label style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:4px;">Resposta no comentario</label>
-              <input type="text" value="${esc(kw.reply||'')}" onchange="kwData[${i}].reply=this.value" style="${ss}" placeholder="Acabei de te mandar no DM! 👆">
+              <label class="fl">Resposta no comentario</label>
+              <input type="text" value="${esc(kw.reply||'')}" onchange="kwData[${i}].reply=this.value" class="fi" placeholder="Acabei de te mandar no DM! 👆">
             </div>
             <div>
-              <label style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:4px;">Sequencia de DM vinculada</label>
-              <input type="text" value="${esc(kw.dm_sequence||'')}" onchange="kwData[${i}].dm_sequence=this.value" style="${ss}font-family:'DM Mono',monospace;" placeholder="diagnostico_gratis">
+              <label class="fl">Sequencia de DM vinculada</label>
+              <input type="text" value="${esc(kw.dm_sequence||'')}" onchange="kwData[${i}].dm_sequence=this.value" class="fi fi-mono" placeholder="diagnostico_gratis">
             </div>
           </div>
         </div>`).join('')}
@@ -88,8 +87,6 @@ async function renderSequences(area) {
     const r = await fetch('/api/dm/sequences');
     const d = await r.json();
     seqData = d.sequences || [];
-    const ss = 'background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:8px 12px;font-family:"DM Sans",sans-serif;font-size:13px;border-radius:4px;width:100%;outline:none;';
-    const lbl = 'font-family:"DM Mono",monospace;font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:4px;';
 
     area.innerHTML = `
       <div class="section-label">Sequencias de DM</div>
@@ -100,25 +97,25 @@ async function renderSequences(area) {
             <input type="checkbox" ${seq.ativo?'checked':''} onchange="seqData[${si}].ativo=this.checked" style="accent-color:var(--gold);">
             <div style="flex:1;">
               <div style="display:flex;gap:8px;margin-bottom:6px;">
-                <input type="text" value="${esc(seq.nome||'')}" onchange="seqData[${si}].nome=this.value" style="${ss}font-family:'Fraunces',serif;font-weight:700;" placeholder="Nome da sequencia">
+                <input type="text" value="${esc(seq.nome||'')}" onchange="seqData[${si}].nome=this.value" class="fi" style="font-family:'Fraunces',serif;font-weight:700;" placeholder="Nome da sequencia">
               </div>
               <div style="display:flex;gap:8px;">
-                <div style="flex:1;"><label style="${lbl}">ID</label><input type="text" value="${esc(seq.id||'')}" onchange="seqData[${si}].id=this.value" style="${ss}font-family:'DM Mono',monospace;font-size:11px;" placeholder="id_sequencia"></div>
-                <div style="flex:1;"><label style="${lbl}">Keyword trigger</label><input type="text" value="${esc(seq.trigger_keyword||'')}" onchange="seqData[${si}].trigger_keyword=this.value" style="${ss}font-family:'DM Mono',monospace;color:var(--gold);" placeholder="SISTEMA"></div>
+                <div style="flex:1;"><label class="fl">ID</label><input type="text" value="${esc(seq.id||'')}" onchange="seqData[${si}].id=this.value" class="fi fi-mono" style="font-size:11px;" placeholder="id_sequencia"></div>
+                <div style="flex:1;"><label class="fl">Keyword trigger</label><input type="text" value="${esc(seq.trigger_keyword||'')}" onchange="seqData[${si}].trigger_keyword=this.value" class="fi fi-mono" style="color:var(--gold);" placeholder="SISTEMA"></div>
               </div>
             </div>
             <button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;" onclick="seqData.splice(${si},1);renderSequences(document.getElementById('autoContent'))">&#10005;</button>
           </div>
           <div style="border-top:1px solid var(--border);padding-top:12px;">
-            <label style="${lbl}">Mensagens da sequencia</label>
+            <label class="fl">Mensagens da sequencia</label>
             ${(seq.steps||[]).map((step,j) => `
               <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;">
-                <input type="number" value="${step.delay_minutes||0}" onchange="seqData[${si}].steps[${j}].delay_minutes=parseInt(this.value)" style="${ss}max-width:70px;text-align:center;" title="Delay em minutos (0=imediata, 1440=24h)">
+                <input type="number" value="${step.delay_minutes||0}" onchange="seqData[${si}].steps[${j}].delay_minutes=parseInt(this.value)" class="fi" style="max-width:70px;text-align:center;" title="Delay em minutos (0=imediata, 1440=24h)">
                 <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);padding-top:10px;white-space:nowrap;">min</span>
-                <textarea onchange="seqData[${si}].steps[${j}].message=this.value" rows="2" style="${ss}resize:vertical;">${esc(step.message||'')}</textarea>
+                <textarea onchange="seqData[${si}].steps[${j}].message=this.value" rows="2" class="fi">${esc(step.message||'')}</textarea>
                 <button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;" onclick="seqData[${si}].steps.splice(${j},1);renderSequences(document.getElementById('autoContent'))">&#10005;</button>
               </div>`).join('')}
-            <button class="btn btn-outline" style="width:100%;padding:8px;font-size:10px;margin-top:4px;" onclick="seqData[${si}].steps.push({delay_minutes:0,message:''});renderSequences(document.getElementById('autoContent'))">+ Adicionar mensagem</button>
+            <button class="btn btn-outline btn-full" style="padding:8px;font-size:10px;margin-top:4px;" onclick="seqData[${si}].steps.push({delay_minutes:0,message:''});renderSequences(document.getElementById('autoContent'))">+ Adicionar mensagem</button>
           </div>
         </div>`).join('')}
       <div style="display:flex;gap:8px;margin-top:12px;">
@@ -234,13 +231,6 @@ async function renderLogs(area) {
         }).join('')}
       </div>`;
   } catch(e) { area.innerHTML = '<div style="color:#e85050;">Erro ao carregar logs</div>'; }
-}
-
-function formatDate(iso) {
-  try {
-    const d = new Date(iso);
-    return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) + ' ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-  } catch { return iso||''; }
 }
 
 loadAutoTab();

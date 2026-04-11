@@ -41,7 +41,7 @@
     </div>
     <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px;">
       <div style="display:flex;gap:8px;margin-bottom:12px;">
-        <input type="text" id="novoTema" placeholder="Adicionar novo tema..." style="flex:1;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:13px;border-radius:4px;outline:none;">
+        <input type="text" id="novoTema" placeholder="Adicionar novo tema..." class="fi" style="flex:1;">
         <button class="btn btn-gold" onclick="addTema()">+</button>
       </div>
       <div id="temasLista" style="max-height:200px;overflow-y:auto;"></div>
@@ -97,7 +97,7 @@
       <span class="badge badge-wait" id="notasBadge">0 notas</span>
     </div>
     <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px;">
-      <textarea id="novaNota" rows="3" placeholder="Escreva uma ideia, frase ou insight que queira virar carrossel..." style="width:100%;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:13px;border-radius:4px;outline:none;resize:vertical;"></textarea>
+      <textarea id="novaNota" rows="3" placeholder="Escreva uma ideia, frase ou insight que queira virar carrossel..." class="fi"></textarea>
       <button class="btn btn-gold" style="margin-top:8px;" onclick="addNota()">Salvar nota</button>
       <div id="notasLista" style="margin-top:16px;max-height:200px;overflow-y:auto;"></div>
     </div>
@@ -119,8 +119,8 @@
   <div class="card" style="cursor:default;">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
       <div>
-        <label style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">Slides por carrossel</label>
-        <select id="cfgSlides" style="width:100%;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:10px;font-family:'DM Sans',sans-serif;font-size:14px;border-radius:4px;appearance:none;">
+        <label class="fl">Slides por carrossel</label>
+        <select id="cfgSlides" class="fi">
           <option value="5">5 slides</option>
           <option value="7" selected>7 slides</option>
           <option value="9">9 slides</option>
@@ -128,27 +128,27 @@
         </select>
       </div>
       <div>
-        <label style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">Estilo padrao</label>
-        <select id="cfgEstilo" style="width:100%;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:10px;font-family:'DM Sans',sans-serif;font-size:14px;border-radius:4px;appearance:none;">
+        <label class="fl">Estilo padrao</label>
+        <select id="cfgEstilo" class="fi">
           <option value="dark" selected>Dark</option>
           <option value="light">Light</option>
           <option value="ferrugem">Ferrugem</option>
         </select>
       </div>
       <div>
-        <label style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">Visual padrao</label>
-        <select id="cfgVisual" style="width:100%;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:10px;font-family:'DM Sans',sans-serif;font-size:14px;border-radius:4px;appearance:none;">
+        <label class="fl">Visual padrao</label>
+        <select id="cfgVisual" class="fi">
           <option value="none">Limpo</option>
           <option value="editorial" selected>Editorial</option>
           <option value="esquema">Esquema</option>
         </select>
       </div>
       <div>
-        <label style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">Horario do pipeline</label>
-        <input type="time" value="09:00" id="cfgHorario" style="width:100%;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:10px;font-family:'DM Mono',monospace;font-size:14px;border-radius:4px;">
+        <label class="fl">Horario do pipeline</label>
+        <input type="time" value="09:00" id="cfgHorario" class="fi fi-mono">
       </div>
     </div>
-    <button class="btn btn-gold" style="margin-top:20px;width:100%;padding:14px;" onclick="saveConfig()">Salvar configuracoes</button>
+    <button class="btn btn-gold btn-full" style="margin-top:20px;padding:14px;" onclick="saveConfig()">Salvar configuracoes</button>
     <div id="cfgStatus" style="margin-top:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);"></div>
   </div>
 </div>

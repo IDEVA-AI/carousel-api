@@ -21,10 +21,10 @@
       <div id="jobsList"></div>
 
       <!-- ADD JOB -->
-      <button class="btn btn-outline" style="width:100%;padding:12px;margin-top:16px;" onclick="addJob()">+ Adicionar horario</button>
+      <button class="btn btn-outline btn-full" style="padding:12px;margin-top:16px;" onclick="addJob()">+ Adicionar horario</button>
 
       <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
-        <button class="btn btn-gold" style="width:100%;padding:14px;" onclick="saveSchedule()">Salvar configuracao</button>
+        <button class="btn btn-gold btn-full" style="padding:14px;" onclick="saveSchedule()">Salvar configuracao</button>
         <div id="saveStatus" style="margin-top:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);"></div>
       </div>
     </div>
@@ -40,7 +40,7 @@
     <div style="margin-top:20px;">
       <div class="section-label">Execucao manual</div>
       <div style="display:flex;gap:8px;">
-        <select id="manualEstilo" style="flex:1;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:10px;font-family:'DM Sans',sans-serif;font-size:13px;border-radius:4px;">
+        <select id="manualEstilo" class="fi" style="flex:1;">
           <option value="dark">Dark</option>
           <option value="light">Light</option>
           <option value="ferrugem">Ferrugem</option>
@@ -101,29 +101,27 @@ function renderJobs() {
     {v:'noticia',l:'Noticia adaptada'},
     {v:'cta_direto',l:'CTA direto'},
   ];
-  const selStyle = 'background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:8px;font-family:"DM Sans",sans-serif;font-size:12px;border-radius:4px;';
-
   area.innerHTML = schedConfig.jobs.map((job, i) => {
     const tipoSelect = tipoOpts.map(o => `<option value="${o.v}" ${(job.tipo_conteudo||'auto')===o.v?'selected':''}>${o.l}</option>`).join('');
     return `
     <div style="padding:14px 0;border-bottom:1px solid var(--border);">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
         <input type="checkbox" ${job.ativo ? 'checked' : ''} onchange="schedConfig.jobs[${i}].ativo=this.checked" style="accent-color:var(--gold);">
-        <input type="time" value="${job.hora}" onchange="schedConfig.jobs[${i}].hora=this.value" style="${selStyle}width:100px;font-family:'DM Mono',monospace;font-size:13px;">
-        <select onchange="schedConfig.jobs[${i}].estilo=this.value" style="${selStyle}flex:1;">
+        <input type="time" value="${job.hora}" onchange="schedConfig.jobs[${i}].hora=this.value" class="fi fi-mono" style="width:100px;">
+        <select onchange="schedConfig.jobs[${i}].estilo=this.value" class="fi" style="flex:1;">
           <option value="dark" ${job.estilo==='dark'?'selected':''}>Dark</option>
           <option value="light" ${job.estilo==='light'?'selected':''}>Light</option>
           <option value="ferrugem" ${job.estilo==='ferrugem'?'selected':''}>Ferrugem</option>
         </select>
-        <select onchange="schedConfig.jobs[${i}].visual=this.value" style="${selStyle}flex:1;">
+        <select onchange="schedConfig.jobs[${i}].visual=this.value" class="fi" style="flex:1;">
           <option value="none" ${job.visual==='none'?'selected':''}>Limpo</option>
           <option value="editorial" ${job.visual==='editorial'?'selected':''}>Editorial</option>
         </select>
         <button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;" onclick="removeJob(${i})">&#10005;</button>
       </div>
       <div style="display:flex;align-items:center;gap:10px;padding-left:30px;">
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;">TIPO:</span>
-        <select onchange="schedConfig.jobs[${i}].tipo_conteudo=this.value" style="${selStyle}flex:1;">${tipoSelect}</select>
+        <span class="fl" style="white-space:nowrap;">TIPO:</span>
+        <select onchange="schedConfig.jobs[${i}].tipo_conteudo=this.value" class="fi" style="flex:1;">${tipoSelect}</select>
       </div>
     </div>`;
   }).join('');
