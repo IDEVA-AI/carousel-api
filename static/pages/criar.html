@@ -743,8 +743,35 @@ function syncEditorSelectors() {
   });
 }
 
+// ─── AUTO-LOAD INSTAGRAM AVATAR ─────────────────────────────────────────────
+async function loadInstagramAvatar() {
+  try {
+    const r = await fetch('/api/instagram/profile');
+    if (!r.ok) return;
+    const d = await r.json();
+    if (!d.profile_picture_url) return;
+    // Usar URL direta como avatar (Playwright baixa na hora do render)
+    // Mas pra preview no browser, setar direto
+    const imgR = await fetch(d.profile_picture_url);
+    const blob = await imgR.blob();
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      avatarDataUrl = e.target.result;
+      ['avatarPreview','headerAvatar'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = `<img src="${avatarDataUrl}" alt="">`;
+      });
+      console.log('[Avatar] Instagram profile pic loaded');
+    };
+    reader.readAsDataURL(blob);
+  } catch(e) {
+    console.log('[Avatar] Could not load Instagram pic:', e.message);
+  }
+}
+
 // Init
 carregarHistorico();
+loadInstagramAvatar();
 
 async function baixarZip() {
   const btn = document.getElementById("btnDownload");
