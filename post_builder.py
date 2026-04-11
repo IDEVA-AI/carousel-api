@@ -119,13 +119,13 @@ def build_feed_single(data: dict, theme: str = "dark", avatar_url: str | None = 
     return f"""<!DOCTYPE html><html><head><meta charset="UTF-8">{_FONT_LINK}
 <style>
 *{{margin:0;padding:0;box-sizing:border-box;}}
-html,body{{width:1080px;height:1350px;overflow:hidden;background:{t['bg']};}}
+html,body{{width:1080px;height:1440px;overflow:hidden;background:{t['bg']};}}
 body::before{{content:'';position:absolute;inset:0;z-index:10;pointer-events:none;opacity:0.22;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
   background-size:128px 128px;mix-blend-mode:overlay;}}
 body::after{{content:'';position:absolute;inset:0;z-index:9;pointer-events:none;
   background:radial-gradient(ellipse at center,transparent 40%,{t['bg']}80 100%);}}
-.post{{width:1080px;height:1350px;display:flex;flex-direction:column;justify-content:center;
+.post{{width:1080px;height:1440px;display:flex;flex-direction:column;justify-content:center;
   padding:100px 96px;position:relative;z-index:2;}}
 .eyebrow{{font-family:'DM Mono',monospace;font-size:20px;letter-spacing:0.25em;
   text-transform:uppercase;color:{t['gold']};margin-bottom:40px;}}
@@ -213,7 +213,7 @@ FORMAT_BUILDERS = {
 
 FORMAT_DIMENSIONS = {
     "tweet": (1080, 1080),
-    "feed_single": (1080, 1350),
+    "feed_single": (1080, 1440),
     "story": (1080, 1920),
 }
 
