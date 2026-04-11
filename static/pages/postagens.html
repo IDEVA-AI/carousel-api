@@ -2,14 +2,70 @@
 <div class="section-title">Postagens</div>
 
 <div class="table-wrap" id="postsTable">
-  <div style="padding:60px;text-align:center;">
-    <div class="empty-state-icon">&#9998;</div>
-    <div style="color:var(--muted);font-size:13px;margin-top:8px;">Nenhuma postagem registrada ainda</div>
-    <div style="color:var(--muted);font-size:12px;margin-top:4px;">Posts feitos via pipeline aparecerao aqui</div>
-  </div>
+  <div style="padding:40px;text-align:center;color:var(--muted);font-size:13px;">Carregando...</div>
 </div>
 
 <script>
-// Postagens serao populadas quando o pipeline postar
-// Por enquanto mostra estado vazio
+async function loadPostagens() {
+  const area = document.getElementById('postsTable');
+  try {
+    const r = await fetch('/api/postagens');
+    const d = await r.json();
+    const posts = d.postagens || [];
+
+    if (!posts.length) {
+      area.innerHTML = `<div style="padding:60px;text-align:center;">
+        <div style="font-size:36px;opacity:0.2;margin-bottom:12px;">&#9998;</div>
+        <div style="color:var(--muted);font-size:13px;">Nenhuma postagem registrada ainda</div>
+        <div style="color:var(--muted);font-size:12px;margin-top:4px;">Posts feitos via pipeline aparecerao aqui</div>
+      </div>`;
+      return;
+    }
+
+    const header = `<div class="table-header">
+      <div style="flex:0 0 64px;"></div>
+      <div style="flex:2;">Titulo</div>
+      <div style="flex:1;">Pilar</div>
+      <div style="flex:0 0 70px;">Estilo</div>
+      <div style="flex:0 0 70px;">Status</div>
+      <div style="flex:1;">Data</div>
+      <div style="flex:0 0 60px;"></div>
+    </div>`;
+
+    const rows = posts.map(p => {
+      const date = formatDate(p.timestamp);
+      const badge = p.status === 'publicado' ? 'badge-ok' : 'badge-err';
+      return `<div class="table-row" ${p.permalink ? `onclick="window.open('${p.permalink}','_blank')"` : ''}>
+        ${p.preview ? `<img class="table-thumb" src="${p.preview}" alt="" onerror="this.style.display='none'">` : '<div class="table-thumb" style="background:var(--dark3);"></div>'}
+        <div class="table-col" style="flex:2;">
+          <div style="font-family:'Fraunces',serif;font-size:14px;font-weight:700;">${esc(p.titulo || '')}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(p.caption || '')}</div>
+        </div>
+        <div class="table-col gold" style="flex:1;">${esc(p.pilar || '')}</div>
+        <div class="table-col muted" style="flex:0 0 70px;">${p.estilo || ''}</div>
+        <div style="flex:0 0 70px;"><span class="badge ${badge}">${p.status || '?'}</span></div>
+        <div class="table-col muted" style="flex:1;">${date}</div>
+        <div style="flex:0 0 60px;">
+          ${p.permalink ? '<span style="color:var(--gold);font-size:12px;">&#8599;</span>' : ''}
+        </div>
+      </div>`;
+    }).join('');
+
+    area.innerHTML = header + rows;
+  } catch(e) {
+    area.innerHTML = '<div style="padding:20px;color:#e85050;">Erro ao carregar postagens</div>';
+  }
+}
+
+function formatDate(iso) {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'2-digit'}) + ' ' +
+      d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+  } catch { return iso || ''; }
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+loadPostagens();
 </script>

@@ -358,6 +358,13 @@ def instagram_quota():
 
 # ─── BASE DE CONTEÚDO API ─────────────────────────────────────────────────────
 
+# ─── POSTAGENS API ───────────────────────────────────────────────────────────
+
+@app.get("/api/postagens")
+def get_postagens():
+    from pipeline import _load_postagens
+    return {"postagens": _load_postagens()}
+
 # ─── SCHEDULER API ───────────────────────────────────────────────────────────
 
 @app.get("/api/scheduler")

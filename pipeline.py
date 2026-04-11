@@ -239,6 +239,28 @@ def etapa_notificar(resultado: dict, tema: str, erro: str | None = None):
             print(f"[Pipeline] Erro ao notificar WhatsApp: {e}")
 
 
+# ─── REGISTRO DE POSTAGENS ───────────────────────────────────────────────────
+
+_app_hist = Path("/app/historico")
+POSTAGENS_DIR = _app_hist if _app_hist.exists() else Path.home() / "carousel-api" / "historico"
+POSTAGENS_FILE = POSTAGENS_DIR / "postagens.json"
+
+def _load_postagens() -> list:
+    if POSTAGENS_FILE.exists():
+        try:
+            return json.loads(POSTAGENS_FILE.read_text())
+        except Exception:
+            pass
+    return []
+
+def _salvar_postagem(post: dict):
+    posts = _load_postagens()
+    posts.insert(0, post)
+    posts = posts[:100]  # manter últimas 100
+    POSTAGENS_FILE.write_text(json.dumps(posts, ensure_ascii=False, indent=2))
+    print(f"[Pipeline] Postagem salva: {post.get('titulo', '')[:40]}")
+
+
 # ─── PIPELINE COMPLETO ───────────────────────────────────────────────────────
 
 def executar_pipeline(
@@ -286,6 +308,22 @@ def executar_pipeline(
 
         resultado["status"] = "success"
         resultado["permalink"] = post_result.get("permalink", "")
+
+        # Salvar na lista de postagens
+        _salvar_postagem({
+            "timestamp": datetime.now().isoformat(),
+            "titulo": carrossel.get("titulo", ""),
+            "pilar": carrossel.get("pilar", ""),
+            "tema": tema,
+            "estilo": estilo,
+            "visual": visual,
+            "total_slides": len(pngs),
+            "media_id": post_result.get("media_id", ""),
+            "permalink": post_result.get("permalink", ""),
+            "caption": caption[:200],
+            "preview": previews[0] if previews else "",
+            "status": "publicado",
+        })
 
         # 7. Notificar sucesso
         etapa_notificar(post_result, tema)
