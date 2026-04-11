@@ -6,7 +6,7 @@ import os
 import time
 import httpx
 
-GRAPH_API = "https://graph.instagram.com/v21.0"
+GRAPH_API = "https://graph.instagram.com/v22.0"
 ACCESS_TOKEN = os.environ.get("INSTAGRAM_ACCESS_TOKEN", "")
 ACCOUNT_ID = os.environ.get("INSTAGRAM_BUSINESS_ACCOUNT_ID", "")
 

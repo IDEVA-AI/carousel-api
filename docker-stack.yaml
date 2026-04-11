@@ -6,6 +6,8 @@ services:
     environment:
       - UNSPLASH_ACCESS_KEY=${UNSPLASH_ACCESS_KEY}
       - CLAUDE_BRIDGE_URL=http://172.21.0.1:3200/generate
+      - INSTAGRAM_ACCESS_TOKEN=${INSTAGRAM_ACCESS_TOKEN}
+      - INSTAGRAM_BUSINESS_ACCOUNT_ID=${INSTAGRAM_BUSINESS_ACCOUNT_ID}
       - PORT=8765
     volumes:
       - carousel-historico:/app/historico
