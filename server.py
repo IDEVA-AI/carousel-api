@@ -33,6 +33,24 @@ _app_hist = Path("/app/historico")
 HISTORICO_DIR = _app_hist if _app_hist.exists() else Path.home() / "carousel-api" / "historico"
 HISTORICO_DIR.mkdir(parents=True, exist_ok=True)
 
+# ─── BASE DE CONTEÚDO ─────────────────────────────────────────────────────────
+CONTEUDO_FILE = HISTORICO_DIR / "base-conteudo.json"
+
+def _load_conteudo() -> dict:
+    if CONTEUDO_FILE.exists():
+        return json.loads(CONTEUDO_FILE.read_text())
+    # Default structure
+    return {
+        "frameworks": [],
+        "cases": [],
+        "dados": [],
+        "opinioes": [],
+        "sintomas": [],
+    }
+
+def _save_conteudo(data: dict):
+    CONTEUDO_FILE.write_text(json.dumps(data, ensure_ascii=False, indent=2))
+
 # ─── APP ──────────────────────────────────────────────────────────────────────
 app = FastAPI(title="Gerador de Carrosseis — Julio Carvalho", version="2.0.0")
 
@@ -332,6 +350,52 @@ def instagram_quota():
         return data[0] if data else {}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# ─── BASE DE CONTEÚDO API ─────────────────────────────────────────────────────
+
+@app.get("/api/conteudo")
+def get_conteudo():
+    return _load_conteudo()
+
+@app.get("/api/conteudo/{tipo}")
+def get_conteudo_tipo(tipo: str):
+    data = _load_conteudo()
+    if tipo not in data:
+        raise HTTPException(status_code=404, detail=f"Tipo '{tipo}' nao encontrado")
+    return {"tipo": tipo, "items": data[tipo]}
+
+@app.post("/api/conteudo/{tipo}")
+def add_conteudo_item(tipo: str, item: dict):
+    data = _load_conteudo()
+    if tipo not in data:
+        data[tipo] = []
+    data[tipo].append(item)
+    _save_conteudo(data)
+    return {"ok": True, "total": len(data[tipo])}
+
+@app.put("/api/conteudo/{tipo}/{index}")
+def update_conteudo_item(tipo: str, index: int, item: dict):
+    data = _load_conteudo()
+    if tipo not in data or index >= len(data[tipo]):
+        raise HTTPException(status_code=404, detail="Item nao encontrado")
+    data[tipo][index] = item
+    _save_conteudo(data)
+    return {"ok": True}
+
+@app.delete("/api/conteudo/{tipo}/{index}")
+def delete_conteudo_item(tipo: str, index: int):
+    data = _load_conteudo()
+    if tipo not in data or index >= len(data[tipo]):
+        raise HTTPException(status_code=404, detail="Item nao encontrado")
+    data[tipo].pop(index)
+    _save_conteudo(data)
+    return {"ok": True, "total": len(data[tipo])}
+
+@app.post("/api/conteudo/importar")
+def importar_conteudo(payload: dict):
+    """Importa base completa (substitui tudo)."""
+    _save_conteudo(payload)
+    return {"ok": True}
 
 # ─── TEMP IMAGE SERVING (para Instagram upload) ─────────────────────────────
 TEMP_DIR = Path("/tmp/carousel-temp")

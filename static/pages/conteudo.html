@@ -1,0 +1,209 @@
+<div class="section-label">Base de conhecimento</div>
+<div class="section-title">Conteudo</div>
+<div style="font-size:14px;color:var(--muted);margin-bottom:32px;max-width:700px;">
+  Sua base de conteudo alimenta o pipeline. Quanto mais preenchido, mais autenticidade nos carrosseis.
+</div>
+
+<!-- TABS -->
+<div style="display:flex;gap:4px;margin-bottom:24px;flex-wrap:wrap;" id="conteudoTabs">
+  <button class="btn btn-gold" data-tipo="frameworks" onclick="switchTab('frameworks')">Frameworks</button>
+  <button class="btn btn-outline" data-tipo="cases" onclick="switchTab('cases')">Cases</button>
+  <button class="btn btn-outline" data-tipo="dados" onclick="switchTab('dados')">Dados</button>
+  <button class="btn btn-outline" data-tipo="opinioes" onclick="switchTab('opinioes')">Opinioes</button>
+  <button class="btn btn-outline" data-tipo="sintomas" onclick="switchTab('sintomas')">Sintomas</button>
+</div>
+
+<!-- CONTENT AREA -->
+<div id="conteudoArea"></div>
+
+<!-- ADD BUTTON -->
+<button class="btn btn-outline" style="margin-top:20px;width:100%;padding:16px;" onclick="addItem()">+ Adicionar novo</button>
+
+<script>
+let conteudoData = {};
+let currentTipo = 'frameworks';
+
+const FIELD_DEFS = {
+  frameworks: [
+    {k:'nome',l:'Nome do framework',t:'input'},
+    {k:'resolve',l:'O que resolve? (1 frase)',t:'input'},
+    {k:'publico',l:'Pra quem serve?',t:'textarea'},
+    {k:'etapas',l:'Etapas (uma por linha)',t:'list'},
+    {k:'resultado',l:'Resultado ao aplicar',t:'textarea'},
+    {k:'frase',l:'Frase de impacto',t:'input'},
+  ],
+  cases: [
+    {k:'segmento',l:'Segmento da empresa',t:'input'},
+    {k:'faturamento',l:'Faturamento',t:'input'},
+    {k:'dor',l:'Dor quando te procurou',t:'textarea'},
+    {k:'causa',l:'Causa real diagnosticada',t:'textarea'},
+    {k:'intervencao',l:'O que voce fez',t:'textarea'},
+    {k:'resultado',l:'Resultado',t:'textarea'},
+    {k:'tempo',l:'Quanto tempo levou',t:'input'},
+    {k:'frase',l:'Frase do cliente',t:'input'},
+  ],
+  dados: [
+    {k:'numero',l:'O numero',t:'input'},
+    {k:'significado',l:'O que significa',t:'input'},
+    {k:'fonte',l:'Fonte',t:'input'},
+    {k:'importancia',l:'Por que importa',t:'textarea'},
+    {k:'conclusao',l:'Conclusao',t:'textarea'},
+  ],
+  opinioes: [
+    {k:'frase',l:'A frase (direta)',t:'input'},
+    {k:'mito',l:'O que o mercado diz (mito)',t:'textarea'},
+    {k:'realidade',l:'Por que voce discorda',t:'textarea'},
+    {k:'consequencia',l:'O que acontece se acreditar no mito',t:'textarea'},
+    {k:'mudanca',l:'O que muda ao entender',t:'textarea'},
+  ],
+  sintomas: [
+    {k:'queixa',l:'O que o dono fala',t:'input'},
+    {k:'causa',l:'Causa real',t:'textarea'},
+    {k:'perguntas',l:'Perguntas diagnosticas (uma por linha)',t:'list'},
+    {k:'consequencia',l:'O que acontece se nao tratar',t:'textarea'},
+    {k:'acao',l:'Primeira acao recomendada',t:'textarea'},
+  ],
+};
+
+async function loadConteudo() {
+  try {
+    const r = await fetch('/api/conteudo');
+    conteudoData = await r.json();
+    renderItems();
+  } catch(e) {
+    document.getElementById('conteudoArea').innerHTML = '<div style="color:#e85050;">Erro ao carregar conteudo</div>';
+  }
+}
+
+function switchTab(tipo) {
+  currentTipo = tipo;
+  document.querySelectorAll('#conteudoTabs button').forEach(b => {
+    b.className = b.dataset.tipo === tipo ? 'btn btn-gold' : 'btn btn-outline';
+  });
+  renderItems();
+}
+
+function renderItems() {
+  const items = conteudoData[currentTipo] || [];
+  const fields = FIELD_DEFS[currentTipo] || [];
+  const area = document.getElementById('conteudoArea');
+
+  if (!items.length) {
+    area.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);font-size:13px;">Nenhum item. Clique em + Adicionar novo.</div>';
+    return;
+  }
+
+  area.innerHTML = items.map((item, idx) => {
+    const title = item[fields[0]?.k] || item.nome || item.frase || item.queixa || item.numero || `Item ${idx+1}`;
+    const fieldsHtml = fields.map(f => {
+      const val = item[f.k] || '';
+      if (f.t === 'list') {
+        const listVal = Array.isArray(val) ? val.join('\n') : val;
+        return `<div style="margin-bottom:12px;">
+          <label style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px;">${f.l}</label>
+          <textarea data-idx="${idx}" data-key="${f.k}" data-list="true" rows="3" style="width:100%;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;border-radius:4px;outline:none;resize:vertical;">${esc(listVal)}</textarea>
+        </div>`;
+      }
+      if (f.t === 'textarea') {
+        return `<div style="margin-bottom:12px;">
+          <label style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px;">${f.l}</label>
+          <textarea data-idx="${idx}" data-key="${f.k}" rows="3" style="width:100%;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;border-radius:4px;outline:none;resize:vertical;">${esc(val)}</textarea>
+        </div>`;
+      }
+      return `<div style="margin-bottom:12px;">
+        <label style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px;">${f.l}</label>
+        <input type="text" data-idx="${idx}" data-key="${f.k}" value="${esc(val)}" style="width:100%;background:rgba(244,240,232,.04);border:1px solid var(--border);color:var(--paper);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;border-radius:4px;outline:none;">
+      </div>`;
+    }).join('');
+
+    return `<div class="card" style="cursor:default;margin-bottom:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;cursor:pointer;" onclick="toggleItem(this)">
+        <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;">${esc(title.slice(0,60))}</div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="badge badge-wait">${currentTipo}</span>
+          <span style="color:var(--muted);font-size:14px;">&#9660;</span>
+        </div>
+      </div>
+      <div class="item-fields" style="display:none;">
+        ${fieldsHtml}
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="btn btn-gold" onclick="saveItem(${idx})">Salvar</button>
+          <button class="btn btn-outline" style="color:#e85050;border-color:#e85050;" onclick="deleteItem(${idx})">Deletar</button>
+        </div>
+        <div id="itemStatus${idx}" style="margin-top:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleItem(el) {
+  const fields = el.nextElementSibling;
+  fields.style.display = fields.style.display === 'none' ? 'block' : 'none';
+}
+
+async function saveItem(idx) {
+  const fields = FIELD_DEFS[currentTipo];
+  const item = {};
+  fields.forEach(f => {
+    const el = document.querySelector(`[data-idx="${idx}"][data-key="${f.k}"]`);
+    if (!el) return;
+    if (el.dataset.list === 'true') {
+      item[f.k] = el.value.split('\n').map(l => l.trim()).filter(l => l);
+    } else {
+      item[f.k] = el.value;
+    }
+  });
+
+  try {
+    const r = await fetch(`/api/conteudo/${currentTipo}/${idx}`, {
+      method: 'PUT', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(item)
+    });
+    if (r.ok) {
+      conteudoData[currentTipo][idx] = item;
+      document.getElementById(`itemStatus${idx}`).textContent = 'Salvo!';
+      setTimeout(() => { const el = document.getElementById(`itemStatus${idx}`); if(el) el.textContent = ''; }, 2000);
+    }
+  } catch(e) {
+    document.getElementById(`itemStatus${idx}`).textContent = 'Erro ao salvar';
+  }
+}
+
+async function deleteItem(idx) {
+  if (!confirm('Deletar este item?')) return;
+  try {
+    await fetch(`/api/conteudo/${currentTipo}/${idx}`, {method:'DELETE'});
+    conteudoData[currentTipo].splice(idx, 1);
+    renderItems();
+  } catch(e) {}
+}
+
+async function addItem() {
+  const fields = FIELD_DEFS[currentTipo];
+  const item = {};
+  fields.forEach(f => { item[f.k] = f.t === 'list' ? [] : ''; });
+
+  try {
+    await fetch(`/api/conteudo/${currentTipo}`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(item)
+    });
+    if (!conteudoData[currentTipo]) conteudoData[currentTipo] = [];
+    conteudoData[currentTipo].push(item);
+    renderItems();
+    // Scroll to bottom and open last item
+    setTimeout(() => {
+      const cards = document.querySelectorAll('.item-fields');
+      if (cards.length) {
+        const last = cards[cards.length-1];
+        last.style.display = 'block';
+        last.scrollIntoView({behavior:'smooth'});
+      }
+    }, 100);
+  } catch(e) {}
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+loadConteudo();
+</script>
