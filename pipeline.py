@@ -197,11 +197,26 @@ def etapa_postar(pngs: list[bytes], caption: str, upload_base_url: str = "") -> 
     temp_dir = Path("/tmp/carousel-temp")
     temp_dir.mkdir(parents=True, exist_ok=True)
 
+    # Instagram carousel só aceita aspect ratio entre 1:1 e 4:5. Nossos slides são 1080x1440 (3:4).
+    # Crop centro vertical pra 1080x1350 (4:5) antes do upload.
+    from PIL import Image
+    import io as _io
+    def _crop_para_ig(png: bytes) -> bytes:
+        img = Image.open(_io.BytesIO(png))
+        if img.size == (1080, 1350):
+            return png
+        if img.size[0] == 1080 and img.size[1] > 1350:
+            top = (img.size[1] - 1350) // 2
+            img = img.crop((0, top, 1080, top + 1350))
+        buf = _io.BytesIO()
+        img.convert("RGB").save(buf, format="JPEG", quality=92)
+        return buf.getvalue()
+
     image_urls = []
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     for i, png in enumerate(pngs):
-        filename = f"post_{timestamp}_{i+1}.png"
-        (temp_dir / filename).write_bytes(png)
+        filename = f"post_{timestamp}_{i+1}.jpg"
+        (temp_dir / filename).write_bytes(_crop_para_ig(png))
         image_urls.append(f"{upload_base_url}/api/temp/{filename}")
 
     print(f"[Pipeline] {len(image_urls)} imagens servidas pra upload")

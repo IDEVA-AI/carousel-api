@@ -693,7 +693,8 @@ def serve_temp(filename: str):
     filepath = TEMP_DIR / filename
     if not filepath.exists():
         raise HTTPException(status_code=404, detail="Arquivo nao encontrado")
-    return FileResponse(filepath, media_type="image/png")
+    mime = "image/jpeg" if filename.lower().endswith((".jpg", ".jpeg")) else "image/png"
+    return FileResponse(filepath, media_type=mime)
 
 # ─── PRIVACY POLICY ──────────────────────────────────────────────────────────
 from fastapi.responses import HTMLResponse
