@@ -32,6 +32,9 @@ def _create_image_container(image_url: str, is_carousel_item: bool = True) -> st
         "access_token": ACCESS_TOKEN,
     }
     r = httpx.post(f"{GRAPH_API}/{ACCOUNT_ID}/media", data=params, timeout=30)
+    if r.status_code >= 400:
+        print(f"[Instagram] {r.status_code} body: {r.text[:500]}")
+        print(f"[Instagram] image_url enviada: {image_url}")
     r.raise_for_status()
     container_id = r.json().get("id")
     if not container_id:
