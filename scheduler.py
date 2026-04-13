@@ -8,6 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.date import DateTrigger
 import pytz
 
 BR_TZ = pytz.timezone("America/Sao_Paulo")
@@ -120,6 +121,96 @@ def stop_scheduler():
             _scheduler.shutdown(wait=False)
             _scheduler = None
             print("[Scheduler] Parado")
+
+
+def agendar_post(carrossel: dict, quando_iso: str, estilo: str = "dark", visual: str = "editorial") -> dict:
+    """Agenda um carrossel já gerado para ser postado num horário específico."""
+    global _scheduler
+    with _lock:
+        if not _scheduler or not _scheduler.running:
+            _scheduler = BackgroundScheduler()
+            _scheduler.start()
+
+        from datetime import datetime as _dt
+        quando = _dt.fromisoformat(quando_iso)
+        if quando.tzinfo is None:
+            quando = BR_TZ.localize(quando)
+
+        job_id = f"post_{int(quando.timestamp())}_{abs(hash(str(carrossel)[:80])) % 10000}"
+        _scheduler.add_job(
+            _post_agendado,
+            trigger=DateTrigger(run_date=quando),
+            args=[carrossel, estilo, visual],
+            id=job_id,
+            replace_existing=True,
+        )
+
+        # Persiste na lista de agendados
+        agendados_file = CONFIG_DIR / "posts-agendados.json"
+        agendados = []
+        if agendados_file.exists():
+            try: agendados = json.loads(agendados_file.read_text())
+            except Exception: pass
+        agendados.append({
+            "job_id": job_id,
+            "quando": quando.isoformat(),
+            "titulo": carrossel.get("titulo", ""),
+            "pilar": carrossel.get("pilar", ""),
+            "estilo": estilo,
+            "visual": visual,
+            "total_slides": len(carrossel.get("slides", [])),
+            "criado_em": datetime.now().isoformat(),
+            "status": "agendado",
+        })
+        agendados_file.write_text(json.dumps(agendados, ensure_ascii=False, indent=2))
+        print(f"[Scheduler] Post agendado para {quando.isoformat()} — {carrossel.get('titulo', '')[:40]}")
+        return {"job_id": job_id, "quando": quando.isoformat()}
+
+
+def _post_agendado(carrossel: dict, estilo: str, visual: str):
+    """Executa etapas 4-7 do pipeline com um carrossel já gerado."""
+    from pipeline import etapa_render, etapa_caption, etapa_postar, etapa_notificar, _salvar_postagem
+    try:
+        pngs, previews = etapa_render(carrossel, estilo, visual)
+        caption_data = etapa_caption(carrossel)
+        caption = caption_data.get("caption", "")
+        post_result = etapa_postar(pngs, caption)
+        _salvar_postagem({
+            "timestamp": datetime.now().isoformat(),
+            "titulo": carrossel.get("titulo", ""),
+            "pilar": carrossel.get("pilar", ""),
+            "estilo": estilo, "visual": visual,
+            "total_slides": len(pngs),
+            "media_id": post_result.get("media_id", ""),
+            "permalink": post_result.get("permalink", ""),
+            "caption": caption[:200],
+            "preview": previews[0] if previews else "",
+            "status": "publicado",
+        })
+        etapa_notificar(post_result, carrossel.get("titulo", "?"))
+    except Exception as e:
+        print(f"[Scheduler] Falha em post agendado: {e}")
+        etapa_notificar({}, carrossel.get("titulo", "?"), erro=str(e))
+
+
+def listar_agendados() -> list:
+    f = CONFIG_DIR / "posts-agendados.json"
+    if not f.exists(): return []
+    try:
+        from datetime import datetime as _dt
+        ags = json.loads(f.read_text())
+        agora = _dt.now(BR_TZ)
+        # Marca os que já passaram
+        for a in ags:
+            try:
+                q = _dt.fromisoformat(a["quando"])
+                if q.tzinfo is None: q = BR_TZ.localize(q)
+                if a.get("status") == "agendado" and q < agora:
+                    a["status"] = "expirado"
+            except Exception: pass
+        return ags
+    except Exception:
+        return []
 
 
 def get_status() -> dict:

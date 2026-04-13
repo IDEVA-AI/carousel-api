@@ -388,6 +388,8 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
         <div class="result-actions">
           <button class="btn-outline btn-sm" onclick="voltarEditor()">← Editar</button>
           <button class="btn-outline btn-sm" id="btnDownload" onclick="baixarZip()">↓ Baixar ZIP</button>
+          <button class="btn-gold btn-sm" onclick="postarAgora()">▶ Postar agora</button>
+          <button class="btn-outline btn-sm" onclick="abrirAgendar()">◷ Agendar</button>
           <button class="btn-outline btn-sm" onclick="novoCarrossel()">+ Novo</button>
         </div>
       </div>
@@ -399,6 +401,19 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
   <footer>Gerador de Carrosseis · Julio Carvalho · IDEVA · @j.karv</footer>
 </div><!-- /main -->
 </div><!-- /app -->
+
+<!-- MODAL AGENDAR -->
+<div id="agendarModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#1a1714;border:1px solid rgba(184,135,58,.4);border-radius:4px;padding:32px;max-width:420px;width:90%;">
+    <h3 style="font-family:'Fraunces',serif;font-size:24px;color:var(--gold);margin-bottom:8px;">Agendar publicação</h3>
+    <p style="font-size:13px;color:rgba(244,240,232,.6);margin-bottom:20px;font-family:'DM Sans',sans-serif;">Escolha data e hora (horário de Brasília)</p>
+    <input type="datetime-local" id="agendarDt" style="width:100%;padding:12px;background:rgba(244,240,232,.04);border:1px solid rgba(244,240,232,.18);color:var(--paper);font-family:'DM Mono',monospace;font-size:14px;margin-bottom:16px;">
+    <div style="display:flex;gap:10px;">
+      <button class="btn-outline btn-sm" style="flex:1" onclick="fecharAgendar()">Cancelar</button>
+      <button class="btn-gold btn-sm" style="flex:1" onclick="confirmarAgendar()">Agendar</button>
+    </div>
+  </div>
+</div>
 
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLb(event)">
@@ -837,6 +852,54 @@ async function loadInstagramAvatar() {
 // Init
 carregarHistorico();
 loadInstagramAvatar();
+
+async function postarAgora() {
+  if (!carrosselJson) { alert("Gere um carrossel primeiro"); return; }
+  if (!confirm("Publicar ESTE carrossel no Instagram agora?")) return;
+  const btn = event.target;
+  const txt = btn.textContent;
+  btn.textContent = "Postando..."; btn.disabled = true;
+  try {
+    const r = await fetch("/api/post/publicar", {
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({carrossel_json: carrosselJson, estilo: selectedEstilo, visual: selectedVisual, avatar_url: avatarDataUrl||null})
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail || "Falha ao publicar");
+    alert("✅ Publicado!\n" + (d.permalink || "Veja no Instagram"));
+    if (d.permalink) window.open(d.permalink, "_blank");
+  } catch (e) {
+    alert("❌ " + e.message);
+  } finally {
+    btn.textContent = txt; btn.disabled = false;
+  }
+}
+
+function abrirAgendar() {
+  if (!carrosselJson) { alert("Gere um carrossel primeiro"); return; }
+  const now = new Date(); now.setMinutes(now.getMinutes() + 60 - now.getTimezoneOffset() + 60);
+  const d = new Date(Date.now() + 3600*1000);
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('agendarDt').value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  document.getElementById('agendarModal').style.display = 'flex';
+}
+function fecharAgendar() { document.getElementById('agendarModal').style.display = 'none'; }
+async function confirmarAgendar() {
+  const dt = document.getElementById('agendarDt').value;
+  if (!dt) { alert("Escolha data e hora"); return; }
+  try {
+    const r = await fetch("/api/post/agendar", {
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({carrossel_json: carrosselJson, quando: dt, estilo: selectedEstilo, visual: selectedVisual})
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail || "Falha ao agendar");
+    fecharAgendar();
+    alert("✅ Agendado para " + new Date(dt).toLocaleString('pt-BR'));
+  } catch (e) {
+    alert("❌ " + e.message);
+  }
+}
 
 async function baixarZip() {
   const btn = document.getElementById("btnDownload");

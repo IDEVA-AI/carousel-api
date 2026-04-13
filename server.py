@@ -301,6 +301,63 @@ async def pipeline_preview():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Preview falhou: {str(e)}")
 
+# ─── POSTAR AGORA / AGENDAR ──────────────────────────────────────────────────
+
+class PublicarRequest(BaseModel):
+    carrossel_json: dict
+    estilo: str = "dark"
+    visual: str = "editorial"
+    avatar_url: str | None = None
+    caption: str | None = None  # se omitido, gera via Claude
+
+class AgendarRequest(BaseModel):
+    carrossel_json: dict
+    quando: str  # ISO datetime (BR tz assumido)
+    estilo: str = "dark"
+    visual: str = "editorial"
+
+@app.post("/api/post/publicar")
+async def publicar_agora(req: PublicarRequest):
+    """Publica imediatamente um carrossel já gerado no Instagram."""
+    from pipeline import etapa_render, etapa_caption, etapa_postar, etapa_notificar, _salvar_postagem
+    try:
+        pngs, previews = etapa_render(req.carrossel_json, req.estilo, req.visual)
+        caption = req.caption
+        if not caption:
+            caption = etapa_caption(req.carrossel_json).get("caption", "")
+        post_result = etapa_postar(pngs, caption)
+        _salvar_postagem({
+            "timestamp": datetime.now().isoformat(),
+            "titulo": req.carrossel_json.get("titulo", ""),
+            "pilar": req.carrossel_json.get("pilar", ""),
+            "estilo": req.estilo, "visual": req.visual,
+            "total_slides": len(pngs),
+            "media_id": post_result.get("media_id", ""),
+            "permalink": post_result.get("permalink", ""),
+            "caption": caption[:200],
+            "preview": previews[0] if previews else "",
+            "status": "publicado",
+        })
+        etapa_notificar(post_result, req.carrossel_json.get("titulo", "?"))
+        return {"ok": True, **post_result, "caption": caption}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Falha ao publicar: {str(e)}")
+
+@app.post("/api/post/agendar")
+async def agendar(req: AgendarRequest):
+    """Agenda publicação de um carrossel já gerado."""
+    from scheduler import agendar_post
+    try:
+        r = agendar_post(req.carrossel_json, req.quando, req.estilo, req.visual)
+        return {"ok": True, **r}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Falha ao agendar: {str(e)}")
+
+@app.get("/api/post/agendados")
+def listar_posts_agendados():
+    from scheduler import listar_agendados
+    return {"agendados": listar_agendados()}
+
 # ─── INSTAGRAM INFO ──────────────────────────────────────────────────────────
 
 @app.get("/api/instagram/profile")
