@@ -37,7 +37,7 @@ CAROUSEL_SCHEMA = """Retorne um JSON com exatamente este formato:
 {
   "titulo": "título interno do carrossel (para referência)",
   "pilar": "OBRIGATÓRIO: um dos 5 pilares EXATOS: 'O Sistema Invisível' | 'Arquitetura de Decisão' | 'Diagnóstico Cirúrgico' | 'Comportamento e Sistema' | 'Narrativas vs. Realidade'",
-  "unsplash_query": "query curta em inglês para imagem de fundo dark/editorial (ex: 'dark architecture blueprint minimal')",
+  "unsplash_query": "QUERY EM INGLÊS para BUSCAR FOTO HUMANA que pare o scroll no Instagram. OBRIGATÓRIO incluir uma pessoa/retrato/expressão que conecte com a tensão do tema. Ex: 'serious ceo portrait office dark', 'tired business owner thinking', 'confident founder looking away', 'stressed executive hands on face'. NUNCA use queries abstratas tipo 'architecture minimal' — SEMPRE humano, emocional, cinematográfico. 4-6 palavras.",
   "slides": [
     {
       "tipo": "cover",
@@ -339,12 +339,20 @@ def buscar_imagem_unsplash(query: str) -> str | None:
 
 # ─── PIPELINE COMPLETO ────────────────────────────────────────────────────────
 QUERY_SUFFIX = {
-    "dark":     " dark moody editorial",
-    "light":    " minimal white bright clean",
-    "ferrugem": " warm rust texture industrial",
-    "misto":    " dark moody editorial",
-    "tricolor": " dark moody editorial",
+    "dark":     " portrait cinematic moody low-light",
+    "light":    " portrait natural light soft minimal",
+    "ferrugem": " portrait warm tone industrial cinematic",
+    "misto":    " portrait cinematic moody",
+    "tricolor": " portrait cinematic moody",
 }
+
+# Termos humanos de fallback caso a query do Claude não traga retrato
+_HUMAN_FALLBACKS = [
+    "serious ceo portrait cinematic",
+    "business owner thinking portrait moody",
+    "entrepreneur looking away dark portrait",
+    "founder close up portrait editorial",
+]
 
 def gerar_carrossel_completo(tema: str, num_slides: int = 7, pilar: str = "auto", estilo: str = "dark") -> dict:
     dados = gerar_copy(tema, num_slides, pilar)
@@ -353,8 +361,22 @@ def gerar_carrossel_completo(tema: str, num_slides: int = 7, pilar: str = "auto"
     query = query + QUERY_SUFFIX.get(estilo, "")
     print(f"[Imagem] Query ({estilo}): {query}")
 
+    # Se o Claude não devolveu query humana, forçar humanização
+    _human_markers = ("portrait", "person", "ceo", "founder", "entrepreneur", "owner", "executive", "man", "woman", "face", "people")
+    if not any(m in query.lower() for m in _human_markers):
+        import random
+        human = random.choice(_HUMAN_FALLBACKS)
+        print(f"[Imagem] Query sem humano — forçando: {human}")
+        query = human + QUERY_SUFFIX.get(estilo, "")
+
     # Pexels é preferido (acervo maior e melhor para business). Unsplash fica como fallback.
     imagem_url = buscar_imagem_pexels(query) or buscar_imagem_unsplash(query)
+    # Último fallback: retrato humano genérico
+    if not imagem_url:
+        import random
+        fallback_q = random.choice(_HUMAN_FALLBACKS)
+        print(f"[Imagem] Sem resultado — fallback humano: {fallback_q}")
+        imagem_url = buscar_imagem_pexels(fallback_q) or buscar_imagem_unsplash(fallback_q)
     if imagem_url:
         print(f"[Imagem] OK ({imagem_url[:60]}...)")
     else:
