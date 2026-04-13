@@ -37,7 +37,7 @@ CAROUSEL_SCHEMA = """Retorne um JSON com exatamente este formato:
 {
   "titulo": "título interno do carrossel (para referência)",
   "pilar": "OBRIGATÓRIO: um dos 5 pilares EXATOS: 'O Sistema Invisível' | 'Arquitetura de Decisão' | 'Diagnóstico Cirúrgico' | 'Comportamento e Sistema' | 'Narrativas vs. Realidade'",
-  "unsplash_query": "QUERY EM INGLÊS para BUSCAR FOTO HUMANA que pare o scroll no Instagram. OBRIGATÓRIO incluir uma pessoa/retrato/expressão que conecte com a tensão do tema. Ex: 'serious ceo portrait office dark', 'tired business owner thinking', 'confident founder looking away', 'stressed executive hands on face'. NUNCA use queries abstratas tipo 'architecture minimal' — SEMPRE humano, emocional, cinematográfico. 4-6 palavras.",
+  "unsplash_query": "QUERY EM INGLÊS (4-6 palavras) para foto que PARE O SCROLL e conecte DIRETAMENTE com o tema. Deve evocar a cena/emoção/objeto central do carrossel — não pode ser genérica/abstrata. Pode ser: pessoa em situação específica ('frustrated ceo looking at laptop', 'tired founder head in hands'), objeto simbólico do tema ('empty office chair night', 'broken machine cogs rusty'), ou cena narrativa ('dark boardroom empty seats', 'factory floor after hours'). SEMPRE cinematográfico, específico ao tema. PROIBIDO queries vagas como 'minimal abstract' ou 'technology blueprint'.",
   "slides": [
     {
       "tipo": "cover",
@@ -339,20 +339,15 @@ def buscar_imagem_unsplash(query: str) -> str | None:
 
 # ─── PIPELINE COMPLETO ────────────────────────────────────────────────────────
 QUERY_SUFFIX = {
-    "dark":     " portrait cinematic moody low-light",
-    "light":    " portrait natural light soft minimal",
-    "ferrugem": " portrait warm tone industrial cinematic",
-    "misto":    " portrait cinematic moody",
-    "tricolor": " portrait cinematic moody",
+    "dark":     " cinematic moody low-light",
+    "light":    " natural light soft minimal",
+    "ferrugem": " warm tone industrial cinematic",
+    "misto":    " cinematic moody",
+    "tricolor": " cinematic moody",
 }
 
-# Termos humanos de fallback caso a query do Claude não traga retrato
-_HUMAN_FALLBACKS = [
-    "serious ceo portrait cinematic",
-    "business owner thinking portrait moody",
-    "entrepreneur looking away dark portrait",
-    "founder close up portrait editorial",
-]
+# Marcadores de query "vaga demais" — se só tiver esses, forçar recontextualização com tema
+_VAGUE_WORDS = {"minimal", "abstract", "blueprint", "technology", "noir", "gradient", "geometric", "pattern", "texture", "wallpaper"}
 
 def gerar_carrossel_completo(tema: str, num_slides: int = 7, pilar: str = "auto", estilo: str = "dark") -> dict:
     dados = gerar_copy(tema, num_slides, pilar)
@@ -361,22 +356,18 @@ def gerar_carrossel_completo(tema: str, num_slides: int = 7, pilar: str = "auto"
     query = query + QUERY_SUFFIX.get(estilo, "")
     print(f"[Imagem] Query ({estilo}): {query}")
 
-    # Se o Claude não devolveu query humana, forçar humanização
-    _human_markers = ("portrait", "person", "ceo", "founder", "entrepreneur", "owner", "executive", "man", "woman", "face", "people")
-    if not any(m in query.lower() for m in _human_markers):
-        import random
-        human = random.choice(_HUMAN_FALLBACKS)
-        print(f"[Imagem] Query sem humano — forçando: {human}")
-        query = human + QUERY_SUFFIX.get(estilo, "")
+    # Se a query vier vaga demais (só palavras genéricas), pedir pro Claude reformular com o tema
+    query_words = set(w.strip(",.") for w in query.lower().split())
+    if query_words and query_words.issubset(_VAGUE_WORDS | set(QUERY_SUFFIX.get(estilo, "").lower().split())):
+        print(f"[Imagem] Query vaga ({query}) — enriquecendo com tema")
+        query = f"{tema} cinematic" + QUERY_SUFFIX.get(estilo, "")
 
-    # Pexels é preferido (acervo maior e melhor para business). Unsplash fica como fallback.
+    # Pexels preferido, Unsplash fallback
     imagem_url = buscar_imagem_pexels(query) or buscar_imagem_unsplash(query)
-    # Último fallback: retrato humano genérico
+    # Último fallback: busca crua pelo tema
     if not imagem_url:
-        import random
-        fallback_q = random.choice(_HUMAN_FALLBACKS)
-        print(f"[Imagem] Sem resultado — fallback humano: {fallback_q}")
-        imagem_url = buscar_imagem_pexels(fallback_q) or buscar_imagem_unsplash(fallback_q)
+        print(f"[Imagem] Sem resultado — fallback com tema: {tema}")
+        imagem_url = buscar_imagem_pexels(tema) or buscar_imagem_unsplash(tema)
     if imagem_url:
         print(f"[Imagem] OK ({imagem_url[:60]}...)")
     else:
