@@ -183,29 +183,47 @@ def gerar_copy(tema: str, num_slides: int = 7, pilar: str = "auto") -> dict:
 
 # ─── PANORÂMICA: IMAGEM CONTÍNUA FATIADA ─────────────────────────────────────
 def buscar_panoramica_unsplash(query: str, num_slides: int = 7) -> list[str] | None:
-    """Busca imagem landscape no Unsplash, redimensiona e fatia em N pedaços."""
-    key = os.environ.get("UNSPLASH_ACCESS_KEY", "")
-    if not key:
-        return None
-    try:
-        r = httpx.get(
-            "https://api.unsplash.com/search/photos",
-            params={"query": query, "per_page": 5, "orientation": "landscape"},
-            headers={"Authorization": f"Client-ID {key}"},
-            timeout=10,
-        )
-        r.raise_for_status()
-        results = r.json().get("results", [])
-        if not results:
+    """Busca imagem landscape (Pexels → Unsplash), redimensiona e fatia em N pedaços."""
+    url = None
+    # 1) Pexels preferido
+    pex_key = os.environ.get("PEXELS_API_KEY", "")
+    if pex_key:
+        try:
+            r = httpx.get(
+                "https://api.pexels.com/v1/search",
+                params={"query": query, "per_page": 5, "orientation": "landscape", "size": "large"},
+                headers={"Authorization": pex_key},
+                timeout=10,
+            )
+            r.raise_for_status()
+            photos = r.json().get("photos", [])
+            if photos:
+                url = photos[0]["src"].get("original") or photos[0]["src"].get("large2x")
+        except Exception as e:
+            print(f"[Panorama/Pexels] Erro na busca: {e}")
+
+    # 2) Fallback Unsplash
+    if not url:
+        key = os.environ.get("UNSPLASH_ACCESS_KEY", "")
+        if not key:
             return None
-        # Pega a maior resolução disponível
-        url = results[0]["urls"].get("raw", results[0]["urls"]["regular"])
-        # Pedir dimensão específica via Unsplash API (largura total do panorama)
-        total_w = 1080 * num_slides
-        url = f"{url}&w={total_w}&h=1440&fit=crop&crop=center"
-    except Exception as e:
-        print(f"[Panorama] Erro na busca: {e}")
-        return None
+        try:
+            r = httpx.get(
+                "https://api.unsplash.com/search/photos",
+                params={"query": query, "per_page": 5, "orientation": "landscape"},
+                headers={"Authorization": f"Client-ID {key}"},
+                timeout=10,
+            )
+            r.raise_for_status()
+            results = r.json().get("results", [])
+            if not results:
+                return None
+            raw = results[0]["urls"].get("raw", results[0]["urls"]["regular"])
+            total_w = 1080 * num_slides
+            url = f"{raw}&w={total_w}&h=1440&fit=crop&crop=center"
+        except Exception as e:
+            print(f"[Panorama] Erro na busca: {e}")
+            return None
 
     try:
         from PIL import Image
@@ -253,7 +271,40 @@ def buscar_panoramica_unsplash(query: str, num_slides: int = 7) -> list[str] | N
         return None
 
 
-# ─── BUSCA DE IMAGEM (UNSPLASH) — com embed base64 ───────────────────────────
+# ─── BUSCA DE IMAGEM (PEXELS) — preferido, com embed base64 ──────────────────
+def buscar_imagem_pexels(query: str) -> str | None:
+    key = os.environ.get("PEXELS_API_KEY", "")
+    if not key:
+        return None
+    try:
+        r = httpx.get(
+            "https://api.pexels.com/v1/search",
+            params={"query": query, "per_page": 5, "orientation": "portrait", "size": "large"},
+            headers={"Authorization": key},
+            timeout=10,
+        )
+        r.raise_for_status()
+        photos = r.json().get("photos", [])
+        if not photos:
+            return None
+        url = photos[0]["src"].get("large2x") or photos[0]["src"].get("large") or photos[0]["src"]["original"]
+    except Exception as e:
+        print(f"[Pexels] Erro na busca: {e}")
+        return None
+
+    try:
+        img_r = httpx.get(url, timeout=20, follow_redirects=True)
+        img_r.raise_for_status()
+        b64 = base64.b64encode(img_r.content).decode()
+        mime = img_r.headers.get("content-type", "image/jpeg").split(";")[0]
+        print(f"[Pexels] Imagem embarcada ({len(img_r.content)//1024}KB) — '{query}'")
+        return f"data:{mime};base64,{b64}"
+    except Exception as e:
+        print(f"[Pexels] Fallback URL externa: {e}")
+        return url
+
+
+# ─── BUSCA DE IMAGEM (UNSPLASH) — fallback, com embed base64 ─────────────────
 def buscar_imagem_unsplash(query: str) -> str | None:
     key = os.environ.get("UNSPLASH_ACCESS_KEY", "")
     if not key:
@@ -300,10 +351,13 @@ def gerar_carrossel_completo(tema: str, num_slides: int = 7, pilar: str = "auto"
     query = dados.get("unsplash_query", tema)
     # Adaptar query ao estilo visual
     query = query + QUERY_SUFFIX.get(estilo, "")
-    print(f"[Unsplash] Query adaptada ({estilo}): {query}")
+    print(f"[Imagem] Query ({estilo}): {query}")
 
-    imagem_url = buscar_imagem_unsplash(query)
+    # Pexels é preferido (acervo maior e melhor para business). Unsplash fica como fallback.
+    imagem_url = buscar_imagem_pexels(query) or buscar_imagem_unsplash(query)
     if imagem_url:
-        print(f"[Unsplash] OK ({imagem_url[:60]}...)")
+        print(f"[Imagem] OK ({imagem_url[:60]}...)")
+    else:
+        print("[Imagem] Nenhuma fonte retornou resultado")
     dados["imagem_url"] = imagem_url
     return dados
