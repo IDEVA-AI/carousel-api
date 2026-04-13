@@ -147,6 +147,27 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
 .ferrugem-sw{background:#3d1208;border:2px solid #c8683a}
 .misto-sw{background:linear-gradient(135deg,#1a1714 50%,#ece8de 50%);border:2px solid #b8873a}
 .tricolor-sw{background:linear-gradient(135deg,#1a1714 33%,#3d1208 33%,#3d1208 66%,#ece8de 66%);border:2px solid #c8683a}
+
+/* ── SELETOR DE TEMPLATES ── */
+.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:6px}
+.tpl-card{display:flex;flex-direction:column;gap:8px;padding:10px;background:rgba(244,240,232,.03);border:1px solid rgba(244,240,232,.10);border-radius:4px;cursor:pointer;transition:all .2s}
+.tpl-card:hover{border-color:rgba(184,135,58,.40)}
+.tpl-card.active{border-color:var(--gold);background:rgba(184,135,58,.08)}
+.tpl-thumb{position:relative;aspect-ratio:3/4;border-radius:2px;overflow:hidden;display:flex;align-items:flex-end;padding:10px;font-family:'Fraunces',serif;font-weight:900}
+.tpl-thumb .tpl-h{font-size:13px;line-height:1;letter-spacing:-.02em}
+.tpl-thumb .tpl-line{position:absolute;left:10px;right:10px;bottom:6px;height:1px;background:currentColor;opacity:.35}
+.tpl-thumb .tpl-dot{position:absolute;width:6px;height:6px;border-radius:50%;background:#b8873a;top:30%;left:30%}
+.tpl-thumb .tpl-dot.d2{top:55%;left:65%;opacity:.7}
+.tpl-thumb .tpl-dot.d3{top:75%;left:40%;opacity:.5}
+.tpl-dark-clean,.tpl-dark-edit,.tpl-dark-esq{background:#0e0c0a;color:#f4f0e8}
+.tpl-light-clean,.tpl-light-edit{background:#f5f1e8;color:#0e0c0a}
+.tpl-rust-edit{background:#1a0a04;color:#f5e8d5}
+.tpl-name{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:rgba(244,240,232,.65);text-align:center}
+.tpl-card.active .tpl-name{color:var(--gold)}
+.adv-toggle{margin-bottom:12px}
+.adv-toggle>summary{cursor:pointer;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:rgba(244,240,232,.45);padding:8px 0;list-style:none}
+.adv-toggle>summary::before{content:'▸ ';color:var(--gold)}
+.adv-toggle[open]>summary::before{content:'▾ '}
 /* ── FOTO UPLOAD ── */
 .foto-upload{width:100%;height:160px;border:1px dashed rgba(244,240,232,.15);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s;overflow:hidden;position:relative}
 .foto-upload:hover{border-color:rgba(184,135,58,.4)}
@@ -206,6 +227,36 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
           </select>
         </div>
         <div class="field">
+          <label>Template</label>
+          <div class="tpl-grid" id="tplGrid">
+            <button type="button" class="tpl-card active" data-estilo="dark" data-visual="none">
+              <div class="tpl-thumb tpl-dark-clean"><span class="tpl-h">Título</span></div>
+              <div class="tpl-name">Dark · Limpo</div>
+            </button>
+            <button type="button" class="tpl-card" data-estilo="dark" data-visual="editorial">
+              <div class="tpl-thumb tpl-dark-edit"><span class="tpl-h">Título</span><span class="tpl-line"></span></div>
+              <div class="tpl-name">Dark · Editorial</div>
+            </button>
+            <button type="button" class="tpl-card" data-estilo="dark" data-visual="esquema">
+              <div class="tpl-thumb tpl-dark-esq"><span class="tpl-dot"></span><span class="tpl-dot d2"></span><span class="tpl-dot d3"></span></div>
+              <div class="tpl-name">Dark · Esquema</div>
+            </button>
+            <button type="button" class="tpl-card" data-estilo="light" data-visual="none">
+              <div class="tpl-thumb tpl-light-clean"><span class="tpl-h">Título</span></div>
+              <div class="tpl-name">Light · Limpo</div>
+            </button>
+            <button type="button" class="tpl-card" data-estilo="light" data-visual="editorial">
+              <div class="tpl-thumb tpl-light-edit"><span class="tpl-h">Título</span><span class="tpl-line"></span></div>
+              <div class="tpl-name">Light · Editorial</div>
+            </button>
+            <button type="button" class="tpl-card" data-estilo="ferrugem" data-visual="editorial">
+              <div class="tpl-thumb tpl-rust-edit"><span class="tpl-h">Título</span><span class="tpl-line"></span></div>
+              <div class="tpl-name">Ferrugem</div>
+            </button>
+          </div>
+        </div>
+        <details class="adv-toggle"><summary>Ajuste fino (estilo / visual)</summary>
+        <div class="field">
           <label>Estilo visual</label>
           <div class="estilo-row" id="estiloRow">
             <button type="button" class="estilo-btn active" data-estilo="dark">
@@ -227,6 +278,7 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
             <button type="button" class="estilo-btn" data-visual="esquema">Esquema</button>
           </div>
         </div>
+        </details>
         <div class="field">
           <label>Número de slides</label>
           <div class="slider-row">
@@ -440,6 +492,19 @@ function handleAvatar(input){
 
 // ─── VISUAL SELECTOR ────────────────────────────────────────────────────────
 let selectedVisual = 'none';
+document.getElementById('tplGrid').addEventListener('click', (e) => {
+  const card = e.target.closest('.tpl-card');
+  if (!card) return;
+  document.querySelectorAll('#tplGrid .tpl-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  selectedEstilo = card.dataset.estilo;
+  selectedVisual = card.dataset.visual;
+  document.querySelectorAll('#estiloRow .estilo-btn').forEach(b => b.classList.toggle('active', b.dataset.estilo === selectedEstilo));
+  document.querySelectorAll('#visualRow .estilo-btn').forEach(b => b.classList.toggle('active', b.dataset.visual === selectedVisual));
+  document.querySelectorAll('#editorEstiloRow .estilo-btn').forEach(b => b.classList.toggle('active', b.dataset.estilo === selectedEstilo));
+  document.querySelectorAll('#editorVisualRow .estilo-btn').forEach(b => b.classList.toggle('active', b.dataset.visual === selectedVisual));
+});
+
 document.getElementById('visualRow').addEventListener('click', (e) => {
   const btn = e.target.closest('.estilo-btn');
   if (!btn) return;
