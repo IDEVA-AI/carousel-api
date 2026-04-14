@@ -93,13 +93,13 @@ def etapa_copy(tema: str, pilar: str, num_slides: int = 7, estilo: str = "dark")
 
 # ─── ETAPA 4: RENDERIZAR ────────────────────────────────────────────────────
 
-def etapa_render(carrossel: dict, estilo: str = "dark", visual: str = "editorial") -> tuple[list[bytes], list[str]]:
+def etapa_render(carrossel: dict, estilo: str = "dark", visual: str = "editorial", align_h: str = "auto", align_v: str = "auto") -> tuple[list[bytes], list[str]]:
     """Renderiza slides em PNGs. Retorna (pngs_bytes, previews_base64)."""
     from slide_builder import build_all_slides
     from renderer import renderizar_e_empacotar
 
     avatar = _get_avatar_url()
-    slides_html = build_all_slides(carrossel, avatar_url=avatar, theme=estilo, visual=visual)
+    slides_html = build_all_slides(carrossel, avatar_url=avatar, theme=estilo, visual=visual, align_h=align_h, align_v=align_v)
     zip_bytes, previews = renderizar_e_empacotar(slides_html)
 
     # Extrair PNGs do ZIP

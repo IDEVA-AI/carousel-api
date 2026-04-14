@@ -82,6 +82,8 @@ class RenderizarRequest(BaseModel):
     estilo: str = "dark"
     foto_url: str | None = None
     visual: str = "none"
+    align_h: str = "auto"  # auto | left | center | right
+    align_v: str = "auto"  # auto | top | middle | bottom
 
 # ─── ENDPOINTS ────────────────────────────────────────────────────────────────
 @app.get("/health")
@@ -134,7 +136,7 @@ async def renderizar(req: RenderizarRequest):
                 if original in visual_map:
                     s["tipo"] = visual_map[original]
 
-        slides_html = build_all_slides(carrossel, avatar_url=req.avatar_url, theme=req.estilo, visual=req.visual)
+        slides_html = build_all_slides(carrossel, avatar_url=req.avatar_url, theme=req.estilo, visual=req.visual, align_h=req.align_h, align_v=req.align_v)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao montar slides: {str(e)}")
 
@@ -309,6 +311,8 @@ class PublicarRequest(BaseModel):
     visual: str = "editorial"
     avatar_url: str | None = None
     caption: str | None = None  # se omitido, gera via Claude
+    align_h: str = "auto"
+    align_v: str = "auto"
 
 class AgendarRequest(BaseModel):
     carrossel_json: dict
@@ -321,7 +325,7 @@ async def publicar_agora(req: PublicarRequest):
     """Publica imediatamente um carrossel já gerado no Instagram."""
     from pipeline import etapa_render, etapa_caption, etapa_postar, etapa_notificar, _salvar_postagem
     try:
-        pngs, previews = etapa_render(req.carrossel_json, req.estilo, req.visual)
+        pngs, previews = etapa_render(req.carrossel_json, req.estilo, req.visual, req.align_h, req.align_v)
         caption = req.caption
         if not caption:
             caption = etapa_caption(req.carrossel_json).get("caption", "")

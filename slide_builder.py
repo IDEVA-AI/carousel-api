@@ -1391,7 +1391,31 @@ def _get_visuals(tipo: str, index: int, total: int, theme: str, visual: str, sli
     return ""
 
 
-def build_all_slides(carrossel: dict, avatar_url: str | None = None, theme: str = "dark", visual: str = "none") -> list[str]:
+_ALIGN_H_MAP = {
+    "left":   ("flex-start", "left"),
+    "center": ("center", "center"),
+    "right":  ("flex-end", "right"),
+}
+_ALIGN_V_MAP = {
+    "top":    "flex-start",
+    "middle": "center",
+    "bottom": "flex-end",
+}
+
+def _alignment_override_css(align_h: str, align_v: str) -> str:
+    if align_h == "auto" and align_v == "auto":
+        return ""
+    rules = []
+    if align_h in _ALIGN_H_MAP:
+        ai, ta = _ALIGN_H_MAP[align_h]
+        rules.append(f".s .si, .s .si.center {{ align-items: {ai} !important; text-align: {ta} !important; }}")
+    if align_v in _ALIGN_V_MAP:
+        jc = _ALIGN_V_MAP[align_v]
+        rules.append(f".s .si, .s .si.center {{ justify-content: {jc} !important; }}")
+    return "\n".join(rules)
+
+
+def build_all_slides(carrossel: dict, avatar_url: str | None = None, theme: str = "dark", visual: str = "none", align_h: str = "auto", align_v: str = "auto") -> list[str]:
     imagem_url  = carrossel.get("imagem_url")
     slides_data = carrossel.get("slides", [])
     total = len(slides_data)
@@ -1426,5 +1450,10 @@ def build_all_slides(carrossel: dict, avatar_url: str | None = None, theme: str 
         cont_out = continuity_pairs[i][0] if i < len(continuity_pairs) else ""
 
         vis = _get_visuals(tipo, index, total, slide_theme, visual, slide_data=s, continuity_in=cont_in, continuity_out=cont_out)
-        result.append(build_slide(s, imagem_url=imagem_url, avatar_url=avatar_url, theme=slide_theme, visuals_html=vis))
+        html = build_slide(s, imagem_url=imagem_url, avatar_url=avatar_url, theme=slide_theme, visuals_html=vis)
+        # Override de alinhamento (horizontal/vertical) — se usuário especificou
+        override = _alignment_override_css(align_h, align_v)
+        if override:
+            html = html.replace('</style>', override + '</style>', 1)
+        result.append(html)
     return result

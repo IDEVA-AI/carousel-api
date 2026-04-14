@@ -280,6 +280,24 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
         </div>
         </details>
         <div class="field">
+          <label>Alinhamento horizontal</label>
+          <div class="estilo-row" id="alignHRow">
+            <button type="button" class="estilo-btn active" data-h="auto">Auto</button>
+            <button type="button" class="estilo-btn" data-h="left">⇤ Esq</button>
+            <button type="button" class="estilo-btn" data-h="center">≡ Centro</button>
+            <button type="button" class="estilo-btn" data-h="right">⇥ Dir</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Alinhamento vertical</label>
+          <div class="estilo-row" id="alignVRow">
+            <button type="button" class="estilo-btn active" data-v="auto">Auto</button>
+            <button type="button" class="estilo-btn" data-v="top">⇧ Topo</button>
+            <button type="button" class="estilo-btn" data-v="middle">≡ Meio</button>
+            <button type="button" class="estilo-btn" data-v="bottom">⇩ Base</button>
+          </div>
+        </div>
+        <div class="field">
           <label>Número de slides</label>
           <div class="slider-row">
             <input type="range" id="numSlides" min="5" max="10" value="7" oninput="document.getElementById('slidesVal').textContent=this.value">
@@ -429,6 +447,8 @@ let avatarDataUrl = null;
 let carrosselJson = null;
 let currentPreviews = [];
 let lbIdx = 0;
+let selectedAlignH = "auto";
+let selectedAlignV = "auto";
 
 // SLIDE FIELDS per type
 const SLIDE_FIELDS = {
@@ -507,6 +527,17 @@ function handleAvatar(input){
 
 // ─── VISUAL SELECTOR ────────────────────────────────────────────────────────
 let selectedVisual = 'none';
+document.getElementById('alignHRow').addEventListener('click', (e) => {
+  const btn = e.target.closest('.estilo-btn'); if (!btn) return;
+  document.querySelectorAll('#alignHRow .estilo-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); selectedAlignH = btn.dataset.h;
+});
+document.getElementById('alignVRow').addEventListener('click', (e) => {
+  const btn = e.target.closest('.estilo-btn'); if (!btn) return;
+  document.querySelectorAll('#alignVRow .estilo-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); selectedAlignV = btn.dataset.v;
+});
+
 document.getElementById('tplGrid').addEventListener('click', (e) => {
   const card = e.target.closest('.tpl-card');
   if (!card) return;
@@ -690,7 +721,7 @@ async function renderizar(){
   try{
     const res=await fetch('/renderizar',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({carrossel_json:carrosselJson,avatar_url:avatarDataUrl||null,estilo:selectedEstilo,foto_url:fotoDataUrl||null,visual:selectedVisual})
+      body:JSON.stringify({carrossel_json:carrosselJson,avatar_url:avatarDataUrl||null,estilo:selectedEstilo,foto_url:fotoDataUrl||null,visual:selectedVisual,align_h:selectedAlignH,align_v:selectedAlignV})
     });
     if(!res.ok){const err=await res.json();throw new Error(err.detail||'Erro ao renderizar');}
     const data=await res.json();
@@ -800,7 +831,7 @@ async function renderPreview() {
       const previewJson = {...carrosselJson, slides: [carrosselJson.slides[0]]};
       const res = await fetch('/renderizar', {
         method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({carrossel_json: previewJson, avatar_url: avatarDataUrl||null, estilo: selectedEstilo, visual: selectedVisual})
+        body: JSON.stringify({carrossel_json: previewJson, avatar_url: avatarDataUrl||null, estilo: selectedEstilo, visual: selectedVisual, align_h: selectedAlignH, align_v: selectedAlignV})
       });
       if (!res.ok) return;
       const data = await res.json();
@@ -862,7 +893,7 @@ async function postarAgora() {
   try {
     const r = await fetch("/api/post/publicar", {
       method: "POST", headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({carrossel_json: carrosselJson, estilo: selectedEstilo, visual: selectedVisual, avatar_url: avatarDataUrl||null})
+      body: JSON.stringify({carrossel_json: carrosselJson, estilo: selectedEstilo, visual: selectedVisual, avatar_url: avatarDataUrl||null, align_h: selectedAlignH, align_v: selectedAlignV})
     });
     const d = await r.json();
     if (!r.ok) throw new Error(d.detail || "Falha ao publicar");
