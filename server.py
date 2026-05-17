@@ -12,7 +12,7 @@ from datetime import datetime
 from pathlib import Path
 
 import httpx
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -346,6 +346,57 @@ async def publicar_agora(req: PublicarRequest):
         return {"ok": True, **post_result, "caption": caption}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Falha ao publicar: {str(e)}")
+
+class StoryRequest(BaseModel):
+    image_url: str | None = None
+    video_url: str | None = None
+
+@app.post("/api/post/story")
+async def postar_story_endpoint(req: StoryRequest):
+    """Posta um story (imagem 1080x1920 ou vídeo MP4 9:16 até 60s) via URL pública."""
+    from instagram import postar_story
+    if not req.image_url and not req.video_url:
+        raise HTTPException(status_code=400, detail="Forneça image_url ou video_url")
+    if req.image_url and req.video_url:
+        raise HTTPException(status_code=400, detail="Forneça apenas image_url OU video_url")
+    try:
+        result = postar_story(image_url=req.image_url, video_url=req.video_url)
+        return {"ok": True, **result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Falha ao postar story: {str(e)}")
+
+
+@app.post("/api/post/story/upload")
+async def postar_story_upload(request: Request, file: UploadFile = File(...)):
+    """
+    Posta story via upload de arquivo (imagem ou vídeo).
+    Salva temporariamente em /api/temp/ e chama postar_story com URL pública.
+    """
+    from instagram import postar_story
+
+    ext = Path(file.filename or "").suffix.lower() or ".png"
+    if ext not in {".png", ".jpg", ".jpeg", ".mp4", ".mov"}:
+        raise HTTPException(status_code=400, detail=f"Extensão {ext} não suportada")
+
+    is_video = ext in {".mp4", ".mov"}
+    filename = f"story_{uuid.uuid4().hex[:12]}{ext}"
+    filepath = TEMP_DIR / filename
+    content = await file.read()
+    filepath.write_bytes(content)
+
+    # Monta URL pública a partir do host da request
+    base = str(request.base_url).rstrip("/")
+    public_url = f"{base}/api/temp/{filename}"
+
+    try:
+        if is_video:
+            result = postar_story(video_url=public_url)
+        else:
+            result = postar_story(image_url=public_url)
+        return {"ok": True, "uploaded_url": public_url, **result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Falha ao postar story: {str(e)}")
+
 
 @app.post("/api/post/agendar")
 async def agendar(req: AgendarRequest):
