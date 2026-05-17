@@ -160,3 +160,80 @@ def postar_carousel(image_urls: list[str], caption: str, max_retries: int = 3) -
             time.sleep(5 * attempt)  # backoff
 
     raise RuntimeError("Todas as tentativas falharam")
+
+
+# ─── STORIES ────────────────────────────────────────────────────────────────
+
+def postar_story(
+    image_url: str | None = None,
+    video_url: str | None = None,
+    max_retries: int = 3,
+) -> dict:
+    """
+    Posta um story no Instagram (imagem 1080x1920 ou vídeo MP4 9:16, até 60s).
+
+    Args:
+        image_url: URL pública da imagem (use isto OU video_url, não os dois)
+        video_url: URL pública do vídeo MP4
+        max_retries: Tentativas em caso de erro
+
+    Returns:
+        {"media_id": str, "permalink": str}
+
+    Nota: Stories não aceitam caption nem hashtags clicáveis via API.
+    """
+    _check_config()
+
+    if not image_url and not video_url:
+        raise ValueError("Forneça image_url ou video_url")
+    if image_url and video_url:
+        raise ValueError("Forneça apenas image_url OU video_url, não ambos")
+
+    params: dict[str, str] = {
+        "media_type": "STORIES",
+        "access_token": ACCESS_TOKEN,
+    }
+    if image_url:
+        params["image_url"] = image_url
+    else:
+        params["video_url"] = video_url  # type: ignore[assignment]
+
+    for attempt in range(1, max_retries + 1):
+        try:
+            print(f"[Instagram/Story] Tentativa {attempt}/{max_retries}")
+
+            r = httpx.post(f"{GRAPH_API}/{ACCOUNT_ID}/media", data=params, timeout=30)
+            if r.status_code >= 400:
+                print(f"[Instagram/Story] {r.status_code} body: {r.text[:500]}")
+            r.raise_for_status()
+            container_id = r.json().get("id")
+            if not container_id:
+                raise RuntimeError(f"Falha ao criar container story: {r.json()}")
+            print(f"[Instagram/Story] Container criado: {container_id}")
+
+            # Vídeo pode demorar mais que imagem
+            wait_timeout = 180 if video_url else 60
+            _wait_container_ready(container_id, max_wait=wait_timeout)
+
+            media_id = _publish(container_id)
+
+            permalink = ""
+            try:
+                rp = httpx.get(
+                    f"{GRAPH_API}/{media_id}",
+                    params={"fields": "permalink", "access_token": ACCESS_TOKEN},
+                    timeout=10,
+                )
+                permalink = rp.json().get("permalink", "")
+            except Exception:
+                pass
+
+            return {"media_id": media_id, "permalink": permalink}
+
+        except Exception as e:
+            print(f"[Instagram/Story] Erro na tentativa {attempt}: {e}")
+            if attempt == max_retries:
+                raise
+            time.sleep(5 * attempt)
+
+    raise RuntimeError("Todas as tentativas falharam")
