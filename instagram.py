@@ -224,6 +224,79 @@ def postar_imagem(image_url: str, caption: str = "", max_retries: int = 3) -> di
     raise RuntimeError("Todas as tentativas falharam")
 
 
+# ─── REELS ──────────────────────────────────────────────────────────────────
+
+def postar_reel(
+    video_url: str,
+    caption: str = "",
+    cover_url: str | None = None,
+    share_to_feed: bool = True,
+    max_retries: int = 3,
+) -> dict:
+    """
+    Posta um Reel no Instagram.
+
+    Args:
+        video_url: URL pública do MP4 (9:16, até 90s, H.264, AAC)
+        caption: Texto + hashtags
+        cover_url: URL pública da thumbnail (opcional)
+        share_to_feed: Se True, aparece também no grid do feed
+        max_retries: Tentativas em caso de erro
+
+    Returns:
+        {"media_id": str, "permalink": str}
+    """
+    _check_config()
+
+    params: dict[str, str] = {
+        "media_type": "REELS",
+        "video_url": video_url,
+        "caption": caption,
+        "share_to_feed": "true" if share_to_feed else "false",
+        "access_token": ACCESS_TOKEN,
+    }
+    if cover_url:
+        params["cover_url"] = cover_url
+
+    for attempt in range(1, max_retries + 1):
+        try:
+            print(f"[Instagram/Reel] Tentativa {attempt}/{max_retries}")
+
+            r = httpx.post(f"{GRAPH_API}/{ACCOUNT_ID}/media", data=params, timeout=30)
+            if r.status_code >= 400:
+                print(f"[Instagram/Reel] {r.status_code} body: {r.text[:500]}")
+            r.raise_for_status()
+            container_id = r.json().get("id")
+            if not container_id:
+                raise RuntimeError(f"Falha ao criar container reel: {r.json()}")
+            print(f"[Instagram/Reel] Container criado: {container_id}")
+
+            # Reels precisam transcode — aguarda mais
+            _wait_container_ready(container_id, max_wait=300)
+            media_id = _publish(container_id)
+
+            permalink = ""
+            try:
+                rp = httpx.get(
+                    f"{GRAPH_API}/{media_id}",
+                    params={"fields": "permalink", "access_token": ACCESS_TOKEN},
+                    timeout=10,
+                )
+                permalink = rp.json().get("permalink", "")
+            except Exception:
+                pass
+
+            return {"media_id": media_id, "permalink": permalink}
+
+        except Exception as e:
+            print(f"[Instagram/Reel] Erro na tentativa {attempt}: {e}")
+            if attempt == max_retries:
+                raise
+            time.sleep(5 * attempt)
+
+    raise RuntimeError("Todas as tentativas falharam")
+
+
 # ─── STORIES ────────────────────────────────────────────────────────────────
 
 def postar_story(

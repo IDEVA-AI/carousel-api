@@ -391,6 +391,58 @@ async def postar_imagem_upload(
         raise HTTPException(status_code=500, detail=f"Falha ao postar imagem: {str(e)}")
 
 
+class ReelRequest(BaseModel):
+    video_url: str
+    caption: str = ""
+    cover_url: str | None = None
+    share_to_feed: bool = True
+
+@app.post("/api/post/reel")
+async def postar_reel_endpoint(req: ReelRequest):
+    """Posta um Reel via URL pública de MP4 (9:16, até 90s)."""
+    from instagram import postar_reel
+    if not req.video_url:
+        raise HTTPException(status_code=400, detail="video_url obrigatório")
+    try:
+        result = postar_reel(
+            video_url=req.video_url,
+            caption=req.caption,
+            cover_url=req.cover_url,
+            share_to_feed=req.share_to_feed,
+        )
+        return {"ok": True, **result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Falha ao postar reel: {str(e)}")
+
+
+@app.post("/api/post/reel/upload")
+async def postar_reel_upload(
+    request: Request,
+    file: UploadFile = File(...),
+    caption: str = "",
+    share_to_feed: bool = True,
+):
+    """Posta Reel via upload de vídeo MP4/MOV. Salva em /api/temp/ e publica."""
+    from instagram import postar_reel
+
+    ext = Path(file.filename or "").suffix.lower() or ".mp4"
+    if ext not in {".mp4", ".mov"}:
+        raise HTTPException(status_code=400, detail=f"Extensão {ext} não suportada (use .mp4 ou .mov)")
+
+    filename = f"reel_{uuid.uuid4().hex[:12]}{ext}"
+    filepath = TEMP_DIR / filename
+    filepath.write_bytes(await file.read())
+
+    base = str(request.base_url).rstrip("/")
+    public_url = f"{base}/api/temp/{filename}"
+
+    try:
+        result = postar_reel(video_url=public_url, caption=caption, share_to_feed=share_to_feed)
+        return {"ok": True, "uploaded_url": public_url, **result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Falha ao postar reel: {str(e)}")
+
+
 class StoryRequest(BaseModel):
     image_url: str | None = None
     video_url: str | None = None
