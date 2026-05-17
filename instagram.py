@@ -162,6 +162,68 @@ def postar_carousel(image_urls: list[str], caption: str, max_retries: int = 3) -
     raise RuntimeError("Todas as tentativas falharam")
 
 
+# ─── POST ÚNICO (single image) ──────────────────────────────────────────────
+
+def postar_imagem(image_url: str, caption: str = "", max_retries: int = 3) -> dict:
+    """
+    Posta uma única imagem no feed do Instagram (não carousel).
+
+    Args:
+        image_url: URL pública da imagem (jpg/png, 1080x1080 ou 1080x1350 ou 1080x1440)
+        caption: Texto + hashtags
+        max_retries: Tentativas em caso de erro
+
+    Returns:
+        {"media_id": str, "permalink": str}
+    """
+    _check_config()
+
+    for attempt in range(1, max_retries + 1):
+        try:
+            print(f"[Instagram/Imagem] Tentativa {attempt}/{max_retries}")
+
+            r = httpx.post(
+                f"{GRAPH_API}/{ACCOUNT_ID}/media",
+                data={
+                    "image_url": image_url,
+                    "caption": caption,
+                    "access_token": ACCESS_TOKEN,
+                },
+                timeout=30,
+            )
+            if r.status_code >= 400:
+                print(f"[Instagram/Imagem] {r.status_code} body: {r.text[:500]}")
+            r.raise_for_status()
+            container_id = r.json().get("id")
+            if not container_id:
+                raise RuntimeError(f"Falha ao criar container: {r.json()}")
+            print(f"[Instagram/Imagem] Container criado: {container_id}")
+
+            _wait_container_ready(container_id)
+            media_id = _publish(container_id)
+
+            permalink = ""
+            try:
+                rp = httpx.get(
+                    f"{GRAPH_API}/{media_id}",
+                    params={"fields": "permalink", "access_token": ACCESS_TOKEN},
+                    timeout=10,
+                )
+                permalink = rp.json().get("permalink", "")
+            except Exception:
+                pass
+
+            return {"media_id": media_id, "permalink": permalink}
+
+        except Exception as e:
+            print(f"[Instagram/Imagem] Erro na tentativa {attempt}: {e}")
+            if attempt == max_retries:
+                raise
+            time.sleep(5 * attempt)
+
+    raise RuntimeError("Todas as tentativas falharam")
+
+
 # ─── STORIES ────────────────────────────────────────────────────────────────
 
 def postar_story(

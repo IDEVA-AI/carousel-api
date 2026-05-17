@@ -347,6 +347,50 @@ async def publicar_agora(req: PublicarRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Falha ao publicar: {str(e)}")
 
+class ImagemRequest(BaseModel):
+    image_url: str
+    caption: str = ""
+
+@app.post("/api/post/imagem")
+async def postar_imagem_endpoint(req: ImagemRequest):
+    """Posta uma única imagem no feed do Instagram (não carousel)."""
+    from instagram import postar_imagem
+    if not req.image_url:
+        raise HTTPException(status_code=400, detail="image_url obrigatório")
+    try:
+        result = postar_imagem(image_url=req.image_url, caption=req.caption)
+        return {"ok": True, **result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Falha ao postar imagem: {str(e)}")
+
+
+@app.post("/api/post/imagem/upload")
+async def postar_imagem_upload(
+    request: Request,
+    file: UploadFile = File(...),
+    caption: str = "",
+):
+    """Posta imagem via upload de arquivo. Salva em /api/temp/ e publica."""
+    from instagram import postar_imagem
+
+    ext = Path(file.filename or "").suffix.lower() or ".png"
+    if ext not in {".png", ".jpg", ".jpeg"}:
+        raise HTTPException(status_code=400, detail=f"Extensão {ext} não suportada")
+
+    filename = f"feed_{uuid.uuid4().hex[:12]}{ext}"
+    filepath = TEMP_DIR / filename
+    filepath.write_bytes(await file.read())
+
+    base = str(request.base_url).rstrip("/")
+    public_url = f"{base}/api/temp/{filename}"
+
+    try:
+        result = postar_imagem(image_url=public_url, caption=caption)
+        return {"ok": True, "uploaded_url": public_url, **result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Falha ao postar imagem: {str(e)}")
+
+
 class StoryRequest(BaseModel):
     image_url: str | None = None
     video_url: str | None = None
