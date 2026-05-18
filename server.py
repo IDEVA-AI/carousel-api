@@ -443,6 +443,42 @@ async def postar_reel_upload(
         raise HTTPException(status_code=500, detail=f"Falha ao postar reel: {str(e)}")
 
 
+class ReportRequest(BaseModel):
+    data: str | None = None  # YYYY-MM-DD (default: hoje BR)
+    dia: int | None = None   # nº do dia do desafio
+    comentarios: str = ""
+    stories_labels: list[str] | None = None  # rótulos por story (ordem cronológica)
+    storyad: int | None = None  # quantidade de story ads (Graph API não retorna)
+
+@app.post("/api/report/dia")
+async def report_dia_post(req: ReportRequest):
+    """Gera report diário de atividade no Instagram (formato do desafio)."""
+    from report import gerar_report
+    try:
+        return gerar_report(
+            data_alvo=req.data,
+            dia=req.dia,
+            comentarios=req.comentarios,
+            stories_labels=req.stories_labels,
+            storyad=req.storyad,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Falha ao gerar report: {str(e)}")
+
+@app.get("/api/report/dia")
+async def report_dia_get(
+    data: str | None = None,
+    dia: int | None = None,
+    storyad: int | None = None,
+):
+    """Versão GET — apenas dados (sem comentários nem labels customizadas)."""
+    from report import gerar_report
+    try:
+        return gerar_report(data_alvo=data, dia=dia, storyad=storyad)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Falha ao gerar report: {str(e)}")
+
+
 class StoryRequest(BaseModel):
     image_url: str | None = None
     video_url: str | None = None
