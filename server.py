@@ -445,14 +445,18 @@ async def postar_reel_upload(
 
 class ReportRequest(BaseModel):
     data: str | None = None  # YYYY-MM-DD (default: hoje BR)
-    dia: int | None = None   # nº do dia do desafio
+    dia: int | None = None   # nº do dia do desafio (1-30)
     comentarios: str = ""
-    stories_labels: list[str] | None = None  # rótulos por story (ordem cronológica)
-    storyad: int | None = None  # quantidade de story ads (Graph API não retorna)
+    stories_labels: list[str] | None = None  # rótulos cronológicos dos stories
+    descricoes_feed: list[str] | None = None  # descrições paralelas aos posts
+    story_com_oferta: bool = False  # +2 pts se algum story do bloco tem CTA
+    storyad: int | None = None
+    storyad_detalhe: dict | None = None  # {"formato":"foto|vídeo","gancho":"..."}
+    case: dict | None = None  # {"descricao":"...","venda":bool,"valor":float,"link":"..."}
 
 @app.post("/api/report/dia")
 async def report_dia_post(req: ReportRequest):
-    """Gera report diário de atividade no Instagram (formato do desafio)."""
+    """Gera report diário no formato oficial DESAFIO DOMINACAO + pontuação automática."""
     from report import gerar_report
     try:
         return gerar_report(
@@ -460,7 +464,11 @@ async def report_dia_post(req: ReportRequest):
             dia=req.dia,
             comentarios=req.comentarios,
             stories_labels=req.stories_labels,
+            descricoes_feed=req.descricoes_feed,
+            story_com_oferta=req.story_com_oferta,
             storyad=req.storyad,
+            storyad_detalhe=req.storyad_detalhe,
+            case=req.case,
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Falha ao gerar report: {str(e)}")
