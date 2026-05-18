@@ -222,32 +222,25 @@ def gerar_report(
         case=case,
     )
 
-    # ─── Texto formato oficial DESAFIO DOMINACAO ───
+    # ─── Texto formato DOUG (mentor d'demarco) ───
     linhas = []
-    header = f"DIA {dia}" if dia else f"DIA · {d.strftime('%d/%m/%Y')}"
+    dia_semana = DIAS_SEMANA[d.weekday()]
+    data_fmt = d.strftime("%d/%m/%Y")
+    header = f"REPORTE · DIA {dia} · {data_fmt} · {dia_semana}" if dia else f"REPORTE · {data_fmt} · {dia_semana}"
     linhas.append(header)
-    linhas.append("")
 
     # FEED
-    linhas.append(f"→ FEED · {len(feed_dia)} {'post' if len(feed_dia) == 1 else 'posts'}")
+    linhas.append(f"→ FEED · {len(feed_dia)} {'post publicado' if len(feed_dia) == 1 else 'posts publicados'}")
     for i, m in enumerate(feed_dia, 1):
-        desc = m.get("descricao") or m["caption_short"] or "(sem caption)"
-        # Evita duplicação se descricao já começa com a tag (ex: "CARROSSEL — ...")
-        if desc.upper().startswith(m["tag"]):
-            linhas.append(f"  {i}. {desc}")
-        else:
-            linhas.append(f"  {i}. {m['tag']} — {desc}")
-        linhas.append(f"     → {m['permalink']}")
-    linhas.append("")
+        desc = m.get("descricao") or m["caption_short"] or m["tag"].lower()
+        # Doug usa "URL (tipo - descrição curta)" em uma linha só
+        linhas.append(f"{i}. {m['permalink']} ({desc})")
 
     # STORIES
     linhas.append(f"→ STORIES · {len(stories_dia)} stories no dia")
-    for i, s in enumerate(stories_dia, 1):
+    for s in stories_dia:
         label = s.get("label") or {"IMAGE": "imagem", "VIDEO": "vídeo"}.get(s["media_type"], s["media_type"].lower())
-        linhas.append(f"  {i}. {label}")
-    if story_com_oferta:
-        linhas.append("  → bloco com story de oferta/CTA")
-    linhas.append("")
+        linhas.append(label)
 
     # STORYAD
     if storyad_count == 0:
@@ -261,31 +254,21 @@ def gerar_report(
             if partes:
                 det = f" ({', '.join(partes)})"
         linhas.append(f"→ STORYAD · {storyad_count} no dia{det}")
-    linhas.append("")
 
-    # CASE
+    # CASE (Doug só inclui se houver — sem linha "sem case")
     if case:
         desc = case.get("descricao", "vitória do dia")
         if case.get("venda") or case.get("valor"):
             valor = case.get("valor")
             valor_str = f" — R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".") if valor else ""
             linhas.append(f"→ CASE com venda · {desc}{valor_str}")
+            if case.get("link"):
+                linhas.append(f"Link: {case['link']}")
         else:
             linhas.append(f"→ CASE · {desc}")
-        if case.get("link"):
-            linhas.append(f"  → {case['link']}")
-    else:
-        linhas.append("→ CASE · sem vitória material no dia")
-    linhas.append("")
-
-    # Pontuação
-    linhas.append(f"Pontuação · {pontos['total']} pts")
-    for b in pontos["breakdown"]:
-        linhas.append(f"  {b}")
 
     # Comentários
     if comentarios:
-        linhas.append("")
         linhas.append(f"Comentários: {comentarios}")
 
     texto = "\n".join(linhas)
