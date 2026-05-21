@@ -384,6 +384,8 @@ async def postar_imagem_upload(
     filepath.write_bytes(await file.read())
 
     base = str(request.base_url).rstrip("/")
+    if base.startswith("http://") and "localhost" not in base and "127.0.0.1" not in base:
+        base = "https://" + base[7:]  # Instagram exige https no media URL
     public_url = f"{base}/api/temp/{filename}"
 
     try:
@@ -436,6 +438,8 @@ async def postar_reel_upload(
     filepath.write_bytes(await file.read())
 
     base = str(request.base_url).rstrip("/")
+    if base.startswith("http://") and "localhost" not in base and "127.0.0.1" not in base:
+        base = "https://" + base[7:]  # Instagram exige https no media URL
     public_url = f"{base}/api/temp/{filename}"
 
     try:
@@ -528,6 +532,8 @@ async def postar_story_upload(request: Request, file: UploadFile = File(...)):
 
     # Monta URL pública a partir do host da request
     base = str(request.base_url).rstrip("/")
+    if base.startswith("http://") and "localhost" not in base and "127.0.0.1" not in base:
+        base = "https://" + base[7:]  # Instagram exige https no media URL
     public_url = f"{base}/api/temp/{filename}"
 
     try:

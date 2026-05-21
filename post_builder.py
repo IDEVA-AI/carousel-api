@@ -231,18 +231,88 @@ body::after{{content:'';position:absolute;inset:0;z-index:9;pointer-events:none;
 </body></html>"""
 
 
+# ─── FORMATO: STORY EDITORIAL (1080×1920) ────────────────────────────────────
+
+def _emphasis(texto: str) -> str:
+    """Converte **trecho** em ênfase editorial inline."""
+    import re
+    return re.sub(r"\*\*(.+?)\*\*", r'<em class="emph">\1</em>', texto)
+
+
+def build_story_editorial(data: dict, theme: str = "operacional", avatar_url: str | None = None) -> str:
+    """
+    Story editorial — 1080×1920 (9:16).
+    Texto corrido denso com ênfase inline. Formato independente:
+    NAO substitui build_story.
+    data: { texto (parágrafos por \\n\\n, **ênfase**), marcador, cta?, numero? }
+    """
+    t = _t(theme)
+    headline_font, body_font, mono_font = _fonts(t)
+    accent   = "#EE5C4D"  # vermelho luminoso — ênfase legível no fundo grafite
+    texto    = data.get("texto", "")
+    marcador = data.get("marcador", "")
+    cta      = data.get("cta", "")
+    numero   = data.get("numero", "")
+
+    paragrafos = [p.strip() for p in texto.split("\n\n") if p.strip()]
+    paras_html = "".join(f"<p>{_emphasis(p)}</p>" for p in paragrafos)
+
+    numeral_html  = f'<div class="numeral">{numero}</div>' if numero else ""
+    cta_html      = f'<div class="cta">{cta} &rarr;</div>' if cta else ""
+    marcador_html = (f'<div class="marcador"><span class="rule"></span>{marcador}</div>'
+                     if marcador else "")
+
+    return f"""<!DOCTYPE html><html><head><meta charset="UTF-8">{_FONT_LINK}
+<style>
+*{{margin:0;padding:0;box-sizing:border-box;}}
+html,body{{width:1080px;height:1920px;overflow:hidden;background:{t['bg']};}}
+body::before{{content:'';position:absolute;inset:0;z-index:10;pointer-events:none;opacity:0.22;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size:128px 128px;mix-blend-mode:overlay;}}
+body::after{{content:'';position:absolute;inset:0;z-index:9;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 38%,transparent 46%,{t['bg']} 100%);}}
+.post{{width:1080px;height:1920px;display:flex;flex-direction:column;
+  padding:150px 100px 130px;position:relative;z-index:2;}}
+.numeral{{position:absolute;top:30px;right:54px;z-index:1;
+  font-family:{headline_font};font-size:430px;font-weight:700;
+  color:{t['text']};opacity:0.05;line-height:0.78;pointer-events:none;}}
+.content{{flex:1;display:flex;flex-direction:column;justify-content:center;
+  gap:34px;position:relative;z-index:2;}}
+.content p{{font-family:{body_font};font-size:44px;font-weight:400;
+  line-height:1.5;letter-spacing:-0.005em;color:{t['text']};}}
+.emph{{font-family:{headline_font};font-style:italic;font-weight:600;
+  font-size:1.2em;line-height:1;color:{accent};}}
+.cta{{margin-top:38px;align-self:flex-start;
+  font-family:{mono_font};font-size:32px;font-weight:600;letter-spacing:0.03em;
+  color:{accent};border-top:2px solid {accent};padding-top:24px;}}
+.marcador{{display:flex;align-items:center;gap:20px;margin-top:46px;
+  font-family:{mono_font};font-size:22px;font-weight:500;
+  letter-spacing:0.22em;text-transform:uppercase;color:rgba(238,243,246,0.6);}}
+.rule{{width:54px;height:3px;background:{accent};display:block;flex-shrink:0;}}
+</style></head><body>
+<div class="post">
+  {numeral_html}
+  <div class="content">{paras_html}</div>
+  {cta_html}
+  {marcador_html}
+</div>
+</body></html>"""
+
+
 # ─── DISPATCHER ──────────────────────────────────────────────────────────────
 
 FORMAT_BUILDERS = {
     "tweet": build_tweet,
     "feed_single": build_feed_single,
     "story": build_story,
+    "story_editorial": build_story_editorial,
 }
 
 FORMAT_DIMENSIONS = {
     "tweet": (1080, 1080),
     "feed_single": (1080, 1440),
     "story": (1080, 1920),
+    "story_editorial": (1080, 1920),
 }
 
 def build_post(formato: str, data: dict, theme: str = "dark", avatar_url: str | None = None) -> str:
