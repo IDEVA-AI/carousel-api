@@ -61,11 +61,13 @@ def on_startup():
 
 PILARES = [
     "auto",
-    "O Sistema Invisível",
-    "Arquitetura de Decisão",
-    "Diagnóstico Cirúrgico",
-    "Comportamento e Sistema",
-    "Narrativas vs. Realidade",
+    "Diagnostico Cognitivo",
+    "Operacao Cognitiva",
+    "Conteudo com Profundidade",
+    "Transferencia de Criterio",
+    "Escala sem Diluir Autoria",
+    "Metodo Vivo",
+    "Oferta Consultiva",
 ]
 
 # ─── MODELS ───────────────────────────────────────────────────────────────────
@@ -74,12 +76,12 @@ class GerarRequest(BaseModel):
     slides: int = Field(7, ge=5, le=10)
     pilar: str = Field("auto")
     avatar_url: str | None = None
-    estilo: str = Field("dark")
+    estilo: str = Field("operacional_mix")
 
 class RenderizarRequest(BaseModel):
     carrossel_json: dict
     avatar_url: str | None = None
-    estilo: str = "dark"
+    estilo: str = "operacional_mix"
     foto_url: str | None = None
     visual: str = "none"
     align_h: str = "auto"  # auto | left | center | right
@@ -307,7 +309,7 @@ async def pipeline_preview():
 
 class PublicarRequest(BaseModel):
     carrossel_json: dict
-    estilo: str = "dark"
+    estilo: str = "operacional_mix"
     visual: str = "editorial"
     avatar_url: str | None = None
     caption: str | None = None  # se omitido, gera via Claude
@@ -317,7 +319,7 @@ class PublicarRequest(BaseModel):
 class AgendarRequest(BaseModel):
     carrossel_json: dict
     quando: str  # ISO datetime (BR tz assumido)
-    estilo: str = "dark"
+    estilo: str = "operacional_mix"
     visual: str = "editorial"
 
 @app.post("/api/post/publicar")

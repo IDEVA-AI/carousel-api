@@ -145,6 +145,9 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
 .dark-sw{background:#1a1714;border:2px solid #b8873a}
 .light-sw{background:#ece8de;border:2px solid #7a4e18}
 .ferrugem-sw{background:#3d1208;border:2px solid #c8683a}
+.operacional-sw{background:#1F252C;border:2px solid #C62127}
+.operacional-light-sw{background:#EEF3F6;border:2px solid #7B171D}
+.operacional-mix-sw{background:linear-gradient(135deg,#1F252C 50%,#EEF3F6 50%);border:2px solid #C62127}
 .misto-sw{background:linear-gradient(135deg,#1a1714 50%,#ece8de 50%);border:2px solid #b8873a}
 .tricolor-sw{background:linear-gradient(135deg,#1a1714 33%,#3d1208 33%,#3d1208 66%,#ece8de 66%);border:2px solid #c8683a}
 
@@ -162,6 +165,8 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
 .tpl-dark-clean,.tpl-dark-edit,.tpl-dark-esq{background:#0e0c0a;color:#f4f0e8}
 .tpl-light-clean,.tpl-light-edit{background:#f5f1e8;color:#0e0c0a}
 .tpl-rust-edit{background:#1a0a04;color:#f5e8d5}
+.tpl-op-dark{background:#1F252C;color:#EEF3F6}
+.tpl-op-light{background:#EEF3F6;color:#1F252C}
 .tpl-name{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:rgba(244,240,232,.65);text-align:center}
 .tpl-card.active .tpl-name{color:var(--gold)}
 .adv-toggle{margin-bottom:12px}
@@ -213,23 +218,33 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
       <form id="gerarForm">
         <div class="field">
           <label for="tema">Tema do carrossel</label>
-          <textarea id="tema" rows="3" placeholder="Ex: Por que delegar não funciona na maioria das empresas" required></textarea>
+          <textarea id="tema" rows="3" placeholder="Ex: Por que seu conteudo fica generico quando sai da sua mao" required></textarea>
         </div>
         <div class="field">
           <label for="pilar">Pilar de conteúdo</label>
           <select id="pilar">
             <option value="auto">Auto-detectar</option>
-            <option value="O Sistema Invisível">01 — O Sistema Invisível</option>
-            <option value="Arquitetura de Decisão">02 — Arquitetura de Decisão</option>
-            <option value="Diagnóstico Cirúrgico">03 — Diagnóstico Cirúrgico</option>
-            <option value="Comportamento e Sistema">04 — Comportamento e Sistema</option>
-            <option value="Narrativas vs. Realidade">05 — Narrativas vs. Realidade</option>
+            <option value="Diagnostico Cognitivo">01 — Diagnostico Cognitivo</option>
+            <option value="Operacao Cognitiva">02 — Operacao Cognitiva</option>
+            <option value="Conteudo com Profundidade">03 — Conteudo com Profundidade</option>
+            <option value="Transferencia de Criterio">04 — Transferencia de Criterio</option>
+            <option value="Escala sem Diluir Autoria">05 — Escala sem Diluir Autoria</option>
+            <option value="Metodo Vivo">06 — Metodo Vivo</option>
+            <option value="Oferta Consultiva">07 — Oferta Consultiva</option>
           </select>
         </div>
         <div class="field">
           <label>Template</label>
           <div class="tpl-grid" id="tplGrid">
-            <button type="button" class="tpl-card active" data-estilo="dark" data-visual="none">
+            <button type="button" class="tpl-card active" data-estilo="operacional_mix" data-visual="editorial">
+              <div class="tpl-thumb tpl-op-dark"><span class="tpl-h">Tese</span><span class="tpl-line"></span></div>
+              <div class="tpl-name">Operacional · Alternado</div>
+            </button>
+            <button type="button" class="tpl-card" data-estilo="operacional_light" data-visual="esquema">
+              <div class="tpl-thumb tpl-op-light"><span class="tpl-h">Método</span><span class="tpl-dot"></span></div>
+              <div class="tpl-name">Operacional · Light</div>
+            </button>
+            <button type="button" class="tpl-card" data-estilo="dark" data-visual="none">
               <div class="tpl-thumb tpl-dark-clean"><span class="tpl-h">Título</span></div>
               <div class="tpl-name">Dark · Limpo</div>
             </button>
@@ -259,7 +274,16 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
         <div class="field">
           <label>Estilo visual</label>
           <div class="estilo-row" id="estiloRow">
-            <button type="button" class="estilo-btn active" data-estilo="dark">
+            <button type="button" class="estilo-btn active" data-estilo="operacional_mix">
+              <span class="estilo-sw operacional-mix-sw"></span>Op. Mix
+            </button>
+            <button type="button" class="estilo-btn" data-estilo="operacional">
+              <span class="estilo-sw operacional-sw"></span>Op. Dark
+            </button>
+            <button type="button" class="estilo-btn" data-estilo="operacional_light">
+              <span class="estilo-sw operacional-light-sw"></span>Op. Light
+            </button>
+            <button type="button" class="estilo-btn" data-estilo="dark">
               <span class="estilo-sw dark-sw"></span>Dark
             </button>
             <button type="button" class="estilo-btn" data-estilo="light">
@@ -360,7 +384,10 @@ footer{border-top:1px solid var(--border);padding:20px 40px;text-align:center;fo
         <div style="flex:1;min-width:200px;">
           <label>Estilo de cor</label>
           <div class="estilo-row" id="editorEstiloRow">
-            <button type="button" class="estilo-btn active" data-estilo="dark"><span class="estilo-sw dark-sw"></span>Dark</button>
+            <button type="button" class="estilo-btn active" data-estilo="operacional_mix"><span class="estilo-sw operacional-mix-sw"></span>Op. Mix</button>
+            <button type="button" class="estilo-btn" data-estilo="operacional"><span class="estilo-sw operacional-sw"></span>Op. Dark</button>
+            <button type="button" class="estilo-btn" data-estilo="operacional_light"><span class="estilo-sw operacional-light-sw"></span>Op. Light</button>
+            <button type="button" class="estilo-btn" data-estilo="dark"><span class="estilo-sw dark-sw"></span>Dark</button>
             <button type="button" class="estilo-btn" data-estilo="light"><span class="estilo-sw light-sw"></span>Light</button>
             <button type="button" class="estilo-btn" data-estilo="ferrugem"><span class="estilo-sw ferrugem-sw"></span>Ferrugem</button>
           </div>
@@ -601,7 +628,7 @@ function completeSteps(prefix,count){
 // ─── ETAPA 1: GERAR COPY ─────────────────────────────────────────────────────
 
 // ── SELETOR DE ESTILO ──
-let selectedEstilo = 'dark';
+let selectedEstilo = 'operacional_mix';
 document.getElementById('estiloRow').addEventListener('click', e => {
   const btn = e.target.closest('.estilo-btn');
   if (!btn) return;

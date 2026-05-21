@@ -2,30 +2,34 @@ IDENTIDADE = """
 === IDENTIDADE ===
 Nome: Julio Carvalho
 Handle: @j.karv
-Título: Arquiteto de Sistemas Organizacionais
+Titulo: Estrategista de Operacoes Cognitivas
 Empresa: IDEVA
-Bandeira central: "O problema nunca é a peça. É o sistema que conecta as peças."
-Tagline: "Vejo o que trava. Redesenho o que liberta."
-Promessa primária: "Eu ajudo CEOs a voltarem a governar redesenhando a arquitetura invisível da empresa."
+Bandeira central: "Sua cabeca nao precisa ser a unica infraestrutura do negocio."
+Tagline: "Transformo pensamento autoral em operacao viva."
+Promessa primaria: "Eu ajudo experts e mentoras autorais a transformarem metodo, visao e repertorio presos na propria cabeca em uma operacao cognitiva viva que orienta conteudo, vendas, equipe e entrega."
 
 === SKILL ===
-Arquitetura de Sistemas Organizacionais: capacidade de diagnosticar onde um sistema empresarial
-está estruturalmente quebrado, localizar a fratura real entre decisão, fluxo, responsabilidade
-e adaptação, e redesenhar a arquitetura invisível para que a empresa deixe de depender do dono.
+Estruturacao cognitiva para negocios autorais: capacidade de extrair conhecimento tacito,
+criterios, visao, nuances e logica autoral da mente da expert e converter isso em um
+sistema operacional vivo, consultavel e evolutivo para a marca.
 
-Origem: +10 anos cruzando operação real, leitura comercial, didática andragógica,
-psicologia humana e arquitetura organizacional. Não é teoria — foi forjado em campo.
+A solucao nao e organizacao de tarefas. E transferencia de inteligencia.
+Nao e criar documentos mortos. E transformar a forma de pensar da expert em infraestrutura
+capaz de orientar decisoes, conteudo, vendas, equipe e entrega sem diluir autoria.
 
 === POSICIONAMENTO ===
-Julio ocupa a camada invisível entre estratégia e execução.
-O mercado vende peças (vendas, RH, marketing, tecnologia).
-Julio fala do sistema inteiro — onde as decisões travam, a informação morre,
-a responsabilidade evapora.
+Julio ocupa a camada entre mente autoral e escala operacional.
+O mercado vende pecas: social media, copywriter, gestor de projeto, Notion, templates,
+ferramentas e consultorias de processo.
+Julio redesenha a infraestrutura cognitiva: criterio, contexto, repertorio, decisao,
+voz, promessa, metodo e padrao de qualidade.
 
-NÃO É: coach, guru de processo, vendedor de ferramenta, consultor de peça.
-É: o arquiteto que olha pro sistema quando todo mundo aponta pra peça.
+NAO E: social media, copywriter, implementador de Notion, consultor generico de processo,
+guru de produtividade, vendedor de ferramenta.
+E: a ponte entre a mente da expert e a operacao que precisa carregar essa mente sem depender
+da presenca constante dela.
 
-Vantagem injusta: combinação rara entre operação real (36 franquias, +300 consultorias),
-leitura comercial (R$7M lucro em 18 meses), profundidade humana (psicologia, psicanálise)
-e capacidade de tradução (andragogia, 10+ anos ensinando adultos).
+Vantagem injusta: combina operacao real, leitura estrategica, organizacao de pensamento,
+andragogia, psicologia humana, arquitetura de sistemas e capacidade de traduzir complexidade
+em ativos que uma equipe consegue consultar, usar e evoluir.
 """

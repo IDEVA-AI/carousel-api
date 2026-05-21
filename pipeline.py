@@ -59,7 +59,7 @@ def etapa_tema() -> dict:
 
 # ─── ETAPA 3: GERAR COPY ────────────────────────────────────────────────────
 
-def etapa_copy(tema: str, pilar: str, num_slides: int = 7, estilo: str = "dark") -> dict:
+def etapa_copy(tema: str, pilar: str, num_slides: int = 7, estilo: str = "operacional_mix") -> dict:
     """Gera JSON do carrossel via Claude."""
     from generator import gerar_carrossel_completo
     carrossel = gerar_carrossel_completo(tema, num_slides, pilar, estilo=estilo)
@@ -93,7 +93,7 @@ def etapa_copy(tema: str, pilar: str, num_slides: int = 7, estilo: str = "dark")
 
 # ─── ETAPA 4: RENDERIZAR ────────────────────────────────────────────────────
 
-def etapa_render(carrossel: dict, estilo: str = "dark", visual: str = "editorial", align_h: str = "auto", align_v: str = "auto") -> tuple[list[bytes], list[str]]:
+def etapa_render(carrossel: dict, estilo: str = "operacional_mix", visual: str = "editorial", align_h: str = "auto", align_v: str = "auto") -> tuple[list[bytes], list[str]]:
     """Renderiza slides em PNGs. Retorna (pngs_bytes, previews_base64)."""
     from slide_builder import build_all_slides
     from renderer import renderizar_e_empacotar
@@ -202,16 +202,36 @@ def etapa_postar(pngs: list[bytes], caption: str, upload_base_url: str = "") -> 
     import io as _io
     def _para_jpeg(png: bytes) -> bytes:
         img = Image.open(_io.BytesIO(png)).convert("RGB")
+        # IG aceita no máximo 4:5 (1080x1350). Renderer entrega 1080x1440 (3:4).
+        # Redimensiona pra 1080x1350 mantendo Lanczos pra não distorcer texto.
+        if img.size == (1080, 1440):
+            img = img.resize((1080, 1350), Image.LANCZOS)
         buf = _io.BytesIO()
         img.save(buf, format="JPEG", quality=92)
         return buf.getvalue()
 
     image_urls = []
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    import requests as _req
     for i, png in enumerate(pngs):
         filename = f"post_{timestamp}_{i+1}.jpg"
-        (temp_dir / filename).write_bytes(_para_jpeg(png))
-        image_urls.append(f"{upload_base_url}/api/temp/{filename}")
+        jpg_bytes = _para_jpeg(png)
+        (temp_dir / filename).write_bytes(jpg_bytes)
+        # Cloudflare bloqueia meta-externalagent na origem — sobe pra tmpfiles.org (aceita Meta).
+        try:
+            r = _req.post("https://tmpfiles.org/api/v1/upload",
+                          files={"file": (filename, jpg_bytes, "image/jpeg")},
+                          timeout=60)
+            r.raise_for_status()
+            data = r.json()
+            view_url = data["data"]["url"]
+            # converter view URL → direct download URL (https://tmpfiles.org/12345/x.jpg → https://tmpfiles.org/dl/12345/x.jpg)
+            dl_url = view_url.replace("tmpfiles.org/", "tmpfiles.org/dl/", 1)
+            image_urls.append(dl_url)
+            print(f"[Pipeline] Slide {i+1} → {dl_url}")
+        except Exception as e:
+            print(f"[Pipeline] Falha tmpfiles slide {i+1}: {e}. Fallback URL local.")
+            image_urls.append(f"{upload_base_url}/api/temp/{filename}")
 
     print(f"[Pipeline] {len(image_urls)} imagens servidas pra upload")
 
@@ -295,7 +315,7 @@ TIPO_INSTRUCOES = {
 
 def executar_pipeline(
     num_slides: int = 7,
-    estilo: str = "dark",
+    estilo: str = "operacional_mix",
     visual: str = "editorial",
     tipo_conteudo: str = "auto",
 ) -> dict:

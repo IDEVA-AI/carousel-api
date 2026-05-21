@@ -1,40 +1,47 @@
 PILARES = """
-=== OS 5 PILARES DE CONTEÚDO ===
+=== OS 7 PILARES DE CONTEUDO ===
 
-01 — O Sistema Invisível
-A arquitetura que ninguém vê. Onde as decisões realmente travam.
-Onde a informação realmente morre. O que está por trás dos sintomas.
-Exemplos: "Por que delegar não funciona na sua empresa",
-          "O fluxo que mata sua operação sem você ver",
-          "Onde a decisão realmente trava"
+01 — Diagnostico Cognitivo
+Nomeia a fratura invisivel: a operacao depende da mente da expert porque sua logica
+nao foi externalizada.
+Exemplos: "Voce nao e centralizadora. Sua inteligencia ainda nao virou sistema",
+          "O problema nao e falta de equipe. E falta de contexto vivo",
+          "Sua cabeca virou o gargalo mais caro do negocio"
 
-02 — Arquitetura de Decisão
-Quem decide o quê. Até onde. O que acontece quando não decide.
-Como o CEO virou gargalo sem perceber. Como distribuir autoridade de verdade.
-Exemplos: "Você não é controlador. Seu sistema é mal desenhado",
-          "Como criar zonas de decisão que funcionam",
-          "O erro de delegar tarefa em vez de autoridade"
+02 — Operacao Cognitiva
+Mostra a solucao: transformar visao, metodo, criterio e repertorio em uma operacao viva,
+consultavel e evolutiva.
+Exemplos: "Sua operacao pode pensar junto com voce",
+          "O proximo nivel da sua autoridade e virar infraestrutura",
+          "Como tirar criterio da cabeca e colocar na rotina"
 
-03 — Diagnóstico Cirúrgico
-Como ler um sistema em minutos. As perguntas que desmontam narrativa.
-A diferença entre problema real e problema reportado.
-Ponto de alavancagem vs. reforma geral.
-Exemplos: "3 perguntas que revelam onde o sistema quebrou",
-          "Como separar sintoma de causa em 10 minutos",
-          "O que todo diagnóstico raso deixa passar"
+03 — Conteudo com Profundidade
+Usa a porta de entrada mais visivel: conteudo que perde alma quando sai da mao da expert.
+Exemplos: "Seu conteudo fica generico quando sai da sua mao?",
+          "Voce nao precisa de mais uma social media",
+          "Conteudo bom nasce da logica, nao da pauta"
 
-04 — Comportamento e Sistema
-Por que pessoas boas não salvam sistemas ruins.
-Como o sistema recompensa o comportamento errado.
-A psicanálise do negócio — o que está por trás das decisões do dono.
-Exemplos: "Seu melhor funcionário vai embora. Mas o problema continua",
-          "O que o sistema recompensa que você não percebe",
-          "Por que o dono é sempre o último a ver o problema"
+04 — Transferencia de Criterio
+Ensina que delegar tarefa sem transferir criterio gera retrabalho, revisao e dependencia.
+Exemplos: "Delegar sem criterio cria outro tipo de prisao",
+          "Sua equipe nao precisa copiar voce. Precisa acessar seus criterios",
+          "Briefing nao substitui raciocinio"
 
-05 — Narrativas que o Mercado Vende vs. A Verdade
-O confronto direto com o vilão. Desconstrução dos discursos de peça.
-O que os gurus não falam. A diferença entre solução real e solução que parece real.
-Exemplos: "Automatizar processo quebrado só escala o erro",
-          "O relatório de 80 páginas que não diz o que fazer",
-          "Por que o CRM não vai resolver seu problema de vendas"
+05 — Escala sem Diluir Autoria
+Trabalha o medo profundo: crescer e deixar a marca parecer de outra pessoa.
+Exemplos: "Escalar nao precisa custar a alma da sua marca",
+          "Sua mente nao precisa ser engessada para ser compartilhada",
+          "Multiplicar presenca sem perder identidade"
+
+06 — Metodo Vivo
+Mostra como metodo autoral, repertorio e experiencia podem virar sistema sem virar documento morto.
+Exemplos: "O Notion nao resolve uma mente nao traduzida",
+          "Seu metodo nao esta desorganizado. Ele esta vivo",
+          "Documento morto nao carrega nuance"
+
+07 — Oferta Consultiva
+Convite seguro e premium para diagnostico, consultoria ou implementacao personalizada.
+Exemplos: "Transforme sua cabeca no sistema operacional da marca",
+          "Mapeamos sua logica autoral e traduzimos em operacao",
+          "Uma estrutura para conteudo, vendas, equipe e entrega pensarem com voce"
 """

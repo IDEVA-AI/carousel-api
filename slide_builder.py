@@ -593,14 +593,112 @@ FERRUGEM = (
     '.destaque-block{border-left-color:var(--gold);color:var(--gold-light);}'
 )
 
+OPERACIONAL = (
+    ':root{'
+    '--ink:#1F252C;--paper:#EEF3F6;--gold:#C62127;--gold-light:#EEF3F6;'
+    '--dark2:#171C22;--dark3:#2A3139;--blood:#4D1E25;--rust:#7B171D;'
+    '--gold-dark:#7B171D;--warm-gray:#878C91;--muted:rgba(238,243,246,.48);'
+    '}'
+    'html,body,.s{background:#1F252C;}'
+    '.s{font-family:"Inter","IBM Plex Sans",sans-serif;}'
+    '.cover-h,h2,h3,.subtitle,.destaque-block,.quote-text,.quote-mark,.sig-name,.dado-numero,.versus-label,.diag-conclusao{'
+    'font-family:"Cormorant Garamond","Libre Baskerville",serif;}'
+    '.label,.slide-num,.sig-handle,.versus-tag,.diag-num,.quote-attr{'
+    'font-family:"Inter","IBM Plex Sans",sans-serif;font-weight:500;}'
+    '.cover-h{font-weight:400;letter-spacing:-.02em;line-height:.92;font-size:104px;}'
+    'h2{font-weight:400;letter-spacing:-.02em;line-height:.94;font-size:88px;}'
+    'h3{font-weight:400;letter-spacing:-.018em;line-height:1.02;font-size:70px;}'
+    '.body-l{font-family:"Inter","IBM Plex Sans",sans-serif;font-weight:400;letter-spacing:-.01em;line-height:1.45;color:rgba(238,243,246,.78);}'
+    '.label{font-size:22px;letter-spacing:.16em;color:#878C91;}'
+    '.slide-num{font-size:22px;letter-spacing:.12em;color:rgba(135,140,145,.72);}'
+    '.top-bar{height:3px;background:#C62127;}'
+    '.reveal-bar{height:3px;background:#C62127;}'
+    '.reveal-bar-full{height:1px;background:rgba(135,140,145,.28);}'
+    '.gold,.gold-lt{color:#C62127;}'
+    '.subtitle{font-size:44px;font-weight:400;color:rgba(238,243,246,.70);}'
+    '.destaque-block{font-size:46px;font-weight:400;color:#EEF3F6;border-left:3px solid #C62127;}'
+    '.sig-avatar{background:#C62127;color:#EEF3F6;font-family:"Cormorant Garamond","Libre Baskerville",serif;}'
+    '.sig-name{font-weight:500;color:#EEF3F6;}.sig-handle{color:#878C91;}'
+    '.progress-line-wrap{background:rgba(135,140,145,.18);}.progress-line-fill{background:#C62127;}'
+    '.dot{background:rgba(135,140,145,.34);}.dot.active{background:#C62127;}'
+    '.dado-numero{font-weight:400;color:#C62127;letter-spacing:-.04em;}'
+    '.quote-mark{color:rgba(198,33,39,.12);}.quote-text{font-weight:400;color:#EEF3F6;}'
+    '.quote-attr{color:#878C91;letter-spacing:.12em;}'
+    '.versus-col.nao{background:rgba(238,243,246,.025);border:1px solid rgba(135,140,145,.22);}'
+    '.versus-col.sim{background:rgba(77,30,37,.34);border:1px solid rgba(198,33,39,.38);}'
+    '.versus-col.nao .versus-tag{color:rgba(135,140,145,.72);}.versus-col.sim .versus-tag{color:#C62127;}'
+    '.versus-col.nao .versus-label{color:rgba(238,243,246,.42);text-decoration-color:rgba(135,140,145,.24);}'
+    '.diag-item{border-bottom-color:rgba(135,140,145,.24);}.diag-num{color:#C62127;}'
+    '.diag-text{font-family:"Inter","IBM Plex Sans",sans-serif;font-weight:400;color:rgba(238,243,246,.80);}'
+    '.diag-conclusao{font-weight:400;color:#EEF3F6;border-top-color:rgba(198,33,39,.50);}'
+    '.cta-divider{background:rgba(135,140,145,.28);}'
+    '.right-bar{width:2px;background:linear-gradient(to bottom,transparent 0%,rgba(198,33,39,.58) 18%,rgba(198,33,39,.58) 82%,transparent 100%);}'
+    '.swipe-cue-label{color:rgba(135,140,145,.62);}.swipe-cue-arrow{color:rgba(198,33,39,.74);}'
+    '.bg-grid{background-image:linear-gradient(rgba(135,140,145,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(135,140,145,.12) 1px,transparent 1px);background-size:96px 96px;}'
+    '.s::before{opacity:.06;mix-blend-mode:overlay;}.s::after{background:radial-gradient(ellipse at center,transparent 46%,rgba(10,12,15,.22) 100%);}'
+    '.bg-img{filter:saturate(.45) contrast(1.12) brightness(.82);}'
+    '.bg-img::after{background:linear-gradient(160deg,rgba(31,37,44,.80) 0%,rgba(31,37,44,.62) 45%,rgba(31,37,44,.84) 100%);}'
+    '.bg-img::before{background:linear-gradient(180deg,rgba(198,33,39,.07) 0%,rgba(77,30,37,.16) 100%);}'
+)
+
+OPERACIONAL_LIGHT = (
+    ':root{'
+    '--ink:#EEF3F6;--paper:#1F252C;--gold:#7B171D;--gold-light:#C62127;'
+    '--dark2:#E3E9ED;--dark3:#D6DEE4;--blood:#D8CBD0;--rust:#7B171D;'
+    '--gold-dark:#4D1E25;--warm-gray:#878C91;--muted:rgba(31,37,44,.50);'
+    '}'
+    'html,body,.s{background:#EEF3F6;}'
+    '.s{font-family:"Inter","IBM Plex Sans",sans-serif;}'
+    '.cover-h,h2,h3,.subtitle,.destaque-block,.quote-text,.quote-mark,.sig-name,.dado-numero,.versus-label,.diag-conclusao{'
+    'font-family:"Cormorant Garamond","Libre Baskerville",serif;}'
+    '.label,.slide-num,.sig-handle,.versus-tag,.diag-num,.quote-attr{'
+    'font-family:"Inter","IBM Plex Sans",sans-serif;font-weight:500;}'
+    '.cover-h{font-weight:400;letter-spacing:-.02em;line-height:.92;font-size:104px;}'
+    'h2{font-weight:400;letter-spacing:-.02em;line-height:.94;font-size:88px;}'
+    'h3{font-weight:400;letter-spacing:-.018em;line-height:1.02;font-size:70px;}'
+    '.body-l{font-family:"Inter","IBM Plex Sans",sans-serif;font-weight:400;letter-spacing:-.01em;line-height:1.45;color:rgba(31,37,44,.76);}'
+    '.label{font-size:22px;letter-spacing:.16em;color:#878C91;}'
+    '.slide-num{font-size:22px;letter-spacing:.12em;color:rgba(31,37,44,.42);}'
+    '.top-bar{height:3px;background:#C62127;}'
+    '.reveal-bar{height:3px;background:#C62127;}'
+    '.reveal-bar-full{height:1px;background:rgba(135,140,145,.28);}'
+    '.gold,.gold-lt{color:#7B171D;}'
+    '.subtitle{font-size:44px;font-weight:400;color:rgba(31,37,44,.68);}'
+    '.destaque-block{font-size:46px;font-weight:400;color:#1F252C;border-left:3px solid #C62127;}'
+    '.sig-avatar{background:#C62127;color:#EEF3F6;font-family:"Cormorant Garamond","Libre Baskerville",serif;}'
+    '.sig-name{font-weight:500;color:#1F252C;}.sig-handle{color:#878C91;}'
+    '.progress-line-wrap{background:rgba(31,37,44,.10);}.progress-line-fill{background:#C62127;}'
+    '.dot{background:rgba(31,37,44,.16);}.dot.active{background:#C62127;}'
+    '.dado-numero{font-weight:400;color:#7B171D;letter-spacing:-.04em;}'
+    '.quote-mark{color:rgba(198,33,39,.10);}.quote-text{color:#1F252C;font-weight:400;}'
+    '.quote-attr{color:#878C91;letter-spacing:.12em;}'
+    '.versus-col.nao{background:rgba(31,37,44,.035);border:1px solid rgba(31,37,44,.10);}'
+    '.versus-col.sim{background:rgba(123,23,29,.08);border:1px solid rgba(123,23,29,.26);}'
+    '.versus-col.nao .versus-tag{color:rgba(31,37,44,.42);}.versus-col.sim .versus-tag{color:#7B171D;}'
+    '.versus-col.nao .versus-label{color:rgba(31,37,44,.36);text-decoration-color:rgba(31,37,44,.14);}'
+    '.diag-item{border-bottom-color:rgba(135,140,145,.30);}.diag-num{color:#C62127;}'
+    '.diag-text{font-family:"Inter","IBM Plex Sans",sans-serif;font-weight:400;color:rgba(31,37,44,.80);}'
+    '.diag-conclusao{font-weight:400;color:#1F252C;border-top-color:rgba(198,33,39,.45);}'
+    '.cta-divider{background:rgba(135,140,145,.28);}'
+    '.right-bar{width:2px;background:linear-gradient(to bottom,transparent 0%,rgba(198,33,39,.50) 18%,rgba(198,33,39,.50) 82%,transparent 100%);}'
+    '.swipe-cue-label{color:rgba(135,140,145,.72);}.swipe-cue-arrow{color:rgba(198,33,39,.70);}'
+    '.bg-grid{background-image:linear-gradient(rgba(135,140,145,.18) 1px,transparent 1px),linear-gradient(90deg,rgba(135,140,145,.18) 1px,transparent 1px);background-size:96px 96px;}'
+    '.s::before{opacity:.04;mix-blend-mode:multiply;}.s::after{background:radial-gradient(ellipse at center,transparent 46%,rgba(31,37,44,.08) 100%);}'
+    '.bg-img{filter:saturate(.35) contrast(.98) brightness(1.18);}'
+    '.bg-img::after{background:linear-gradient(160deg,rgba(238,243,246,.86) 0%,rgba(238,243,246,.76) 45%,rgba(238,243,246,.88) 100%);}'
+    '.bg-img::before{background:linear-gradient(180deg,rgba(198,33,39,.04) 0%,rgba(77,30,37,.08) 100%);}'
+)
+
 THEME_CSS = {
-    "dark":     "",
-    "light":    LIGHT,
-    "ferrugem": FERRUGEM,
+    "dark":              "",
+    "light":             LIGHT,
+    "ferrugem":          FERRUGEM,
+    "operacional":       OPERACIONAL,
+    "operacional_light": OPERACIONAL_LIGHT,
 }
 
 # ─── HELPERS ──────────────────────────────────────────────────────────────────
-_FONT_LINK = '<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">'
+_FONT_LINK = '<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">'
 
 def _html(body: str, theme: str = 'dark', visuals_html: str = '') -> str:
     theme_override = THEME_CSS.get(theme, '')
@@ -660,6 +758,10 @@ def _dark_bg(imagem_url: str | None, theme: str = 'dark') -> str:
         return '<div style="position:absolute;inset:0;z-index:0;background:linear-gradient(160deg,#ece8de 0%,#e4e0d5 60%,#dad6cc 100%);"><div style="position:absolute;inset:0;background-image:linear-gradient(rgba(122,78,24,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(122,78,24,.03) 1px,transparent 1px);background-size:60px 60px;"></div></div>'
     if theme == 'ferrugem':
         return '<div style="position:absolute;inset:0;z-index:0;background:var(--blood);"><div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 20%,rgba(200,104,58,.20) 0%,transparent 50%),linear-gradient(160deg,#3d1208 0%,#2a0a04 50%,#1a0804 100%);"></div><div style="position:absolute;inset:0;background-image:linear-gradient(rgba(200,104,58,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(200,104,58,.05) 1px,transparent 1px);background-size:60px 60px;"></div></div>'
+    if theme == 'operacional_light':
+        return '<div style="position:absolute;inset:0;z-index:0;background:#EEF3F6;"><div style="position:absolute;inset:0;background:linear-gradient(160deg,#EEF3F6 0%,#E4EAEE 60%,#D8E0E6 100%);"></div><div style="position:absolute;inset:0;background-image:linear-gradient(rgba(135,140,145,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(135,140,145,.16) 1px,transparent 1px);background-size:96px 96px;"></div></div>'
+    if theme == 'operacional':
+        return '<div style="position:absolute;inset:0;z-index:0;background:#1F252C;"><div style="position:absolute;inset:0;background:radial-gradient(ellipse at 78% 18%,rgba(77,30,37,.38) 0%,transparent 48%),linear-gradient(160deg,#26303A 0%,#1F252C 45%,#14191F 100%);"></div><div style="position:absolute;inset:0;background-image:linear-gradient(rgba(135,140,145,.10) 1px,transparent 1px),linear-gradient(90deg,rgba(135,140,145,.10) 1px,transparent 1px);background-size:96px 96px;"></div></div>'
     return '<div style="position:absolute;inset:0;z-index:0;background:var(--ink);"><div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 20%,rgba(184,135,58,.08) 0%,transparent 50%),radial-gradient(ellipse at 20% 80%,rgba(184,135,58,.04) 0%,transparent 50%),linear-gradient(160deg,#1a1714 0%,#0e0c0a 50%,#0e0c0a 100%);"></div><div style="position:absolute;inset:0;background-image:linear-gradient(rgba(184,135,58,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(184,135,58,.03) 1px,transparent 1px);background-size:80px 80px;"></div></div>'
 
 
@@ -1353,6 +1455,16 @@ def _tricolor_theme(tipo: str, index: int) -> str:
     cycle = ["dark", "ferrugem", "light"]
     return cycle[index % 3]
 
+def _operacional_mix_theme(tipo: str, index: int) -> str:
+    """Ritmo do novo stylespec: manifesto dark, analitico light, final dark."""
+    if tipo in ("cover", "cover_foto", "cta"):
+        return "operacional"
+    if tipo in ("dado", "dado_visual", "diagnostico", "diagnostico_visual", "versus", "versus_visual"):
+        return "operacional_light"
+    if tipo == "quote":
+        return "operacional"
+    return "operacional_light" if index % 2 == 0 else "operacional"
+
 
 def _get_visuals(tipo: str, index: int, total: int, theme: str, visual: str, slide_data: dict | None = None, continuity_in: str = "", continuity_out: str = "") -> str:
     """Retorna HTML dos visuais SVG para um slide, ou vazio."""
@@ -1426,7 +1538,9 @@ def build_all_slides(carrossel: dict, avatar_url: str | None = None, theme: str 
         from visuals import CONTINUITY_SEQUENCE
         for i in range(total - 1):
             fn = CONTINUITY_SEQUENCE[i % len(CONTINUITY_SEQUENCE)]
-            if theme == "misto":
+            if theme == "operacional_mix":
+                slide_theme = _operacional_mix_theme(slides_data[i].get("tipo", "corpo"), i)
+            elif theme == "misto":
                 slide_theme = _misto_theme(slides_data[i].get("tipo", "corpo"), i)
             elif theme == "tricolor":
                 slide_theme = _tricolor_theme(slides_data[i].get("tipo", "corpo"), i)
@@ -1436,7 +1550,9 @@ def build_all_slides(carrossel: dict, avatar_url: str | None = None, theme: str 
 
     result = []
     for i, s in enumerate(slides_data):
-        if theme == "misto":
+        if theme == "operacional_mix":
+            slide_theme = _operacional_mix_theme(s.get("tipo", "corpo"), i)
+        elif theme == "misto":
             slide_theme = _misto_theme(s.get("tipo", "corpo"), i)
         elif theme == "tricolor":
             slide_theme = _tricolor_theme(s.get("tipo", "corpo"), i)

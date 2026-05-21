@@ -1,42 +1,46 @@
 METODO = """
-=== MÉTODO ARQUITETO ===
-O sistema que leva CEOs de empresas que dependem demais deles a voltarem a governar,
-localizando a fratura invisível e redesenhando decisão, fluxo e responsabilidade sem reforma geral.
+=== METODO — OPERACAO COGNITIVA VIVA ===
+Sistema para transformar a inteligencia autoral da expert em infraestrutura operacional.
+O metodo extrai criterio, organiza pensamento, estrutura conhecimento e implementa ativos
+que orientam conteudo, vendas, equipe e entrega com fidelidade a essencia da marca.
 
-Filosofia: empresa nenhuma colapsa primeiro na peça; colapsa na arquitetura que organiza as peças.
-O método existe pra resolver o que outros não resolvem: a contradição entre crescimento aparente e governo real.
+Filosofia:
+Negocios autorais nao quebram apenas por falta de processo.
+Eles travam quando a inteligencia que sustenta a autoridade continua presa na cabeca da pessoa.
 
-OS 5 PILARES DO MÉTODO:
+OS 5 MOVIMENTOS DO METODO:
 
-1. MAPA REAL — Ver o sistema como ele realmente opera
-   Arrancar o cliente da ilusão documental. Suspender o diagnóstico aparente.
-   Separar sintoma de mecanismo. Mostrar onde a decisão trava, onde a informação morre,
-   onde a responsabilidade evapora. Entrega: leitura clara do sistema real.
+1. DIAGNOSTICO COGNITIVO — localizar onde a mente virou gargalo
+   Mapear onde a operacao depende da expert: conteudo, vendas, entrega, equipe, decisao,
+   promessa, metodo, padrao de qualidade e leitura de contexto.
+   Entrega: clareza do que esta preso na cabeca e onde isso gera retrabalho.
 
-2. NÓ CRÍTICO — Localizar a fratura central e o ponto de alavancagem
-   Impedir a ansiedade de mexer em tudo. Escolher a fratura com maior poder de deslocamento.
-   Menor ação no nível mais alto possível = maior resultado.
-   "Mexer em processo sem mexer em decisão faz tudo voltar em 30 dias."
+2. EXTRACAO DA LOGICA AUTORAL — capturar criterio, visao e repertorio
+   Extrair a forma como a expert pensa: como decide, prioriza, interpreta, ensina,
+   vende, responde objeções, avalia qualidade e protege a essencia da marca.
+   Entrega: mapa da inteligencia autoral.
 
-3. ZONA DE AUTORIDADE — Redistribuir decisão e responsabilidade real
-   Quem decide o quê, até onde, com quais consequências.
-   Interromper o reflexo de "em caso de ambiguidade, sobe pro dono".
-   Desacoplar o CEO do centro nervoso da operação.
+3. ARQUITETURA DO CONHECIMENTO — transformar dispersao em sistema consultavel
+   Organizar audios, calls, aulas, documentos, ideias, frameworks, cases e opinioes
+   em uma estrutura viva que a equipe consegue acessar e usar.
+   Entrega: base cognitiva com linguagem, criterios, mapas e referencias.
 
-4. FLUXO MESTRE — Redesenhar handoffs, promessa e passagem entre áreas
-   Remover atrito, retrabalho, ruído. Fazer o sistema respirar sem heróis.
-   Não é BPM por esporte. É fluxo projetado pra reduzir dependência de herói.
+4. ATIVOS OPERACIONAIS — converter pensamento em ferramentas de execucao
+   Criar playbooks vivos, guias de voz, matrizes de decisao, criterios de conteudo,
+   promessas, argumentos, processos de revisao e estruturas de entrega.
+   Entrega: ativos que reduzem repeticao e preservam profundidade.
 
-5. GUARDA DE SISTEMA — Impedir regressão e sustentar o novo desenho
-   Ritos mínimos de governo, indicadores de fluxo, dispositivos anti-regressão.
-   Transforma intervenção em novo padrão. Sem isso, toda mudança morre em semanas.
+5. IMPLEMENTACAO ASSISTIDA — fazer a operacao usar e evoluir o sistema
+   Inserir a estrutura na rotina real: conteudo, vendas, equipe, entrega e ritos de ajuste.
+   O sistema nao e entregue como arquivo morto. Ele aprende, recebe correcao e evolui.
+   Entrega: equipe mais autonoma, conteudo mais fiel, menos retrabalho e mais consistencia.
 
-PREMISSAS INEGOCIÁVEIS:
-- Sintoma nunca é diagnóstico
-- Intervenção começa pelo nível mais alto possível, não pelo mais visível
-- Nenhuma solução de peça entra antes da arquitetura
-- Decisão vem antes de fluxo
-- Intervenção mínima eficaz vence reforma geral
-- Mudança que cria dependência do consultor falhou
-- Governança não pode matar adaptabilidade
+PREMISSAS INEGOCIAVEIS:
+- Organizacao de informacao nao e estruturacao de pensamento
+- Delegar tarefa sem transferir criterio cria dependencia
+- Documento morto nao carrega nuance
+- Sistema vivo preserva autoria; sistema generico dilui
+- A equipe nao precisa copiar a expert; precisa acessar seus criterios
+- A escala so ameaca a essencia quando a essencia nao foi traduzida
+- O objetivo nao e tirar a expert da marca; e tirar a marca da dependencia diaria da agenda dela
 """

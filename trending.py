@@ -12,11 +12,13 @@ CLAUDE_BRIDGE_URL = os.environ.get("CLAUDE_BRIDGE_URL", "")
 
 # ─── PILARES VÁLIDOS ─────────────────────────────────────────────────────────
 PILARES_VALIDOS = [
-    "O Sistema Invisível",
-    "Arquitetura de Decisão",
-    "Diagnóstico Cirúrgico",
-    "Comportamento e Sistema",
-    "Narrativas vs. Realidade",
+    "Diagnostico Cognitivo",
+    "Operacao Cognitiva",
+    "Conteudo com Profundidade",
+    "Transferencia de Criterio",
+    "Escala sem Diluir Autoria",
+    "Metodo Vivo",
+    "Oferta Consultiva",
 ]
 
 # ─── HISTÓRICO DE TEMAS JÁ USADOS ───────────────────────────────────────────
@@ -82,7 +84,7 @@ def _tema_ja_usado(tema: str, usados: list[str]) -> bool:
 
 
 def _validar_pilar(pilar: str) -> str:
-    """Valida e corrige o pilar — se não é dos 5, escolhe o mais próximo."""
+    """Valida e corrige o pilar — se nao e dos 7, escolhe o mais proximo."""
     if pilar in PILARES_VALIDOS:
         return pilar
     # Tentar match parcial
@@ -93,11 +95,13 @@ def _validar_pilar(pilar: str) -> str:
             return p
     # Match por palavras-chave
     keywords_map = {
-        "O Sistema Invisível": ["sistema", "invisível", "fluxo", "trava"],
-        "Arquitetura de Decisão": ["decisão", "autoridade", "gargalo", "delegar"],
-        "Diagnóstico Cirúrgico": ["diagnóstico", "causa", "sintoma", "problema"],
-        "Comportamento e Sistema": ["comportamento", "pessoa", "gente", "cultura"],
-        "Narrativas vs. Realidade": ["narrativa", "mito", "mercado", "verdade", "mentira"],
+        "Diagnostico Cognitivo": ["diagnostico", "sintoma", "problema", "cabeca", "gargalo"],
+        "Operacao Cognitiva": ["operacao", "sistema", "vivo", "infraestrutura", "contexto"],
+        "Conteudo com Profundidade": ["conteudo", "post", "social", "pauta", "profundidade"],
+        "Transferencia de Criterio": ["criterio", "delegar", "equipe", "briefing", "decisao"],
+        "Escala sem Diluir Autoria": ["escala", "autoria", "essencia", "marca", "identidade"],
+        "Metodo Vivo": ["metodo", "notion", "documento", "conhecimento", "repertorio"],
+        "Oferta Consultiva": ["oferta", "diagnostico", "consultoria", "venda", "convite"],
     }
     best_match = PILARES_VALIDOS[0]
     best_score = 0
@@ -109,33 +113,36 @@ def _validar_pilar(pilar: str) -> str:
     print(f"[Trending] Pilar corrigido: '{pilar}' → '{best_match}'")
     return best_match
 
-# ─── TEMAS FALLBACK (rotação pelos 5 pilares) ────────────────────────────────
+# ─── TEMAS FALLBACK (rotacao pelos 7 pilares) ────────────────────────────────
 TEMAS_FALLBACK = [
-    # Pilar 1: O Sistema Invisível
-    "Por que sua empresa para quando você sai de férias",
-    "O fluxo invisível que mata sua operação sem você perceber",
-    "Sua empresa funciona ou depende de você?",
-    "O que acontece quando o dono some por uma semana",
-    # Pilar 2: Arquitetura de Decisão
-    "Você não delega mal — seu sistema não tem zonas de decisão",
-    "Por que toda decisão ainda chega até você",
-    "Como o CEO virou gargalo sem perceber",
-    "Delegar tarefa vs delegar autoridade — a diferença que trava tudo",
-    # Pilar 3: Diagnóstico Cirúrgico
-    "3 perguntas que revelam onde o sistema quebrou",
-    "Como separar sintoma de causa em 10 minutos",
-    "O que todo diagnóstico raso deixa passar",
-    "Seu problema não é o que você acha que é",
-    # Pilar 4: Comportamento e Sistema
-    "Por que pessoas boas não salvam sistemas ruins",
-    "Seu melhor funcionário vai embora mas o problema continua",
-    "O que o sistema recompensa que você não percebe",
-    "A empresa é o espelho do dono — gostando ou não",
-    # Pilar 5: Narrativas vs. Realidade
-    "Automatizar processo quebrado só escala o erro",
-    "O CRM não vai resolver seu problema de vendas",
-    "A mentira do crescimento a qualquer custo",
-    "Por que mais processo não significa mais resultado",
+    # Pilar 1: Diagnostico Cognitivo
+    "Sua cabeca virou o gargalo mais caro do negocio",
+    "Voce nao e centralizadora, sua inteligencia ainda nao virou sistema",
+    "O problema nao e falta de equipe, e falta de contexto vivo",
+    # Pilar 2: Operacao Cognitiva
+    "Sua operacao pode pensar junto com voce",
+    "O proximo nivel da sua autoridade e virar infraestrutura",
+    "Como tirar criterio da cabeca e colocar na rotina",
+    # Pilar 3: Conteudo com Profundidade
+    "Seu conteudo fica generico quando sai da sua mao?",
+    "Voce nao precisa de mais uma social media",
+    "Conteudo bom nasce da logica, nao da pauta",
+    # Pilar 4: Transferencia de Criterio
+    "Delegar sem criterio cria outro tipo de prisao",
+    "Sua equipe nao precisa copiar voce, precisa acessar seus criterios",
+    "Briefing nao substitui raciocinio",
+    # Pilar 5: Escala sem Diluir Autoria
+    "Escalar nao precisa custar a alma da sua marca",
+    "Sua mente nao precisa ser engessada para ser compartilhada",
+    "Multiplicar presenca sem perder identidade",
+    # Pilar 6: Metodo Vivo
+    "O Notion nao resolve uma mente nao traduzida",
+    "Seu metodo nao esta desorganizado, ele esta vivo",
+    "Documento morto nao carrega nuance",
+    # Pilar 7: Oferta Consultiva
+    "Transforme sua cabeca no sistema operacional da marca",
+    "Mapeamos sua logica autoral e traduzimos em operacao",
+    "Uma estrutura para conteudo, vendas, equipe e entrega pensarem com voce",
 ]
 
 _fallback_index = 0
@@ -176,24 +183,26 @@ TRENDING TOPICS DO MOMENTO (Brasil):
 TEMAS JÁ USADOS RECENTEMENTE (NÃO REPITA nenhum desses, nem parecidos):
 {usados_str}
 
-PILARES VÁLIDOS (use EXATAMENTE um desses nomes):
-- O Sistema Invisível
-- Arquitetura de Decisão
-- Diagnóstico Cirúrgico
-- Comportamento e Sistema
-- Narrativas vs. Realidade
+PILARES VALIDOS (use EXATAMENTE um desses nomes):
+- Diagnostico Cognitivo
+- Operacao Cognitiva
+- Conteudo com Profundidade
+- Transferencia de Criterio
+- Escala sem Diluir Autoria
+- Metodo Vivo
+- Oferta Consultiva
 
 TAREFA:
-1. Escolha o trending topic com MAIOR potencial de engajamento para CEOs/founders
-2. ADAPTE o tema pro universo de negócios/sistemas/gestão do Julio
+1. Escolha o trending topic com MAIOR potencial de engajamento para experts e mentoras autorais
+2. ADAPTE o tema pro universo de operacao cognitiva, conteudo, vendas, equipe, entrega e escala sem diluir essencia
 3. O tema DEVE ser DIFERENTE de todos os já usados acima
-4. Use EXATAMENTE um dos 5 pilares listados
+4. Use EXATAMENTE um dos 7 pilares listados
 
 Retorne APENAS este JSON:
 {{
   "trending_original": "o topic original escolhido",
   "tema_adaptado": "o tema adaptado pro Julio (frase direta, provocativa, DIFERENTE dos já usados)",
-  "pilar": "EXATAMENTE um dos 5 pilares acima",
+  "pilar": "EXATAMENTE um dos 7 pilares acima",
   "justificativa": "por que esse tema vai engajar (1 frase)"
 }}"""
 
@@ -224,14 +233,8 @@ def tema_fallback() -> dict:
     _fallback_index += 1
 
     # Determinar pilar pelo índice
-    pilares = [
-        "O Sistema Invisível",
-        "Arquitetura de Decisão",
-        "Diagnóstico Cirúrgico",
-        "Comportamento e Sistema",
-        "Narrativas vs. Realidade",
-    ]
-    pilar = pilares[(_fallback_index - 1) // 4 % 5]
+    pilares = PILARES_VALIDOS
+    pilar = pilares[(_fallback_index - 1) // 3 % len(pilares)]
 
     return {
         "trending_original": None,

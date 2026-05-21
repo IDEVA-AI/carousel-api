@@ -41,9 +41,29 @@ COLORS = {
         "dot_accent": "rgba(200,104,58,0.50)",
         "text": "rgba(245,232,213,0.10)",
     },
+    "operacional": {
+        "stroke": "rgba(135,140,145,0.20)",
+        "stroke_accent": "rgba(198,33,39,0.42)",
+        "fill": "rgba(238,243,246,0.035)",
+        "fill_accent": "rgba(77,30,37,0.30)",
+        "dot": "rgba(238,243,246,0.08)",
+        "dot_accent": "rgba(198,33,39,0.62)",
+        "text": "rgba(238,243,246,0.10)",
+    },
+    "operacional_light": {
+        "stroke": "rgba(135,140,145,0.28)",
+        "stroke_accent": "rgba(123,23,29,0.38)",
+        "fill": "rgba(31,37,44,0.035)",
+        "fill_accent": "rgba(123,23,29,0.08)",
+        "dot": "rgba(31,37,44,0.08)",
+        "dot_accent": "rgba(198,33,39,0.55)",
+        "text": "rgba(31,37,44,0.08)",
+    },
 }
 
 def _c(theme: str) -> dict:
+    if theme == "operacional_mix":
+        return COLORS["operacional"]
     return COLORS.get(theme, COLORS["dark"])
 
 

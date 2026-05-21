@@ -7,7 +7,7 @@ from datetime import datetime
 
 # ─── CSS BASE COMPARTILHADO ──────────────────────────────────────────────────
 
-_FONT_LINK = '<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">'
+_FONT_LINK = '<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">'
 
 THEMES = {
     "dark": {
@@ -25,11 +25,36 @@ THEMES = {
         "muted": "rgba(245,232,213,0.4)", "border": "rgba(245,232,213,0.08)",
         "card_bg": "#280e06", "subtle": "rgba(245,232,213,0.06)",
     },
+    "operacional": {
+        "bg": "#1F252C", "text": "#EEF3F6", "gold": "#C62127",
+        "muted": "rgba(238,243,246,0.48)", "border": "rgba(135,140,145,0.28)",
+        "card_bg": "#171C22", "subtle": "rgba(238,243,246,0.045)",
+        "headline": "'Cormorant Garamond','Libre Baskerville',serif",
+        "body": "'Inter','IBM Plex Sans',sans-serif",
+        "mono": "'Inter','IBM Plex Sans',sans-serif",
+    },
+    "operacional_light": {
+        "bg": "#EEF3F6", "text": "#1F252C", "gold": "#7B171D",
+        "muted": "rgba(31,37,44,0.50)", "border": "rgba(31,37,44,0.14)",
+        "card_bg": "#E3E9ED", "subtle": "rgba(31,37,44,0.04)",
+        "headline": "'Cormorant Garamond','Libre Baskerville',serif",
+        "body": "'Inter','IBM Plex Sans',sans-serif",
+        "mono": "'Inter','IBM Plex Sans',sans-serif",
+    },
 }
 
 
 def _t(theme: str) -> dict:
+    if theme == "operacional_mix":
+        return THEMES["operacional"]
     return THEMES.get(theme, THEMES["dark"])
+
+def _fonts(t: dict) -> tuple[str, str, str]:
+    return (
+        t.get("headline", "'Fraunces',serif"),
+        t.get("body", "'DM Sans',sans-serif"),
+        t.get("mono", "'DM Mono',monospace"),
+    )
 
 
 # ─── FORMATO: TWEET / QUOTE (1080×1080) ─────────────────────────────────────
@@ -40,6 +65,7 @@ def build_tweet(data: dict, theme: str = "dark", avatar_url: str | None = None) 
     data: { quote, author, handle, timestamp }
     """
     t = _t(theme)
+    headline_font, body_font, mono_font = _fonts(t)
     quote = data.get("quote", "")
     author = data.get("author", "Julio Carvalho")
     handle = data.get("handle", "@j.karv")
@@ -68,20 +94,20 @@ body::after{{content:'';position:absolute;inset:0;z-index:9;pointer-events:none;
 .header{{display:flex;align-items:center;gap:20px;margin-bottom:auto;}}
 .avatar{{width:64px;height:64px;border-radius:50%;background:{t['gold']};
   display:flex;align-items:center;justify-content:center;overflow:hidden;
-  font-family:'Fraunces',serif;font-size:26px;font-weight:900;color:{t['bg']};flex-shrink:0;}}
-.name{{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:{t['text']};}}
-.handle{{font-family:'DM Mono',monospace;font-size:18px;color:{t['gold']};letter-spacing:0.03em;margin-top:2px;}}
+  font-family:{headline_font};font-size:26px;font-weight:500;color:{t['bg']};flex-shrink:0;}}
+.name{{font-family:{headline_font};font-size:24px;font-weight:500;color:{t['text']};}}
+.handle{{font-family:{mono_font};font-size:18px;color:{t['gold']};letter-spacing:0.03em;margin-top:2px;}}
 .quote{{
-  font-family:'Fraunces',serif;font-size:72px;font-weight:700;
+  font-family:{headline_font};font-size:72px;font-weight:400;
   line-height:1.12;letter-spacing:-0.03em;color:{t['text']};
   margin:auto 0;max-width:900px;
 }}
 .footer{{display:flex;align-items:center;justify-content:space-between;margin-top:auto;}}
-.timestamp{{font-family:'DM Mono',monospace;font-size:18px;color:{t['muted']};letter-spacing:0.05em;}}
+.timestamp{{font-family:{mono_font};font-size:18px;color:{t['muted']};letter-spacing:0.05em;}}
 .bar{{width:64px;height:4px;background:{t['gold']};}}
 .engagement{{display:flex;gap:40px;}}
-.eng-item{{font-family:'DM Mono',monospace;font-size:16px;color:{t['muted']};}}
-.eng-num{{font-family:'Fraunces',serif;font-size:22px;font-weight:900;color:{t['text']};margin-right:6px;}}
+.eng-item{{font-family:{mono_font};font-size:16px;color:{t['muted']};}}
+.eng-num{{font-family:{headline_font};font-size:22px;font-weight:500;color:{t['text']};margin-right:6px;}}
 </style></head><body>
 <div class="post">
   <div class="header">
@@ -108,6 +134,7 @@ def build_feed_single(data: dict, theme: str = "dark", avatar_url: str | None = 
     data: { eyebrow, headline, body, author }
     """
     t = _t(theme)
+    headline_font, body_font, mono_font = _fonts(t)
     eyebrow = data.get("eyebrow", "")
     headline = data.get("headline", "")
     body = data.get("body", "")
@@ -127,19 +154,19 @@ body::after{{content:'';position:absolute;inset:0;z-index:9;pointer-events:none;
   background:radial-gradient(ellipse at center,transparent 40%,{t['bg']}80 100%);}}
 .post{{width:1080px;height:1440px;display:flex;flex-direction:column;justify-content:center;
   padding:100px 96px;position:relative;z-index:2;}}
-.eyebrow{{font-family:'DM Mono',monospace;font-size:20px;letter-spacing:0.25em;
+.eyebrow{{font-family:{mono_font};font-size:20px;letter-spacing:0.16em;
   text-transform:uppercase;color:{t['gold']};margin-bottom:40px;}}
-.headline{{font-family:'Fraunces',serif;font-size:84px;font-weight:900;
-  line-height:0.95;letter-spacing:-0.04em;color:{t['text']};max-width:900px;margin-bottom:48px;}}
+.headline{{font-family:{headline_font};font-size:84px;font-weight:400;
+  line-height:0.94;letter-spacing:-0.02em;color:{t['text']};max-width:900px;margin-bottom:48px;}}
 .bar{{width:64px;height:4px;background:{t['gold']};margin-bottom:40px;}}
-.body{{font-family:'DM Sans',sans-serif;font-size:40px;font-weight:300;
-  line-height:1.5;color:{t['muted']};max-width:850px;}}
+.body{{font-family:{body_font};font-size:40px;font-weight:400;
+  line-height:1.45;color:{t['muted']};max-width:850px;}}
 .sig{{display:flex;align-items:center;gap:18px;margin-top:auto;padding-top:48px;}}
 .sig-avatar{{width:56px;height:56px;border-radius:50%;background:{t['gold']};
   display:flex;align-items:center;justify-content:center;overflow:hidden;
-  font-family:'Fraunces',serif;font-size:22px;font-weight:900;color:{t['bg']};flex-shrink:0;}}
-.sig-name{{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:{t['text']};}}
-.sig-handle{{font-family:'DM Mono',monospace;font-size:16px;color:{t['gold']};margin-top:2px;}}
+  font-family:{headline_font};font-size:22px;font-weight:500;color:{t['bg']};flex-shrink:0;}}
+.sig-name{{font-family:{headline_font};font-size:22px;font-weight:500;color:{t['text']};}}
+.sig-handle{{font-family:{mono_font};font-size:16px;color:{t['gold']};margin-top:2px;}}
 </style></head><body>
 <div class="post">
   {'<div class="eyebrow">' + eyebrow + '</div>' if eyebrow else ''}
@@ -162,6 +189,7 @@ def build_story(data: dict, theme: str = "dark", avatar_url: str | None = None) 
     data: { headline, cta, body }
     """
     t = _t(theme)
+    headline_font, body_font, mono_font = _fonts(t)
     headline = data.get("headline", "")
     cta = data.get("cta", "")
     body = data.get("body", "")
@@ -177,18 +205,18 @@ body::after{{content:'';position:absolute;inset:0;z-index:9;pointer-events:none;
   background:radial-gradient(ellipse at center,transparent 30%,{t['bg']}90 100%);}}
 .post{{width:1080px;height:1920px;display:flex;flex-direction:column;justify-content:center;
   align-items:center;text-align:center;padding:120px 80px;position:relative;z-index:2;}}
-.headline{{font-family:'Fraunces',serif;font-size:80px;font-weight:900;
-  line-height:1.0;letter-spacing:-0.03em;color:{t['text']};max-width:900px;}}
+.headline{{font-family:{headline_font};font-size:80px;font-weight:400;
+  line-height:0.98;letter-spacing:-0.02em;color:{t['text']};max-width:900px;}}
 .bar{{width:80px;height:4px;background:{t['gold']};margin:48px auto;}}
-.body{{font-family:'DM Sans',sans-serif;font-size:36px;font-weight:300;
-  line-height:1.5;color:{t['muted']};max-width:800px;margin-bottom:60px;}}
+.body{{font-family:{body_font};font-size:36px;font-weight:400;
+  line-height:1.45;color:{t['muted']};max-width:800px;margin-bottom:60px;}}
 .cta{{
   display:inline-flex;align-items:center;gap:12px;padding:24px 48px;
   border:2px solid {t['gold']};border-radius:48px;
-  font-family:'DM Mono',monospace;font-size:24px;letter-spacing:0.08em;
+  font-family:{mono_font};font-size:24px;letter-spacing:0.08em;
   text-transform:uppercase;color:{t['gold']};margin-top:auto;
 }}
-.swipe{{font-family:'DM Mono',monospace;font-size:16px;color:{t['muted']};
+.swipe{{font-family:{mono_font};font-size:16px;color:{t['muted']};
   letter-spacing:0.2em;text-transform:uppercase;margin-top:48px;}}
 </style></head><body>
 <div class="post">

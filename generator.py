@@ -36,14 +36,14 @@ CLAUDE_BIN = _find_claude_bin()
 CAROUSEL_SCHEMA = """Retorne um JSON com exatamente este formato:
 {
   "titulo": "título interno do carrossel (para referência)",
-  "pilar": "OBRIGATÓRIO: um dos 5 pilares EXATOS: 'O Sistema Invisível' | 'Arquitetura de Decisão' | 'Diagnóstico Cirúrgico' | 'Comportamento e Sistema' | 'Narrativas vs. Realidade'",
-  "unsplash_query": "QUERY EM INGLÊS (4-6 palavras) para foto que PARE O SCROLL e conecte DIRETAMENTE com o tema. Deve evocar a cena/emoção/objeto central do carrossel — não pode ser genérica/abstrata. Pode ser: pessoa em situação específica ('frustrated ceo looking at laptop', 'tired founder head in hands'), objeto simbólico do tema ('empty office chair night', 'broken machine cogs rusty'), ou cena narrativa ('dark boardroom empty seats', 'factory floor after hours'). SEMPRE cinematográfico, específico ao tema. PROIBIDO queries vagas como 'minimal abstract' ou 'technology blueprint'.",
+  "pilar": "OBRIGATORIO: um dos 7 pilares EXATOS: 'Diagnostico Cognitivo' | 'Operacao Cognitiva' | 'Conteudo com Profundidade' | 'Transferencia de Criterio' | 'Escala sem Diluir Autoria' | 'Metodo Vivo' | 'Oferta Consultiva'",
+  "unsplash_query": "QUERY EM INGLES (4-6 palavras) para foto que PARE O SCROLL e conecte DIRETAMENTE com o tema. Deve evocar a cena/emocao/objeto central do carrossel — nao pode ser generica/abstrata. Pode ser: expert em situacao especifica ('founder reviewing content late night', 'woman entrepreneur voice notes desk'), objeto simbolico do tema ('messy notes strategy desk', 'empty office chair laptop night'), ou cena narrativa ('quiet studio planning wall', 'premium consultant desk documents'). SEMPRE cinematografico, especifico ao tema. PROIBIDO queries vagas como 'minimal abstract' ou 'technology blueprint'.",
   "slides": [
     {
       "tipo": "cover",
-      "eyebrow": "frase curta em caps — o gancho do público (máx 5 palavras)",
-      "headline": "MÁXIMO 5 PALAVRAS. Sem verbos de apoio. Ex: 'IA não salva sistema ruim.' ou 'O sistema invisível trava tudo.' — impactante, direto, para no scroll",
-      "subtitle": "1 frase que vira a chave — a promessa ou tensão central (máx 12 palavras)",
+      "eyebrow": "frase curta em caps — o gancho do publico (max 5 palavras)",
+      "headline": "MAXIMO 5 PALAVRAS. Sem verbos de apoio. Ex: 'Sua cabeca virou sistema.' ou 'Conteudo correto, alma ausente.' — impactante, direto, para no scroll",
+      "subtitle": "1 frase que vira a chave — a promessa ou tensao central (max 12 palavras)",
       "index": 1,
       "total": N
     },
@@ -88,7 +88,7 @@ CAROUSEL_SCHEMA = """Retorne um JSON com exatamente este formato:
     },
     {
       "tipo": "diagnostico",
-      "headline": "o diagnóstico real",
+      "headline": "o diagnostico real",
       "itens": ["sintoma/ponto 1", "sintoma/ponto 2", "sintoma/ponto 3"],
       "conclusao": "a causa raiz que o lead ainda não nomeou",
       "index": 7,
@@ -109,7 +109,7 @@ REGRAS:
 - Slides do meio: misture tipos conforme o tema pede
 - Index começa em 1, total = número total de slides
 - Headline do cover: impactante, pode ter quebra de linha com \\n
-- Tom sempre: direto, cirúrgico, fala com o lead
+- Tom sempre: profundo, preciso, sofisticado, acolhedor e fala com a expert autoral
 - Retorne APENAS o JSON, sem markdown, sem explicação"""
 
 # ─── GERAÇÃO VIA CLAUDE BRIDGE (HTTP) ────────────────────────────────────────
@@ -339,17 +339,20 @@ def buscar_imagem_unsplash(query: str) -> str | None:
 
 # ─── PIPELINE COMPLETO ────────────────────────────────────────────────────────
 QUERY_SUFFIX = {
-    "dark":     " cinematic moody low-light",
-    "light":    " natural light soft minimal",
-    "ferrugem": " warm tone industrial cinematic",
-    "misto":    " cinematic moody",
-    "tricolor": " cinematic moody",
+    "dark":              " cinematic moody low-light",
+    "light":             " natural light soft minimal",
+    "ferrugem":          " warm tone industrial cinematic",
+    "operacional":       " executive office documentary low-light steel graphite",
+    "operacional_light": " executive report minimal cool light workspace",
+    "operacional_mix":   " executive office documentary strategic report steel graphite",
+    "misto":             " cinematic moody",
+    "tricolor":          " cinematic moody",
 }
 
 # Marcadores de query "vaga demais" — se só tiver esses, forçar recontextualização com tema
 _VAGUE_WORDS = {"minimal", "abstract", "blueprint", "technology", "noir", "gradient", "geometric", "pattern", "texture", "wallpaper"}
 
-def gerar_carrossel_completo(tema: str, num_slides: int = 7, pilar: str = "auto", estilo: str = "dark") -> dict:
+def gerar_carrossel_completo(tema: str, num_slides: int = 7, pilar: str = "auto", estilo: str = "operacional_mix") -> dict:
     dados = gerar_copy(tema, num_slides, pilar)
     query = dados.get("unsplash_query", tema)
     # Adaptar query ao estilo visual

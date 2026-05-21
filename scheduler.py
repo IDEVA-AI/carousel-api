@@ -21,9 +21,9 @@ SCHEDULE_FILE = CONFIG_DIR / "schedule-config.json"
 DEFAULT_CONFIG = {
     "ativo": False,
     "jobs": [
-        {"hora": "09:00", "estilo": "dark", "visual": "editorial", "slides": 7, "ativo": True},
-        {"hora": "13:00", "estilo": "light", "visual": "none", "slides": 7, "ativo": True},
-        {"hora": "18:00", "estilo": "ferrugem", "visual": "editorial", "slides": 7, "ativo": True},
+        {"hora": "09:00", "estilo": "operacional_mix", "visual": "editorial", "slides": 7, "ativo": True},
+        {"hora": "13:00", "estilo": "operacional_light", "visual": "esquema", "slides": 7, "ativo": True},
+        {"hora": "18:00", "estilo": "operacional_mix", "visual": "editorial", "slides": 7, "ativo": True},
     ]
 }
 
@@ -103,7 +103,7 @@ def start_scheduler():
             _scheduler.add_job(
                 _run_job,
                 trigger=trigger,
-                args=[job.get("estilo", "dark"), job.get("visual", "editorial"), job.get("slides", 7), job.get("tipo_conteudo", "auto")],
+                args=[job.get("estilo", "operacional_mix"), job.get("visual", "editorial"), job.get("slides", 7), job.get("tipo_conteudo", "auto")],
                 id=f"carousel_job_{i}",
                 replace_existing=True,
             )
@@ -123,7 +123,7 @@ def stop_scheduler():
             print("[Scheduler] Parado")
 
 
-def agendar_post(carrossel: dict, quando_iso: str, estilo: str = "dark", visual: str = "editorial") -> dict:
+def agendar_post(carrossel: dict, quando_iso: str, estilo: str = "operacional_mix", visual: str = "editorial") -> dict:
     """Agenda um carrossel já gerado para ser postado num horário específico."""
     global _scheduler
     with _lock:

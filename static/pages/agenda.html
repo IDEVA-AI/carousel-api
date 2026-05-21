@@ -41,6 +41,9 @@
       <div class="section-label">Execucao manual</div>
       <div style="display:flex;gap:8px;">
         <select id="manualEstilo" class="fi" style="flex:1;">
+          <option value="operacional_mix">Operacional Alternado</option>
+          <option value="operacional">Operacional Dark</option>
+          <option value="operacional_light">Operacional Light</option>
           <option value="dark">Dark</option>
           <option value="light">Light</option>
           <option value="ferrugem">Ferrugem</option>
@@ -109,6 +112,9 @@ function renderJobs() {
         <input type="checkbox" ${job.ativo ? 'checked' : ''} onchange="schedConfig.jobs[${i}].ativo=this.checked" style="accent-color:var(--gold);">
         <input type="time" value="${job.hora}" onchange="schedConfig.jobs[${i}].hora=this.value" class="fi fi-mono" style="width:100px;">
         <select onchange="schedConfig.jobs[${i}].estilo=this.value" class="fi" style="flex:1;">
+          <option value="operacional_mix" ${job.estilo==='operacional_mix'?'selected':''}>Operacional Alternado</option>
+          <option value="operacional" ${job.estilo==='operacional'?'selected':''}>Operacional Dark</option>
+          <option value="operacional_light" ${job.estilo==='operacional_light'?'selected':''}>Operacional Light</option>
           <option value="dark" ${job.estilo==='dark'?'selected':''}>Dark</option>
           <option value="light" ${job.estilo==='light'?'selected':''}>Light</option>
           <option value="ferrugem" ${job.estilo==='ferrugem'?'selected':''}>Ferrugem</option>
@@ -128,7 +134,7 @@ function renderJobs() {
 }
 
 function addJob() {
-  schedConfig.jobs.push({ hora: '12:00', estilo: 'dark', visual: 'editorial', slides: 7, ativo: true, tipo_conteudo: 'auto' });
+  schedConfig.jobs.push({ hora: '12:00', estilo: 'operacional_mix', visual: 'editorial', slides: 7, ativo: true, tipo_conteudo: 'auto' });
   renderJobs();
 }
 
