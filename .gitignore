@@ -6,3 +6,4 @@ historico/
 _backup_pre_temas/
 *.bak
 .DS_Store
+session.json
